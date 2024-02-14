@@ -40,6 +40,7 @@
 						<img src={mxene} alt="MXene" />
 						<div>
 							<h3>FlexiMax-Ti3C2</h3>
+							<p><strong>Type: MXene</strong></p>
 							<p>
 								<strong>Use Cases:</strong> High-capacity, flexible batteries for wearables and foldable
 								electronics; ultra-sensitive, wearable health monitoring sensors.
@@ -68,6 +69,7 @@
 						<img src={ionicLiquid} alt="Ionic Liquid" />
 						<div>
 							<h3>ElectroIon-Gel</h3>
+							<p><strong>Type: Ionic Liquid</strong></p>
 							<p>
 								<strong>Use Cases:</strong> Non-volatile, high-temperature electrolytes for advanced
 								battery technologies; green solvents for pharmaceuticals and chemical synthesis.
