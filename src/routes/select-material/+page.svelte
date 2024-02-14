@@ -1,6 +1,10 @@
 <script lang="ts">
 	import mxene from '/static/illustrations/mxene.jpg';
 	import ionicLiquid from '/static/illustrations/ionic-liquid.png';
+	import Button from '../../lib/components/Button.svelte';
+	import Background from '../../lib/components/Background.svelte';
+	import background from '/static/backgrounds/lab-1.webp';
+	import Panel from '../../lib/components/Panel.svelte';
 	let selectedMaterial = '';
 
 	function handleSubmit(event: Event) {
@@ -15,8 +19,8 @@
 <svelte:head>
 	<title>Select material</title>
 </svelte:head>
-<div class="background">
-	<div class="panel">
+<Background src={background}>
+	<Panel>
 		<h1 class="title">Select material</h1>
 		<p>
 			You and your colleague just invented a new material. This material has potential to
@@ -81,11 +85,11 @@
 				</li>
 			</ul>
 			<div class="footer">
-				<button class="button" type="submit">Go!</button>
+				<Button type="submit">Submit</Button>
 			</div>
 		</form>
-	</div>
-</div>
+	</Panel>
+</Background>
 
 <style>
 	.footer {
@@ -95,44 +99,6 @@
 	ul {
 		list-style: none;
 		padding: 0;
-	}
-	.background {
-		background-image: url('/static/backgrounds/lab-1.webp');
-		background-size: cover;
-		background-position: center;
-		height: 100vh;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		overflow-y: auto;
-	}
-
-	.panel {
-		background-color: rgba(23, 41, 85, 0.61);
-		padding: 20px;
-		border-radius: 10px;
-		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
-		border: 2px solid rgb(35, 222, 255);
-		color: rgb(255, 255, 255);
-		max-width: 960px;
-		margin: 3rem 0;
-	}
-
-	.button {
-		text-decoration: none;
-		display: inline-block;
-		padding: 10px 20px;
-		border: 2px solid #00f;
-		border-radius: 5px;
-		background-color: #00f;
-		color: white;
-		font-size: 1.2em;
-		cursor: pointer;
-	}
-
-	.button:hover {
-		background-color: white;
-		color: #00f;
 	}
 	.radio-select {
 		margin: 20px 0;
