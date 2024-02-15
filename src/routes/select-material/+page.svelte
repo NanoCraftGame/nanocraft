@@ -1,21 +1,27 @@
 <script lang="ts">
-	import mxene from '/static/illustrations/mxene.jpg';
-	import ionicLiquid from '/static/illustrations/ionic-liquid.png';
-	import Button from '../../lib/components/Button.svelte';
-	import Background from '../../lib/components/Background.svelte';
-	import background from '/static/backgrounds/lab-1.webp';
-	import Panel from '../../lib/components/Panel.svelte';
-	import Title from '../../lib/components/typography/title.svelte';
-	let selectedMaterial = '';
+	import mxene from '/static/illustrations/mxene.jpg'
+	import ionicLiquid from '/static/illustrations/ionic-liquid.png'
+	import Button from '../../lib/components/Button.svelte'
+	import Background from '../../lib/components/Background.svelte'
+	import background from '/static/backgrounds/lab-1.webp'
+	import Panel from '../../lib/components/Panel.svelte'
+	import Title from '../../lib/components/typography/title.svelte'
+	let selectedMaterial = ''
 	let error = ''
 
 	function handleSubmit(event: Event) {
-		event.preventDefault();
-		const form = event.target as HTMLFormElement;
-		const formData = new FormData(form);
-		const material = formData.get('material') as string;
-		alert(`You selected ${material}`);
-		if
+		event.preventDefault()
+		const form = event.target as HTMLFormElement
+		const formData = new FormData(form)
+		const material = formData.get('material') as string
+		if (!material) {
+			error = 'Please select a material'
+		} else {
+			error = ''
+			setTimeout(() => {
+				alert(`You selected ${material}`)
+			})
+		}
 	}
 </script>
 
@@ -89,6 +95,9 @@
 					</label>
 				</li>
 			</ul>
+			{#if error}
+				<p class="error">{error}</p>
+			{/if}
 			<Button slot="footer" type="submit">Submit</Button>
 		</Panel>
 	</form>
@@ -136,5 +145,11 @@
 	}
 	.radio-select.selected {
 		border: 2px solid rgb(101, 240, 255);
+	}
+	.error {
+		background-color: rgb(86, 102, 119);
+		padding: 10px;
+		border-radius: 10px;
+		border: solid 2px rgb(253, 121, 121);
 	}
 </style>
