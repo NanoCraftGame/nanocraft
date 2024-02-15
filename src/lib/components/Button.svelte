@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let tag: 'button' | 'a' = 'button';
+	export let tag: 'button' | 'a' = 'button'
 </script>
 
 <svelte:element this={tag} class="button" {...$$restProps}>

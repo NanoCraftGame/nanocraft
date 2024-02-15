@@ -7,6 +7,7 @@
 	import Panel from '../../lib/components/Panel.svelte';
 	import Title from '../../lib/components/typography/title.svelte';
 	let selectedMaterial = '';
+	let error = ''
 
 	function handleSubmit(event: Event) {
 		event.preventDefault();
@@ -14,6 +15,7 @@
 		const formData = new FormData(form);
 		const material = formData.get('material') as string;
 		alert(`You selected ${material}`);
+		if
 	}
 </script>
 

@@ -1,7 +1,7 @@
 <script>
-	import Background from '$lib/components/Background.svelte';
-	import Panel from '$lib/components/Panel.svelte';
-	import background from '/static/backgrounds/factory-1.webp';
+	import Background from '$lib/components/Background.svelte'
+	import Panel from '$lib/components/Panel.svelte'
+	import background from '/static/backgrounds/factory-1.webp'
 </script>
 
 <svelte:head>
