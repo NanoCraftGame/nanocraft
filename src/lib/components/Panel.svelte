@@ -1,5 +1,10 @@
 <div class="panel" {...$$restProps}>
 	<slot />
+	{#if $$slots.footer}
+		<div class="footer">
+			<slot name="footer" />
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -12,5 +17,9 @@
 		color: rgb(255, 255, 255);
 		max-width: 960px;
 		margin: 3rem 0;
+	}
+	.footer {
+		display: flex;
+		justify-content: end;
 	}
 </style>

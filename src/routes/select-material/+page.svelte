@@ -5,6 +5,7 @@
 	import Background from '../../lib/components/Background.svelte';
 	import background from '/static/backgrounds/lab-1.webp';
 	import Panel from '../../lib/components/Panel.svelte';
+	import Title from '../../lib/components/typography/title.svelte';
 	let selectedMaterial = '';
 
 	function handleSubmit(event: Event) {
@@ -20,13 +21,13 @@
 	<title>Select material</title>
 </svelte:head>
 <Background src={background}>
-	<Panel>
-		<h1 class="title">Select material</h1>
-		<p>
-			You and your colleague just invented a new material. This material has potential to
-			revolutionize the industry. <br /> Which material did you invent?
-		</p>
-		<form on:submit={handleSubmit}>
+	<form on:submit={handleSubmit}>
+		<Panel>
+			<Title>Select material</Title>
+			<p>
+				You and your colleague just invented a new material. This material has potential to
+				revolutionize the industry. <br /> Which material did you invent?
+			</p>
 			<ul>
 				<li class="radio-select" class:selected={selectedMaterial === 'mxene'}>
 					<input
@@ -86,25 +87,18 @@
 					</label>
 				</li>
 			</ul>
-			<div class="footer">
-				<Button type="submit">Submit</Button>
-			</div>
-		</form>
-	</Panel>
+			<Button slot="footer" type="submit">Submit</Button>
+		</Panel>
+	</form>
 </Background>
 
 <style>
-	.footer {
-		display: flex;
-		justify-content: end;
-	}
 	ul {
 		list-style: none;
 		padding: 0;
 	}
 	.radio-select {
 		margin: 20px 0;
-		padding: 20px;
 		border: 2px solid #00f;
 		border-radius: 10px;
 		background-color: rgba(0, 0, 255, 0.5);
@@ -132,6 +126,7 @@
 		margin-top: 1rem;
 	}
 	.radio-select label {
+		padding: 20px;
 		display: flex;
 	}
 	.radio-select input {
