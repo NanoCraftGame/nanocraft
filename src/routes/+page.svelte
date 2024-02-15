@@ -18,8 +18,8 @@
 		<Title>NanoCraft</Title>
 		<Subtitle>Start your own novel material production line</Subtitle>
 		<div>
-			<Button tag="a" href="./select-material" style="margin-right: 1em;">Get Started</Button>
-			<Button tag="a" href="./about">Learn More</Button>
+			<Button tag="a" href="/wizards/1/material" style="margin-right: 1em;">Get Started</Button>
+			<Button tag="a" href="/about">Learn More</Button>
 		</div>
 	</Panel>
 </Background>

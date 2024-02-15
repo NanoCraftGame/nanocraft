@@ -3,7 +3,9 @@
 </script>
 
 <div class="background" style="background-image: url({src});">
-	<slot />
+	<div class="inner">
+		<slot />
+	</div>
 </div>
 
 <style>
@@ -12,8 +14,13 @@
 		background-position: center;
 		height: 100vh;
 		display: flex;
-		justify-content: center;
 		align-items: center;
+	}
+	.inner {
+		max-height: 100vh;
+		width: 100%;
+		display: flex;
+		justify-content: center;
 		overflow-y: auto;
 	}
 </style>
