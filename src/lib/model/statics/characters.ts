@@ -22,7 +22,7 @@ export const characters = [
 	},
 	{
 		id: 'ava-singh',
-		name: ' Dr. Ava Singh',
+		name: 'Dr. Ava Singh',
 		description:
 			'Dr. Singh is a highly intuitive and brilliant biochemist specializing in nanomaterials. Her strengths lie in her innovative research and quick problem-solving skills, though her impatience for results can sometimes lead to hasty decisions. Her background is in biotechnology startups.',
 		image: '/static/illustrations/characters/ava-singh.webp',

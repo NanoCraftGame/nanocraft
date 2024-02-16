@@ -4,11 +4,13 @@
 	import Panel from '$lib/components/Panel.svelte'
 	import Title from '$lib/components/typography/title.svelte'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
+	import RadioGroup from '$lib/components/RadioGroup.svelte'
+	import RadioGroupItem from '$lib/components/RadioGroupItem.svelte'
 	import background from '/static/backgrounds/lab-1.webp'
+	import { materials } from '$lib/model/statics/materials'
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
 	import { onMount } from 'svelte'
-	import { materials } from '$lib/model/statics/materials'
 
 	let selectedMaterial = ''
 	let error = ''
@@ -32,6 +34,10 @@
 			goto('/wizards/1/founders')
 		}
 	}
+
+	function handleChange(event: CustomEvent) {
+		selectedMaterial = event.detail
+	}
 </script>
 
 <svelte:head>
@@ -45,35 +51,26 @@
 				You and your colleague just invented a new material. This material has potential to
 				revolutionize the industry. <br /> Which material did you invent?
 			</p>
-			<ul>
+			<RadioGroup on:change={handleChange} name="material">
 				{#each materials as material}
-					<li class="radio-select" class:selected={selectedMaterial === material.id}>
-						<input
-							type="radio"
-							id={material.id}
-							name="material"
-							value={material.id}
-							bind:group={selectedMaterial}
+					<RadioGroupItem value={material.id}>
+						<WaitingImage
+							src={idToImage[material.id]}
+							alt={material.name}
+							height={80}
+							width={80}
+							style="margin-top: 1rem; margin-right: 1rem;"
 						/>
-						<label for={material.id}>
-							<WaitingImage
-								src={idToImage[material.id]}
-								alt={material.name}
-								height={80}
-								width={80}
-								style="margin-top: 1rem; margin-right: 1rem;"
-							/>
-							<div>
-								<h3>{material.name}</h3>
-								<p><strong>Type: {material.type}</strong></p>
-								<p><strong>Use Cases:</strong> {material.desc.useCases}</p>
-								<p><strong>Market Size:</strong> {material.desc.targetMarket}</p>
-								<p><strong>Challenges:</strong> {material.desc.challenges}</p>
-							</div>
-						</label>
-					</li>
+						<div class="card">
+							<h3>{material.name}</h3>
+							<p><strong>Type: {material.type}</strong></p>
+							<p><strong>Use Cases:</strong> {material.desc.useCases}</p>
+							<p><strong>Market Size:</strong> {material.desc.targetMarket}</p>
+							<p><strong>Challenges:</strong> {material.desc.challenges}</p>
+						</div>
+					</RadioGroupItem>
 				{/each}
-			</ul>
+			</RadioGroup>
 			{#if error}
 				<p class="error" role="alert">{error}</p>
 			{/if}
@@ -83,41 +80,11 @@
 </Background>
 
 <style>
-	ul {
-		list-style: none;
-		padding: 0;
-	}
-	.radio-select {
-		margin: 20px 0;
-		border: 2px solid #00f;
-		border-radius: 10px;
-		background-color: rgba(0, 0, 255, 0.5);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		cursor: pointer;
-	}
-	.radio-select * {
-		cursor: pointer;
-	}
-	.radio-select:hover {
-		background-color: rgba(0, 0, 255, 0.7);
-	}
-	.radio-select p {
+	.card p {
 		margin: 0.5rem 0;
 	}
-	.radio-select h3 {
+	.card h3 {
 		margin: 0.8rem 0;
-	}
-	.radio-select label {
-		padding: 20px;
-		display: flex;
-	}
-	.radio-select input {
-		display: none;
-	}
-	.radio-select.selected {
-		border: 2px solid rgb(101, 240, 255);
 	}
 	.error {
 		background-color: rgb(86, 102, 119);

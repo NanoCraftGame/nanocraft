@@ -5,9 +5,10 @@
 	import Panel from '$lib/components/Panel.svelte'
 	import Title from '$lib/components/typography/title.svelte'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
-	import { onMount } from 'svelte'
+	import RadioGroup from '$lib/components/RadioGroup.svelte'
+	import RadioGroupItem from '$lib/components/RadioGroupItem.svelte'
 	import { characters } from '$lib/model/statics/characters'
-	let selectedMaterial = ''
+	import { onMount } from 'svelte'
 	let error = ''
 
 	let idToImage: Record<string, string> = {}
@@ -19,10 +20,6 @@
 		}
 		idToImage = res
 	})
-
-	function handleSubmit(event: Event) {
-		event.preventDefault()
-	}
 </script>
 
 <svelte:head>
@@ -32,33 +29,23 @@
 	<form on:submit={handleSubmit}>
 		<Panel>
 			<Title>Choose Your Crew!</Title>
-			<p>So, who are you and your colleague? You need to select the founders of your company.</p>
-			<ul>
+			<RadioGroup name="character" columns={2}>
 				{#each characters as character}
-					<li class="radio-select" class:selected={selectedMaterial === character.name}>
-						<input
-							type="radio"
-							id={character.name}
-							name="material"
-							value={character.name}
-							bind:group={selectedMaterial}
+					<RadioGroupItem value={character.id}>
+						<WaitingImage
+							src={idToImage[character.id]}
+							alt={character.name}
+							height={80}
+							width={80}
+							style="margin-top: 1rem; margin-right: 1rem;"
 						/>
-						<label for={character.name}>
-							<WaitingImage
-								src={idToImage[character.id]}
-								alt={character.name}
-								height={80}
-								width={80}
-								style="margin-top: 1rem; margin-right: 1rem;"
-							/>
-							<div>
-								<h3>{character.name}</h3>
-								<p>{character.description}</p>
-							</div>
-						</label>
-					</li>
+						<div class="char-card">
+							<h3>{character.name}</h3>
+							<p>{character.description}</p>
+						</div>
+					</RadioGroupItem>
 				{/each}
-			</ul>
+			</RadioGroup>
 			{#if error}
 				<p class="error" role="alert">{error}</p>
 			{/if}
@@ -68,47 +55,17 @@
 </Background>
 
 <style>
-	ul {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 20px;
-		list-style: none;
-		padding: 0;
-	}
-	.radio-select {
-		border: 2px solid #00f;
-		border-radius: 10px;
-		background-color: rgba(0, 0, 255, 0.5);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		cursor: pointer;
-	}
-	.radio-select * {
-		cursor: pointer;
-	}
-	.radio-select:hover {
-		background-color: rgba(0, 0, 255, 0.7);
-	}
-	.radio-select p {
+	.char-card p {
 		margin: 0.5rem 0;
 	}
-	.radio-select h3 {
+	.char-card h3 {
 		margin: 0.8rem 0;
 	}
-	.radio-select img {
-		margin-right: 1rem;
-		margin-top: 1rem;
-	}
-	.radio-select label {
-		padding: 20px;
+
+	.crew {
 		display: flex;
-	}
-	.radio-select input {
-		display: none;
-	}
-	.radio-select.selected {
-		border: 2px solid rgb(101, 240, 255);
+		justify-content: space-around;
+		margin-bottom: 1rem;
 	}
 	.error {
 		background-color: rgb(86, 102, 119);
