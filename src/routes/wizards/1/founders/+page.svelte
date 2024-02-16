@@ -7,11 +7,18 @@
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import RadioGroup from '$lib/components/RadioGroup.svelte'
 	import RadioGroupItem from '$lib/components/RadioGroupItem.svelte'
-	import { characters } from '$lib/model/statics/characters'
+	import CrewCard from './CrewCard.svelte'
+	import { characters as charactersList } from '$lib/model/statics/characters'
+	import { store } from '$lib/model/store'
 	import { onMount } from 'svelte'
+
+	let characters = charactersList
 	let error = ''
 
 	let idToImage: Record<string, string> = {}
+
+	let you = store.project.getPlayer()
+	let colleague = store.project.getColleague()
 
 	onMount(async () => {
 		const res: typeof idToImage = {}
@@ -20,6 +27,37 @@
 		}
 		idToImage = res
 	})
+
+	function handleSubmit(event: Event) {
+		event.preventDefault()
+	}
+
+	function handleChange(event: CustomEvent<string>) {
+		if (!you) {
+			store.project.setPlayer(event.detail)
+			you = store.project.getPlayer()
+		} else if (!colleague) {
+			store.project.setColleague(event.detail)
+			colleague = store.project.getColleague()
+		}
+		updCharacters()
+	}
+
+	function updCharacters() {
+		characters = charactersList.filter((c) => c.id !== you?.id && c.id !== colleague?.id)
+	}
+
+	function rmMe() {
+		store.project.setPlayer(null)
+		you = null
+		updCharacters()
+	}
+
+	function rmColleague() {
+		store.project.setColleague(null)
+		colleague = null
+		updCharacters()
+	}
 </script>
 
 <svelte:head>
@@ -29,7 +67,26 @@
 	<form on:submit={handleSubmit}>
 		<Panel>
 			<Title>Choose Your Crew!</Title>
-			<RadioGroup name="character" columns={2}>
+			<p>So, who are you and your colleague? You need to select the founders of your company.</p>
+			{#if !you}
+				<p>First, let's start with you. Who are you?</p>
+			{:else if !colleague}
+				<p>Now, let's move on to your colleague. Who are they?</p>
+			{/if}
+			<div class="crew">
+				{#if you}
+					<CrewCard img={idToImage[you.id]} title="You" name={you.name} on:rm={rmMe} />
+				{/if}
+				{#if colleague}
+					<CrewCard
+						img={idToImage[colleague.id]}
+						title="Your colleague"
+						name={colleague.name}
+						on:rm={rmColleague}
+					/>
+				{/if}
+			</div>
+			<RadioGroup name="character" columns={2} on:change={handleChange}>
 				{#each characters as character}
 					<RadioGroupItem value={character.id}>
 						<WaitingImage
@@ -63,8 +120,9 @@
 	}
 
 	.crew {
-		display: flex;
-		justify-content: space-around;
+		display: grid;
+		gap: 20px;
+		grid-template-columns: repeat(2, 1fr);
 		margin-bottom: 1rem;
 	}
 	.error {

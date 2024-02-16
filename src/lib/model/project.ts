@@ -11,15 +11,27 @@ export class Project {
 		private characterFactory: CharacterFactory,
 	) {}
 
-	setMaterial(name: string) {
-		this.material = this.materialFactory.create(name)
+	setMaterial(id: string | null) {
+		if (id === null) {
+			this.player = null
+			return
+		}
+		this.material = this.materialFactory.create(id)
 	}
 
-	setPlayer(id: string) {
+	setPlayer(id: string | null) {
+		if (id === null) {
+			this.player = null
+			return
+		}
 		this.player = this.characterFactory.create(id)
 	}
 
-	setColleague(id: string) {
+	setColleague(id: string | null) {
+		if (id === null) {
+			this.player = null
+			return
+		}
 		this.colleague = this.characterFactory.create(id)
 	}
 
