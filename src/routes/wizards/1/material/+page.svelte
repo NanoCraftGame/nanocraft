@@ -1,100 +1,78 @@
 <script lang="ts">
-	import mxene from '/static/illustrations/mxene.jpg'
-	import ionicLiquid from '/static/illustrations/ionic-liquid.png'
 	import Button from '$lib/components/Button.svelte'
 	import Background from '$lib/components/Background.svelte'
-	import background from '/static/backgrounds/lab-1.webp'
 	import Panel from '$lib/components/Panel.svelte'
 	import Title from '$lib/components/typography/title.svelte'
+	import WaitingImage from '$lib/components/WaitingImage.svelte'
+	import background from '/static/backgrounds/lab-1.webp'
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
+	import { onMount } from 'svelte'
+	import { materials } from '$lib/model/statics/materials'
+
 	let selectedMaterial = ''
 	let error = ''
+	let idToImage: Record<string, string> = {}
+
+	onMount(async () => {
+		const res: typeof idToImage = {}
+		for (const material of materials) {
+			res[material.id] = (await import(material.image)).default
+		}
+		idToImage = res
+	})
 
 	function handleSubmit(event: Event) {
 		event.preventDefault()
-		const form = event.target as HTMLFormElement
-		const formData = new FormData(form)
-		const material = formData.get('material') as string
-		if (!material) {
+		if (!selectedMaterial) {
 			error = 'Please select a material'
 		} else {
 			error = ''
-			store.project.setMaterial(material)
+			store.project.setMaterial(selectedMaterial)
 			goto('/wizards/1/founders')
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>Select material</title>
+	<title>Choose material</title>
 </svelte:head>
 <Background src={background}>
 	<form on:submit={handleSubmit}>
 		<Panel>
-			<Title>Select material</Title>
+			<Title>Choose material</Title>
 			<p>
 				You and your colleague just invented a new material. This material has potential to
 				revolutionize the industry. <br /> Which material did you invent?
 			</p>
 			<ul>
-				<li class="radio-select" class:selected={selectedMaterial === 'mxene'}>
-					<input
-						type="radio"
-						id="mxene"
-						name="material"
-						value="mxene"
-						bind:group={selectedMaterial}
-					/>
-					<label for="mxene">
-						<img src={mxene} alt="MXene" />
-						<div>
-							<h3>FlexiMax-Ti3C2</h3>
-							<p><strong>Type: MXene</strong></p>
-							<p>
-								<strong>Use Cases:</strong> High-capacity, flexible batteries for wearables and foldable
-								electronics; ultra-sensitive, wearable health monitoring sensors.
-							</p>
-							<p>
-								<strong>Market Size:</strong> Targeting a combined market projected to exceed $30 billion
-								by 2030.
-							</p>
-							<p>
-								<strong>Challenges:</strong> Scalable synthesis maintaining material flexibility and
-								conductivity; optimization of electrode integration for energy devices without compromising
-								material integrity.
-							</p>
-						</div>
-					</label>
-				</li>
-				<li class="radio-select" class:selected={selectedMaterial === 'ionic-liquid'}>
-					<input
-						type="radio"
-						id="ionic-liquid"
-						name="material"
-						value="ionic-liquid"
-						bind:group={selectedMaterial}
-					/>
-					<label for="ionic-liquid">
-						<img src={ionicLiquid} alt="Ionic Liquid" />
-						<div>
-							<h3>ElectroIon-Gel</h3>
-							<p><strong>Type: Ionic Liquid</strong></p>
-							<p>
-								<strong>Use Cases:</strong> Non-volatile, high-temperature electrolytes for advanced
-								battery technologies; green solvents for pharmaceuticals and chemical synthesis.
-							</p>
-							<p>
-								<strong>Market Size:</strong> Poised to capture sectors within the $12 billion advanced
-								battery market and the $8 billion green solvent market by 2030.
-							</p>
-							<p>
-								<strong>Challenges:</strong> Enhancing ionic conductivity while ensuring thermal stability;
-								developing cost-effective, large-scale production methods.
-							</p>
-						</div>
-					</label>
-				</li>
+				{#each materials as material}
+					<li class="radio-select" class:selected={selectedMaterial === material.id}>
+						<input
+							type="radio"
+							id={material.id}
+							name="material"
+							value={material.id}
+							bind:group={selectedMaterial}
+						/>
+						<label for={material.id}>
+							<WaitingImage
+								src={idToImage[material.id]}
+								alt={material.name}
+								height={80}
+								width={80}
+								style="margin-top: 1rem; margin-right: 1rem;"
+							/>
+							<div>
+								<h3>{material.name}</h3>
+								<p><strong>Type: {material.type}</strong></p>
+								<p><strong>Use Cases:</strong> {material.desc.useCases}</p>
+								<p><strong>Market Size:</strong> {material.desc.targetMarket}</p>
+								<p><strong>Challenges:</strong> {material.desc.challenges}</p>
+							</div>
+						</label>
+					</li>
+				{/each}
 			</ul>
 			{#if error}
 				<p class="error" role="alert">{error}</p>
@@ -130,12 +108,6 @@
 	}
 	.radio-select h3 {
 		margin: 0.8rem 0;
-	}
-	.radio-select img {
-		width: 80px;
-		height: 80px;
-		margin-right: 1rem;
-		margin-top: 1rem;
 	}
 	.radio-select label {
 		padding: 20px;
