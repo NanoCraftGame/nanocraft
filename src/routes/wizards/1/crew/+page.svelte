@@ -11,6 +11,7 @@
 	import { characters as charactersList } from '$lib/model/statics/characters'
 	import { store } from '$lib/model/store'
 	import { onMount } from 'svelte'
+	import { goto } from '$app/navigation'
 	const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
 
 	let characters = charactersList
@@ -20,6 +21,8 @@
 
 	let you = store.project.getPlayer()
 	let colleague = store.project.getColleague()
+	const showBack = store.project.getMaterial() !== null
+	updCharacters()
 
 	onMount(async () => {
 		const res: typeof idToImage = {}
@@ -31,6 +34,15 @@
 
 	function handleSubmit(event: Event) {
 		event.preventDefault()
+		if (!you) {
+			error = 'Please select a character for you'
+		} else if (!colleague) {
+			error = 'Please select a character for your colleague'
+		} else {
+			error = ''
+			if (showBack) goto('/project/overview')
+			else goto('/wizards/1/material')
+		}
 	}
 
 	function handleChange(event: CustomEvent<string>) {
@@ -65,7 +77,7 @@
 	<title>Choose Your Crew</title>
 </svelte:head>
 <Background src={background}>
-	<form on:submit={handleSubmit} data-page="crew">
+	<form on:submit={handleSubmit} data-page="choose-crew">
 		<Panel>
 			<Title>Choose Your Crew!</Title>
 			<p>So, who are you and your colleague? You need to select the founders of your company.</p>
@@ -107,7 +119,12 @@
 			{#if error}
 				<p class="error" role="alert">{error}</p>
 			{/if}
-			<Button slot="footer" type="submit">Go!</Button>
+			<svelte:fragment slot="footer">
+				{#if showBack}
+					<Button tag="a" style="margin-right: 1rem;" href="/wizards/1/material">Back</Button>
+				{/if}
+				<Button type="submit">Go!</Button>
+			</svelte:fragment>
 		</Panel>
 	</form>
 </Background>

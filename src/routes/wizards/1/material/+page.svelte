@@ -13,9 +13,10 @@
 	import { onMount } from 'svelte'
 	const pictures = import.meta.glob('/static/illustrations/materials/*')
 
-	let selectedMaterial = ''
+	let selectedMaterial = store.project.getMaterial()?.id || ''
 	let error = ''
 	let idToImage: Record<string, string> = {}
+	const hasBack = store.project.getPlayer() !== null
 
 	onMount(async () => {
 		const res: typeof idToImage = {}
@@ -32,7 +33,8 @@
 		} else {
 			error = ''
 			store.project.setMaterial(selectedMaterial)
-			goto('/wizards/1/crew')
+			if (hasBack) goto('/project/overview')
+			else goto('/wizards/1/crew')
 		}
 	}
 
@@ -45,14 +47,14 @@
 	<title>Choose material</title>
 </svelte:head>
 <Background src={background}>
-	<form on:submit={handleSubmit}>
+	<form on:submit={handleSubmit} data-page="choose-material">
 		<Panel>
 			<Title>Choose material</Title>
 			<p>
 				You and your colleague just invented a new material. This material has potential to
 				revolutionize the industry. <br /> Which material did you invent?
 			</p>
-			<RadioGroup on:change={handleChange} name="material">
+			<RadioGroup on:change={handleChange} name="material" defaultValue={selectedMaterial}>
 				{#each materials as material}
 					<RadioGroupItem value={material.id}>
 						<WaitingImage
@@ -75,7 +77,12 @@
 			{#if error}
 				<p class="error" role="alert">{error}</p>
 			{/if}
-			<Button slot="footer" type="submit">Go!</Button>
+			<svelte:fragment slot="footer">
+				{#if hasBack}
+					<Button tag="a" style="margin-right: 1rem;" href="/wizards/1/crew">Back</Button>
+				{/if}
+				<Button type="submit">Go!</Button>
+			</svelte:fragment>
 		</Panel>
 	</form>
 </Background>
