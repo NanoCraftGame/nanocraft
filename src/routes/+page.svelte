@@ -10,6 +10,7 @@
 </script>
 
 <svelte:head>
+	<title>NanoCraft</title>
 	<link rel="preload" href={factoryBackground} as="image" />
 	<link rel="preload" href={labBackground} as="image" />
 </svelte:head>

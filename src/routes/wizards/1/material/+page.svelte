@@ -16,7 +16,7 @@
 	let selectedMaterial = store.project.getMaterial()?.id || ''
 	let error = ''
 	let idToImage: Record<string, string> = {}
-	const hasBack = store.project.getPlayer() !== null
+	const hasBack = store.project.getPlayer() !== null || store.project.getColleague() !== null
 
 	onMount(async () => {
 		const res: typeof idToImage = {}
@@ -33,7 +33,7 @@
 		} else {
 			error = ''
 			store.project.setMaterial(selectedMaterial)
-			if (hasBack) goto('/project/overview')
+			if (hasBack) goto('/wizards/1/overview')
 			else goto('/wizards/1/crew')
 		}
 	}

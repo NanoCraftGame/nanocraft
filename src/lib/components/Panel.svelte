@@ -21,5 +21,6 @@
 	.footer {
 		display: flex;
 		justify-content: end;
+		margin-top: 1rem;
 	}
 </style>

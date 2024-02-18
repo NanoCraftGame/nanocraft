@@ -3,6 +3,7 @@ export interface Material {
 	id: string
 	name: string
 	type: string
+	image: string
 }
 
 export class MaterialFactory {

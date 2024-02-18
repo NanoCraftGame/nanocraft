@@ -22,7 +22,6 @@
 	let you = store.project.getPlayer()
 	let colleague = store.project.getColleague()
 	const showBack = store.project.getMaterial() !== null
-	updCharacters()
 
 	onMount(async () => {
 		const res: typeof idToImage = {}
@@ -30,6 +29,7 @@
 			res[character.id] = ((await pictures[character.image]()) as any).default
 		}
 		idToImage = res
+		updCharacters()
 	})
 
 	function handleSubmit(event: Event) {
@@ -40,7 +40,7 @@
 			error = 'Please select a character for your colleague'
 		} else {
 			error = ''
-			if (showBack) goto('/project/overview')
+			if (showBack) goto('/wizards/1/overview')
 			else goto('/wizards/1/material')
 		}
 	}
