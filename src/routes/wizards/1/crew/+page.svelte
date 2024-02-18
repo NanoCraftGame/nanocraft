@@ -65,7 +65,7 @@
 	<title>Choose Your Crew</title>
 </svelte:head>
 <Background src={background}>
-	<form on:submit={handleSubmit}>
+	<form on:submit={handleSubmit} data-page="crew">
 		<Panel>
 			<Title>Choose Your Crew!</Title>
 			<p>So, who are you and your colleague? You need to select the founders of your company.</p>
@@ -74,7 +74,7 @@
 			{:else if !colleague}
 				<p>Now, let's move on to your colleague. Who are they?</p>
 			{/if}
-			<div class="crew">
+			<div class="crew" data-testid="crew-selected">
 				{#if you}
 					<CrewCard img={idToImage[you.id]} title="You" name={you.name} on:rm={rmMe} />
 				{/if}
