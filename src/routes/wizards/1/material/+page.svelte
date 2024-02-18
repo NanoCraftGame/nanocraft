@@ -11,6 +11,7 @@
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
 	import { onMount } from 'svelte'
+	const pictures = import.meta.glob('/static/illustrations/materials/*')
 
 	let selectedMaterial = ''
 	let error = ''
@@ -19,7 +20,7 @@
 	onMount(async () => {
 		const res: typeof idToImage = {}
 		for (const material of materials) {
-			res[material.id] = (await import(material.image)).default
+			res[material.id] = ((await pictures[material.image]()) as any).default
 		}
 		idToImage = res
 	})
@@ -31,7 +32,7 @@
 		} else {
 			error = ''
 			store.project.setMaterial(selectedMaterial)
-			goto('/wizards/1/founders')
+			goto('/wizards/1/crew')
 		}
 	}
 

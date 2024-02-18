@@ -11,6 +11,7 @@
 	import { characters as charactersList } from '$lib/model/statics/characters'
 	import { store } from '$lib/model/store'
 	import { onMount } from 'svelte'
+	const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
 
 	let characters = charactersList
 	let error = ''
@@ -23,7 +24,7 @@
 	onMount(async () => {
 		const res: typeof idToImage = {}
 		for (const character of characters) {
-			res[character.id] = (await import(character.image)).default
+			res[character.id] = ((await pictures[character.image]()) as any).default
 		}
 		idToImage = res
 	})
