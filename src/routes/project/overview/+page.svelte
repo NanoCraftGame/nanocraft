@@ -1,19 +1,8 @@
-<!-- 
-    On this page we have a header (I put links on it later) an the table of tasks
-    Each row in the able is a task. Task contains:
-    - assignee
-    - task name
-    - task description (not visible in the table)
-    - task status
-    - task priority (displayed as a position in the table)
-    - estimated time
-    - time spent (the estimated time is a horizontal bar in on of table cell, and time spent is another bar inside of it)
--->
-
 <script lang="ts">
 	import { onMount } from 'svelte'
+	import { goto } from '$app/navigation'
 	import { store } from '$lib/model/store'
-	import Button from '../../../lib/components/Button.svelte'
+	import Button from '$lib/components/Button.svelte'
 	const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
 
 	let idToImage: Record<string, string> = {}
@@ -21,7 +10,7 @@
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
 	interface Task {
-		// id of crew member (can be 'eli-wallace' or 'ava-singh')
+		// id of crew member
 		assignee: string | null
 		name: string
 		description: string
@@ -31,9 +20,9 @@
 		timeSpent: number
 		wait: number
 	}
-	const tasks: Task[] = [
+	let tasks: Task[] = [
 		{
-			assignee: 'eli-wallace',
+			assignee: null,
 			name: 'Find the supplier of X',
 			description: 'the X is a product that we need to produce the material Y',
 			status: 'inProgress',
@@ -43,7 +32,7 @@
 			wait: 0,
 		},
 		{
-			assignee: 'ava-singh',
+			assignee: null,
 			name: 'Find prospective buyers for Y',
 			description: 'There are 300 potential buyers for Y, we need to find at least 3',
 			status: 'inProgress',
@@ -53,7 +42,7 @@
 			wait: 0,
 		},
 		{
-			assignee: 'eli-wallace',
+			assignee: null,
 			name: 'Find producer of the machine PP',
 			description:
 				'We need to find a producer of the machine PP, it is a key element of the production process',
@@ -64,7 +53,7 @@
 			wait: 0,
 		},
 		{
-			assignee: 'eli-wallace',
+			assignee: null,
 			name: 'Find producer of the machine ER',
 			description:
 				'We need to find a producer of the machine ER, it is a key element of the production process',
@@ -86,7 +75,7 @@
 			wait: 0,
 		},
 		{
-			assignee: 'ava-singh',
+			assignee: null,
 			name: 'Test execution of the machine ER',
 			description:
 				'We need to find a producer of the machine ER, it is a key element of the production process',
@@ -99,6 +88,11 @@
 	]
 
 	onMount(async () => {
+		if (!crew[0] || !crew[1]) {
+			goto('/wizards/1/crew')
+			return
+		}
+		prepareTasks()
 		const resImg: typeof idToImage = {}
 		const resNames: typeof idToImage = {}
 		for (const character of crew) {
@@ -109,27 +103,36 @@
 		idToName = resNames
 	})
 
-	tasks.sort((a, b) => a.priority - b.priority)
-	// for each task calculate the wait time
-	// it equals to the sum of the wait time and max(timeSpent, estimatedTime) of previous tasks with the same assignee
-	// if the task is in progress, the wait time is 0
-	const queues: Record<string, Task[]> = {}
-	for (const task of tasks) {
-		const assignee = task.assignee || 'null'
-		if (!queues[assignee]) queues[assignee] = [task]
-		else queues[assignee].push(task)
-	}
-	Object.values(queues).forEach((queue) => {
-		queue.forEach((task, i) => {
-			if (task.status === 'inProgress' || i === 0) {
-				task.wait = 0
-			} else {
-				const prevTask = queue[i - 1]
-				task.wait = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
-			}
+	function prepareTasks() {
+		tasks.sort((a, b) => a.priority - b.priority)
+		tasks[0].assignee = crew[0]!.id
+		tasks[1].assignee = crew[1]!.id
+		tasks[2].assignee = crew[1]!.id
+		tasks[3].assignee = crew[1]!.id
+		tasks[5].assignee = crew[0]!.id
+
+		// for each task calculate the wait time
+		// it equals to the sum of the wait time and max(timeSpent, estimatedTime) of previous tasks with the same assignee
+		// if the task is in progress, the wait time is 0
+		const queues: Record<string, Task[]> = {}
+		for (const task of tasks) {
+			const assignee = task.assignee || 'null'
+			if (!queues[assignee]) queues[assignee] = [task]
+			else queues[assignee].push(task)
+		}
+		Object.values(queues).forEach((queue) => {
+			queue.forEach((task, i) => {
+				if (task.status === 'inProgress' || i === 0) {
+					task.wait = 0
+				} else {
+					const prevTask = queue[i - 1]
+					task.wait = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
+				}
+			})
 		})
-	})
-	console.table(tasks)
+
+		tasks = [...tasks]
+	}
 </script>
 
 <div class="header">
