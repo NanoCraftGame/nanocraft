@@ -3,89 +3,17 @@
 	import { goto } from '$app/navigation'
 	import { store } from '$lib/model/store'
 	import Button from '$lib/components/Button.svelte'
+	import { Task } from '$lib/model/tasks'
 	const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
 
 	let idToImage: Record<string, string> = {}
 	let idToName: Record<string, string> = {}
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
-	interface Task {
-		// id of crew member
-		assignee: string | null
-		name: string
-		description: string
-		status: 'todo' | 'inProgress' | 'done' | 'canceled' | 'blocked'
-		priority: number
-		estimatedTime: number
-		timeSpent: number
-		wait: number
-	}
-	let tasks: Task[] = [
-		{
-			assignee: null,
-			name: 'Find the supplier of X',
-			description: 'the X is a product that we need to produce the material Y',
-			status: 'inProgress',
-			priority: 1,
-			estimatedTime: 10,
-			timeSpent: 12,
-			wait: 0,
-		},
-		{
-			assignee: null,
-			name: 'Find prospective buyers for Y',
-			description: 'There are 300 potential buyers for Y, we need to find at least 3',
-			status: 'inProgress',
-			priority: 0,
-			estimatedTime: 28,
-			timeSpent: 10,
-			wait: 0,
-		},
-		{
-			assignee: null,
-			name: 'Find producer of the machine PP',
-			description:
-				'We need to find a producer of the machine PP, it is a key element of the production process',
-			status: 'todo',
-			priority: 2,
-			estimatedTime: 10,
-			timeSpent: 0,
-			wait: 0,
-		},
-		{
-			assignee: null,
-			name: 'Find producer of the machine ER',
-			description:
-				'We need to find a producer of the machine ER, it is a key element of the production process',
-			status: 'todo',
-			priority: 3,
-			estimatedTime: 10,
-			timeSpent: 0,
-			wait: 0,
-		},
-		{
-			assignee: null,
-			name: 'Find a producer of the machine QQ',
-			description:
-				'We need to find a producer of the machine QQ, it is a key element of the production process',
-			status: 'todo',
-			priority: 4,
-			estimatedTime: 10,
-			timeSpent: 0,
-			wait: 0,
-		},
-		{
-			assignee: null,
-			name: 'Test execution of the machine ER',
-			description:
-				'We need to find a producer of the machine ER, it is a key element of the production process',
-			status: 'todo',
-			priority: 5,
-			estimatedTime: 12,
-			timeSpent: 0,
-			wait: 0,
-		},
-	]
+	let tasks = store.tasksStore.getTasks()
+	store.timer.onTick(() => {
+		tasks = store.tasksStore.getTasks()
+	})
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
@@ -104,12 +32,18 @@
 	})
 
 	function prepareTasks() {
-		tasks.sort((a, b) => a.priority - b.priority)
-		tasks[0].assignee = crew[0]!.id
-		tasks[1].assignee = crew[1]!.id
-		tasks[2].assignee = crew[1]!.id
-		tasks[3].assignee = crew[1]!.id
-		tasks[5].assignee = crew[0]!.id
+		store.tasksStore.addTask(new Task('Find the supplier of X', 1, 10))
+		store.tasksStore.addTask(new Task('Find prospective buyers for Y', 0, 28))
+		store.tasksStore.addTask(new Task('Find producer of the machine PP', 2, 10))
+		store.tasksStore.addTask(new Task('Find producer of the machine ER', 3, 10))
+		store.tasksStore.addTask(new Task('Find a producer of the machine QQ', 4, 10))
+		store.tasksStore.addTask(new Task('Test execution of the machine ER', 5, 12))
+		tasks = store.tasksStore.getTasks()
+		tasks[0].assign(crew[0]!.id)
+		tasks[1].assign(crew[1]!.id)
+		tasks[2].assign(crew[1]!.id)
+		tasks[3].assign(crew[1]!.id)
+		tasks[5].assign(crew[0]!.id)
 
 		// for each task calculate the wait time
 		// it equals to the sum of the wait time and max(timeSpent, estimatedTime) of previous tasks with the same assignee

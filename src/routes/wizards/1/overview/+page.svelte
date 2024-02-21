@@ -32,7 +32,6 @@
 		}
 
 		idToImage = res
-		console.log(idToImage)
 	})
 </script>
 
