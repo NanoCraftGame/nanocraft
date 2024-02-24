@@ -46,4 +46,18 @@ export class Project {
 	getColleague() {
 		return this.colleague
 	}
+
+	serialize() {
+		return {
+			material: this.material?.id,
+			player: this.player?.id,
+			colleague: this.colleague?.id,
+		}
+	}
+
+	hydrate(data: any) {
+		this.material = data.material ? this.materialFactory.create(data.material) : null
+		this.player = data.player ? this.characterFactory.create(data.player) : null
+		this.colleague = data.colleague ? this.characterFactory.create(data.colleague) : null
+	}
 }

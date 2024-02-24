@@ -32,6 +32,7 @@
 	})
 
 	function prepareTasks() {
+		if (tasks.length) return
 		store.tasksStore.addTask(new Task('Find the supplier of X', 1, 10))
 		store.tasksStore.addTask(new Task('Find prospective buyers for Y', 0, 28))
 		store.tasksStore.addTask(new Task('Find producer of the machine PP', 2, 10))
@@ -70,9 +71,9 @@
 </script>
 
 <div class="header">
-	<a href="/project/overview" class="current">Overview</a>
-	<a href="/project/tasks">This will change</a>
-	<a href="/project/crew">And this</a>
+	<a href="/project/overview" class="current">Project Overview</a>
+	<a href="/inventory">Inventory</a>
+	<a href="/reports">Reports</a>
 </div>
 <div class="background">
 	<table class="table">

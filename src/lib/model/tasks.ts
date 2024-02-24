@@ -29,6 +29,31 @@ export class Task {
 			this.status = 'done'
 		}
 	}
+
+	serialize() {
+		return {
+			assignee: this.assignee,
+			name: this.name,
+			description: this.description,
+			status: this.status,
+			priority: this.priority,
+			estimatedTime: this.estimatedTime,
+			timeSpent: this.timeSpent,
+			wait: this.wait,
+			realTime: this.realTime,
+		}
+	}
+	hydrate(data: any) {
+		this.assignee = data.assignee
+		this.name = data.name
+		this.description = data.description
+		this.status = data.status
+		this.priority = data.priority
+		this.estimatedTime = data.estimatedTime
+		this.timeSpent = data.timeSpent
+		this.wait = data.wait
+		this.realTime = data.realTime
+	}
 }
 
 export class TasksStore {
@@ -68,6 +93,17 @@ export class TasksStore {
 		})
 		this.tasks.forEach((task) => {
 			task.update()
+		})
+	}
+
+	serialize() {
+		return { tasks: this.tasks.map((task) => task.serialize()) }
+	}
+	hydrate(data: { tasks: any[] }) {
+		this.tasks = data.tasks.map((taskData) => {
+			const task = new Task('', 0, 0)
+			task.hydrate(taskData)
+			return task
 		})
 	}
 }
