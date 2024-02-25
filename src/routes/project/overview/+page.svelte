@@ -10,10 +10,9 @@
 	let idToName: Record<string, string> = {}
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
+	store.timer.setTempo(50)
+
 	let tasks = store.tasksStore.getTasks()
-	store.timer.onTick(() => {
-		tasks = store.tasksStore.getTasks()
-	})
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
@@ -29,22 +28,27 @@
 		}
 		idToImage = resImg
 		idToName = resNames
+		store.timer.onTick(() => {
+			tasks = store.tasksStore.getTasks()
+			prepareTasks()
+		})
 	})
 
 	function prepareTasks() {
-		if (tasks.length) return
-		store.tasksStore.addTask(new Task('Find the supplier of X', 1, 10))
-		store.tasksStore.addTask(new Task('Find prospective buyers for Y', 0, 28))
-		store.tasksStore.addTask(new Task('Find producer of the machine PP', 2, 10))
-		store.tasksStore.addTask(new Task('Find producer of the machine ER', 3, 10))
-		store.tasksStore.addTask(new Task('Find a producer of the machine QQ', 4, 10))
-		store.tasksStore.addTask(new Task('Test execution of the machine ER', 5, 12))
-		tasks = store.tasksStore.getTasks()
-		tasks[0].assign(crew[0]!.id)
-		tasks[1].assign(crew[1]!.id)
-		tasks[2].assign(crew[1]!.id)
-		tasks[3].assign(crew[1]!.id)
-		tasks[5].assign(crew[0]!.id)
+		if (store.tasksStore.getTasks().length === 0) {
+			store.tasksStore.addTask(new Task('Find the supplier of X', 1, 10))
+			store.tasksStore.addTask(new Task('Find prospective buyers for Y', 0, 28))
+			store.tasksStore.addTask(new Task('Find producer of the machine PP', 2, 10))
+			store.tasksStore.addTask(new Task('Find producer of the machine ER', 3, 10))
+			store.tasksStore.addTask(new Task('Find a producer of the machine QQ', 4, 10))
+			store.tasksStore.addTask(new Task('Test execution of the machine ER', 5, 12))
+			tasks = store.tasksStore.getTasks()
+			tasks[0].assign(crew[0]!.id)
+			tasks[1].assign(crew[1]!.id)
+			tasks[2].assign(crew[1]!.id)
+			tasks[3].assign(crew[1]!.id)
+			tasks[5].assign(crew[0]!.id)
+		}
 
 		// for each task calculate the wait time
 		// it equals to the sum of the wait time and max(timeSpent, estimatedTime) of previous tasks with the same assignee
@@ -57,7 +61,7 @@
 		}
 		Object.values(queues).forEach((queue) => {
 			queue.forEach((task, i) => {
-				if (task.status === 'inProgress' || i === 0) {
+				if (i === 0) {
 					task.wait = 0
 				} else {
 					const prevTask = queue[i - 1]
@@ -67,6 +71,11 @@
 		})
 
 		tasks = [...tasks]
+	}
+
+	function reset() {
+		store.tasksStore.clear()
+		prepareTasks()
 	}
 </script>
 
@@ -80,8 +89,8 @@
 		<thead>
 			<tr>
 				<th>Assignee</th>
-				<th>Task name</th>
-				<th>Time spent</th>
+				<th>Task</th>
+				<th>Timeline</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -108,13 +117,14 @@
 							class="bar progress"
 							style="width: {10 * task.timeSpent}px; margin-left: {10 * task.wait}px"
 						>
-							Spent: {task.timeSpent}
+							Spent: {Math.floor(task.timeSpent)}
 						</div>
 					</td>
 				</tr>
 			{/each}
 		</tbody>
 	</table>
+	<Button on:click={reset}>reset</Button>
 </div>
 
 <style>

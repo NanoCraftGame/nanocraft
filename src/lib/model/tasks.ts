@@ -1,3 +1,27 @@
+// @ts-ignore
+import probJs from 'prob.js'
+
+function calculateRealTime(estimatedTime: number) {
+	// system of equations:
+	// mode = e^(μ−σ²)
+	// percentile = e^(μ+σ*Z)
+	const zScore = 2.326 // 99% confidence interval
+	const mode = estimatedTime * 0.25 // 25% of the estimated time
+	const percentile = estimatedTime * Math.PI // IBM's suggested estimate correction
+	// this results to a quadratic equation σ^2 + 2.326σ − ln(percentile/mode) = 0
+	const a = 1
+	const b = zScore
+	const c = -Math.log(percentile / mode)
+	const d = b ** 2 - 4 * a * c
+	const sigma1 = (-b + Math.sqrt(d)) / (2 * a)
+	const sigma2 = (-b - Math.sqrt(d)) / (2 * a)
+	const sigma = Math.max(sigma1, sigma2)
+	const mu = Math.log(mode) + sigma ** 2
+	const lognormal = probJs.lognormal(mu, sigma)
+	const deviation = lognormal() - mode
+	return Math.ceil(estimatedTime + deviation)
+}
+
 export class Task {
 	/** id of the crew member assigned to the task */
 	assignee: string | null = null
@@ -14,7 +38,7 @@ export class Task {
 		this.name = name
 		this.priority = priority
 		this.estimatedTime = estimatedTime
-		this.realTime = estimatedTime // TODO here go all that shenanigans with the lognormal distribution
+		this.realTime = calculateRealTime(estimatedTime)
 	}
 
 	assign(assignee: string) {
@@ -23,7 +47,7 @@ export class Task {
 
 	update() {
 		if (this.status === 'inProgress') {
-			this.timeSpent++
+			this.timeSpent += 1 / 8
 		}
 		if (this.timeSpent >= this.realTime) {
 			this.status = 'done'
@@ -94,6 +118,10 @@ export class TasksStore {
 		this.tasks.forEach((task) => {
 			task.update()
 		})
+	}
+
+	clear() {
+		this.tasks = []
 	}
 
 	serialize() {
