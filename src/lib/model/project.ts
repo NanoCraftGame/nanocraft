@@ -49,9 +49,9 @@ export class Project {
 
 	serialize() {
 		return {
-			material: this.material?.id,
-			player: this.player?.id,
-			colleague: this.colleague?.id,
+			material: this.material?.id || null,
+			player: this.player?.id || null,
+			colleague: this.colleague?.id || null,
 		}
 	}
 

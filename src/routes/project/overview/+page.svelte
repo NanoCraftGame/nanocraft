@@ -12,14 +12,16 @@
 
 	store.timer.setTempo(50)
 
-	let tasks = store.tasksStore.getTasks()
+	let tasks = store.tasks.getTasks()
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
 			goto('/wizards/1/crew')
 			return
 		}
-		prepareTasks()
+		if (store.tasks.getTasks().length === 0) {
+			fakeTasks()
+		}
 		const resImg: typeof idToImage = {}
 		const resNames: typeof idToImage = {}
 		for (const character of crew) {
@@ -28,54 +30,30 @@
 		}
 		idToImage = resImg
 		idToName = resNames
+		tasks = store.tasks.getTasks()
 		store.timer.onTick(() => {
-			tasks = store.tasksStore.getTasks()
-			prepareTasks()
+			tasks = store.tasks.getTasks()
 		})
 	})
 
-	function prepareTasks() {
-		if (store.tasksStore.getTasks().length === 0) {
-			store.tasksStore.addTask(new Task('Find the supplier of X', 1, 10))
-			store.tasksStore.addTask(new Task('Find prospective buyers for Y', 0, 28))
-			store.tasksStore.addTask(new Task('Find producer of the machine PP', 2, 10))
-			store.tasksStore.addTask(new Task('Find producer of the machine ER', 3, 10))
-			store.tasksStore.addTask(new Task('Find a producer of the machine QQ', 4, 10))
-			store.tasksStore.addTask(new Task('Test execution of the machine ER', 5, 12))
-			tasks = store.tasksStore.getTasks()
-			tasks[0].assign(crew[0]!.id)
-			tasks[1].assign(crew[1]!.id)
-			tasks[2].assign(crew[1]!.id)
-			tasks[3].assign(crew[1]!.id)
-			tasks[5].assign(crew[0]!.id)
-		}
-
-		// for each task calculate the wait time
-		// it equals to the sum of the wait time and max(timeSpent, estimatedTime) of previous tasks with the same assignee
-		// if the task is in progress, the wait time is 0
-		const queues: Record<string, Task[]> = {}
-		for (const task of tasks) {
-			const assignee = task.assignee || 'null'
-			if (!queues[assignee]) queues[assignee] = [task]
-			else queues[assignee].push(task)
-		}
-		Object.values(queues).forEach((queue) => {
-			queue.forEach((task, i) => {
-				if (i === 0) {
-					task.wait = 0
-				} else {
-					const prevTask = queue[i - 1]
-					task.wait = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
-				}
-			})
-		})
-
-		tasks = [...tasks]
+	function fakeTasks() {
+		store.tasks.addTask(new Task('Find the supplier of X', 1, 10))
+		store.tasks.addTask(new Task('Find prospective buyers for Y', 0, 28))
+		store.tasks.addTask(new Task('Find producer of the machine PP', 2, 10))
+		store.tasks.addTask(new Task('Find producer of the machine ER', 3, 10))
+		store.tasks.addTask(new Task('Find a producer of the machine QQ', 4, 10))
+		store.tasks.addTask(new Task('Test execution of the machine ER', 5, 12))
+		tasks = store.tasks.getTasks()
+		tasks[0].assign(crew[0]!.id)
+		tasks[1].assign(crew[1]!.id)
+		tasks[2].assign(crew[1]!.id)
+		tasks[3].assign(crew[1]!.id)
+		tasks[5].assign(crew[0]!.id)
 	}
 
 	function reset() {
-		store.tasksStore.clear()
-		prepareTasks()
+		store.tasks.clear()
+		fakeTasks()
 	}
 </script>
 

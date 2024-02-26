@@ -55,28 +55,14 @@ export class Task {
 	}
 
 	serialize() {
-		return {
-			assignee: this.assignee,
-			name: this.name,
-			description: this.description,
-			status: this.status,
-			priority: this.priority,
-			estimatedTime: this.estimatedTime,
-			timeSpent: this.timeSpent,
-			wait: this.wait,
-			realTime: this.realTime,
-		}
+		return this
 	}
-	hydrate(data: any) {
-		this.assignee = data.assignee
-		this.name = data.name
-		this.description = data.description
-		this.status = data.status
-		this.priority = data.priority
-		this.estimatedTime = data.estimatedTime
-		this.timeSpent = data.timeSpent
-		this.wait = data.wait
-		this.realTime = data.realTime
+	hydrate(data: object) {
+		Object.entries(data).forEach(([key, value]) => {
+			if (!(key in this)) throw new Error(`Hydration error: unexpected key ${key}`)
+			// @ts-ignore
+			this[key] = value
+		})
 	}
 }
 
@@ -104,6 +90,16 @@ export class TasksStore {
 		}
 		Object.values(queues).forEach((queue) => {
 			queue.forEach((task, i) => {
+				// for each task calculate the wait time:
+				// it equals to the sum of the wait time and max(timeSpent, estimatedTime)
+				// of previous tasks with the same assignee
+				if (i === 0) {
+					task.wait = 0
+				} else {
+					const prevTask = queue[i - 1]
+					task.wait = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
+				}
+
 				const hasInProgress = queue.some((task) => task.status === 'inProgress')
 				if (hasInProgress) return
 				if (i === 0 && task.status === 'todo') {
@@ -125,7 +121,7 @@ export class TasksStore {
 	}
 
 	serialize() {
-		return { tasks: this.tasks.map((task) => task.serialize()) }
+		return this
 	}
 	hydrate(data: { tasks: any[] }) {
 		this.tasks = data.tasks.map((taskData) => {
