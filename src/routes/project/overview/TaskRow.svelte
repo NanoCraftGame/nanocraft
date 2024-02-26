@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { Task } from '$lib/model/tasks'
-	import Button from '$lib/components/Button.svelte'
 	import type { Character } from '$lib/model/character'
-	import WaitingImage from '../../../lib/components/WaitingImage.svelte'
+	import WaitingImage from '$lib/components/WaitingImage.svelte'
+	import DropDown from '$lib/components/DropDown.svelte'
+	import DropDownItem from '$lib/components/DropDownItem.svelte'
 	export let task: Task
 	export let assignees: Character[]
-	let showAssign = false
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
-	function assign() {
-		showAssign = true
+	$: {
+		assignee = assignees.find((a) => a.id === task.assignee)
+	}
+	function assign(e: CustomEvent<string>) {
+		task.assign(e.detail)
 	}
 </script>
 
@@ -20,13 +23,28 @@
 				<div class="userpic">
 					<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
 				</div>
-				<Button on:click={assign} size="small">Reassign</Button>
+				<DropDown size="small" on:change={assign} label="Reassign">
+					{#each assignees.filter((a) => a.id !== task.assignee) as a}
+						<DropDownItem value={a.id}>
+							<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
+							{a.name}
+						</DropDownItem>
+					{/each}
+				</DropDown>
 			</div>
 			<div>
 				{assignee.name}
 			</div>
 		{:else}
-			<Button on:click={assign} size="small">Assign</Button>{/if}
+			<DropDown size="small" on:change={assign} label="Assign">
+				{#each assignees as a}
+					<DropDownItem value={a.id}>
+						<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
+						{a.name}
+					</DropDownItem>
+				{/each}
+			</DropDown>
+		{/if}
 	</td>
 	<td>{task.name}</td>
 	<td class="time">
@@ -52,7 +70,7 @@
 	}
 
 	.assignee {
-		/* we'll see */
+		position: relative;
 	}
 	.pic-row {
 		display: flex;
