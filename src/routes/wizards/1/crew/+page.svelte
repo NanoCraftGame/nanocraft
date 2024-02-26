@@ -8,27 +8,20 @@
 	import RadioGroup from '$lib/components/RadioGroup.svelte'
 	import RadioGroupItem from '$lib/components/RadioGroupItem.svelte'
 	import CrewCard from './CrewCard.svelte'
-	import { characters as charactersList } from '$lib/model/statics/characters'
 	import { store } from '$lib/model/store'
 	import { onMount } from 'svelte'
 	import { goto } from '$app/navigation'
-	const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
+	import { Character, getAllCharacters } from '$lib/model/character'
 
-	let characters = charactersList
+	let charactersList = getAllCharacters()
+	let characters: Character[] = []
 	let error = ''
-
-	let idToImage: Record<string, string> = {}
 
 	let you = store.project.getPlayer()
 	let colleague = store.project.getColleague()
 	const showBack = store.project.getMaterial() !== null
 
 	onMount(async () => {
-		const res: typeof idToImage = {}
-		for (const character of characters) {
-			res[character.id] = ((await pictures[character.image]()) as any).default
-		}
-		idToImage = res
 		updCharacters()
 	})
 
@@ -88,11 +81,11 @@
 			{/if}
 			<div class="crew" data-testid="crew-selected">
 				{#if you}
-					<CrewCard img={idToImage[you.id]} title="You" name={you.name} on:rm={rmMe} />
+					<CrewCard img={you.image} title="You" name={you.name} on:rm={rmMe} />
 				{/if}
 				{#if colleague}
 					<CrewCard
-						img={idToImage[colleague.id]}
+						img={colleague.image}
 						title="Your colleague"
 						name={colleague.name}
 						on:rm={rmColleague}
@@ -103,7 +96,7 @@
 				{#each characters as character}
 					<RadioGroupItem value={character.id}>
 						<WaitingImage
-							src={idToImage[character.id]}
+							src={character.image}
 							alt={character.name}
 							height={80}
 							width={80}

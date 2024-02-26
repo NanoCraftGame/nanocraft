@@ -27,6 +27,7 @@
 	}
 
 	.button.small {
+		font-size: small;
 		padding: 5px 10px;
 	}
 	.button.medium {

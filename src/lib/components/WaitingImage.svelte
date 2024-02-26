@@ -1,5 +1,7 @@
 <script lang="ts">
-	export let src: string | undefined
+	import type { Writable } from 'svelte/store'
+
+	export let src: Writable<string>
 	export let alt: string | undefined
 	export let width: number
 	export let height: number
@@ -7,8 +9,8 @@
 	style = `width: ${width}px; height: ${height}px; ${style}`
 </script>
 
-{#if src}
-	<img {style} {src} {alt} {...$$restProps} />
+{#if $src}
+	<img {style} src={$src} {alt} {...$$restProps} />
 {:else}
 	<div {style} {...$$restProps} />
 {/if}

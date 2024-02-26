@@ -2,7 +2,8 @@
 	import { createEventDispatcher } from 'svelte'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import Button from '$lib/components/Button.svelte'
-	export let img = ''
+	import type { Writable } from 'svelte/store'
+	export let img: Writable<string>
 	export let name = ''
 	export let title = 'Crew member'
 	export let dispatch = createEventDispatcher()

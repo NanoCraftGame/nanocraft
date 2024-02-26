@@ -4,10 +4,8 @@
 	import { store } from '$lib/model/store'
 	import Button from '$lib/components/Button.svelte'
 	import { Task } from '$lib/model/tasks'
-	const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
+	import TaskRow from './TaskRow.svelte'
 
-	let idToImage: Record<string, string> = {}
-	let idToName: Record<string, string> = {}
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
 	store.timer.setTempo(50)
@@ -22,14 +20,6 @@
 		if (store.tasks.getTasks().length === 0) {
 			fakeTasks()
 		}
-		const resImg: typeof idToImage = {}
-		const resNames: typeof idToImage = {}
-		for (const character of crew) {
-			resImg[character!.id] = ((await pictures[character!.image]()) as any).default
-			resNames[character!.id] = character!.name
-		}
-		idToImage = resImg
-		idToName = resNames
 		tasks = store.tasks.getTasks()
 		store.timer.onTick(() => {
 			tasks = store.tasks.getTasks()
@@ -55,6 +45,10 @@
 		store.tasks.clear()
 		fakeTasks()
 	}
+
+	function filterNonNull<T>(arr: (T | null)[]): T[] {
+		return arr.filter((a) => a !== null) as T[]
+	}
 </script>
 
 <div class="header">
@@ -73,36 +67,11 @@
 		</thead>
 		<tbody>
 			{#each tasks as task}
-				<tr>
-					<td class="assignee">
-						{#if task.assignee}
-							<div class="userpic">
-								<img src={idToImage[task.assignee]} alt={idToName[task.assignee]} />
-							</div>
-							{idToName[task.assignee]}
-						{:else}
-							<Button size="small">Assign</Button>{/if}
-					</td>
-					<td>{task.name}</td>
-					<td class="time">
-						<div
-							class="bar estimate"
-							style="width: {10 * task.estimatedTime}px; margin-left: {10 * task.wait}px"
-						>
-							Est.: {task.estimatedTime}
-						</div>
-						<div
-							class="bar progress"
-							style="width: {10 * task.timeSpent}px; margin-left: {10 * task.wait}px"
-						>
-							Spent: {Math.floor(task.timeSpent)}
-						</div>
-					</td>
-				</tr>
+				<TaskRow {task} assignees={filterNonNull(crew)} />
 			{/each}
 		</tbody>
 	</table>
-	<Button on:click={reset}>reset</Button>
+	<Button style="margin-top: 1em;" on:click={reset}>reset</Button>
 </div>
 
 <style>
@@ -134,46 +103,7 @@
 		border-collapse: collapse;
 	}
 	.table th,
-	.table td {
-		border: 1px solid #000;
-		padding: 5px;
-	}
 	.table th {
 		font-weight: bold;
-	}
-
-	.assignee {
-		/* we'll see */
-	}
-	.userpic {
-		width: 2em;
-		height: 2em;
-		overflow: hidden;
-		border-radius: 50%;
-		margin-right: 0.5em;
-	}
-	.userpic img {
-		width: 100%;
-		height: 100%;
-	}
-	.table .time {
-		position: relative;
-		height: 3.5rem;
-		width: 900px;
-	}
-	.bar {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		white-space: nowrap;
-	}
-	.table .estimate {
-		padding: 0.3rem 0.3rem 1.9rem 0.3rem;
-		background-color: #b5f6bf;
-		overflow: visible;
-	}
-	.table .progress {
-		padding: 0.3rem;
-		background-color: #ffd139;
 	}
 </style>

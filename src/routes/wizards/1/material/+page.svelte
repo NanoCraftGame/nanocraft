@@ -7,24 +7,14 @@
 	import RadioGroup from '$lib/components/RadioGroup.svelte'
 	import RadioGroupItem from '$lib/components/RadioGroupItem.svelte'
 	import background from '/static/backgrounds/lab-1.webp'
-	import { materials } from '$lib/model/statics/materials'
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
-	import { onMount } from 'svelte'
-	const pictures = import.meta.glob('/static/illustrations/materials/*')
+	import { getAllMaterials } from '$lib/model/material'
 
+	let materials = getAllMaterials()
 	let selectedMaterial = store.project.getMaterial()?.id || ''
 	let error = ''
-	let idToImage: Record<string, string> = {}
 	const hasBack = store.project.getPlayer() !== null || store.project.getColleague() !== null
-
-	onMount(async () => {
-		const res: typeof idToImage = {}
-		for (const material of materials) {
-			res[material.id] = ((await pictures[material.image]()) as any).default
-		}
-		idToImage = res
-	})
 
 	function handleSubmit(event: Event) {
 		event.preventDefault()
@@ -58,7 +48,7 @@
 				{#each materials as material}
 					<RadioGroupItem value={material.id}>
 						<WaitingImage
-							src={idToImage[material.id]}
+							src={material.image}
 							alt={material.name}
 							height={80}
 							width={80}

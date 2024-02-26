@@ -8,10 +8,6 @@
 	import background from '/static/backgrounds/lab-1.webp'
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
-	const matPictures = import.meta.glob('/static/illustrations/materials/*')
-	const charPictures = import.meta.glob('/static/illustrations/characters/*.webp')
-	const pictures = { ...matPictures, ...charPictures }
-	let idToImage: Record<string, string> = {}
 	let material = store.project.getMaterial()
 	let you = store.project.getPlayer()
 	let colleague = store.project.getColleague()
@@ -25,13 +21,6 @@
 			goto('/wizards/1/crew')
 			return
 		}
-
-		const res: typeof idToImage = {}
-		for (let x of [material, you, colleague]) {
-			res[x.id] = ((await pictures[x.image]()) as any).default
-		}
-
-		idToImage = res
 	})
 </script>
 
@@ -47,7 +36,7 @@
 			<div class="card">
 				<WaitingImage
 					style="margin-right: 1rem;"
-					src={idToImage[material.id]}
+					src={material.image}
 					alt={material.name}
 					width={80}
 					height={80}
@@ -60,7 +49,7 @@
 			<div class="card">
 				<WaitingImage
 					style="margin-right: 1rem;"
-					src={idToImage[you.id]}
+					src={you.image}
 					alt={you.name}
 					width={80}
 					height={80}
@@ -73,7 +62,7 @@
 			<div class="card">
 				<WaitingImage
 					style="margin-right: 1rem;"
-					src={idToImage[colleague.id]}
+					src={colleague.image}
 					alt={colleague.name}
 					width={80}
 					height={80}
