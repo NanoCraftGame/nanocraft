@@ -8,6 +8,13 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	declare namespace svelteHTML {
+		// enhance attributes
+		interface HTMLAttributes<T> {
+			'on:escape'?: (event: CustomEvent<MouseEvent | KeyboardEvent>) => void
+		}
+	}
 }
 
 export {}

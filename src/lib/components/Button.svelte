@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let tag: 'button' | 'a' = 'button'
 	export let size: 'small' | 'medium' | 'large' = 'medium'
-	export let variant: 'primary' | 'ghost' = 'primary'
+	export let variant: 'primary' | 'secondary' | 'ghost' = 'primary'
 </script>
 
 <svelte:element
@@ -28,10 +28,23 @@
 		border: 2px solid #00f;
 		color: white;
 	}
-	.button.ghost {
+	.button.secondary {
 		background-color: transparent;
 		border: 1px solid #00f;
 		color: rgb(0, 0, 0);
+	}
+	.button.ghost {
+		background-color: transparent;
+		border: none;
+		color: inherit;
+	}
+	.button.primary:hover {
+		background-color: white;
+		color: #00f;
+	}
+	.button.secondary:hover {
+		outline: 1px solid #00f;
+		color: #00f;
 	}
 
 	.button.small {
@@ -43,10 +56,5 @@
 	}
 	.button.large {
 		padding: 15px 30px;
-	}
-
-	.button:hover {
-		background-color: white;
-		color: #00f;
 	}
 </style>

@@ -5,6 +5,7 @@
 	import Button from '$lib/components/Button.svelte'
 	import { Task } from '$lib/model/tasks'
 	import TaskRow from './TaskRow.svelte'
+	import Header from '$lib/components/Header.svelte'
 
 	// TODO
 	// - cant start task in the past
@@ -12,8 +13,6 @@
 	// - layout for long progress bars
 
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
-
-	store.timer.setTempo(500)
 
 	let tasks = store.tasks.getTasks()
 
@@ -56,11 +55,7 @@
 	}
 </script>
 
-<div class="header">
-	<a href="/project/overview" class="current">Project Overview</a>
-	<a href="/inventory">Inventory</a>
-	<a href="/reports">Reports</a>
-</div>
+<Header current="project" />
 <div class="background">
 	<table class="table">
 		<thead>
@@ -85,24 +80,6 @@
 		min-height: 100vh;
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
-	}
-	.header {
-		display: flex;
-		padding: 1rem;
-		background: rgb(10, 58, 180);
-		color: white;
-		border-bottom: 2px solid rgb(35, 222, 255);
-	}
-	.header a {
-		color: white;
-		text-decoration: none;
-		margin-right: 1rem;
-	}
-	.header a:hover {
-		text-decoration: underline;
-	}
-	.header .current {
-		text-decoration: underline;
 	}
 	.table {
 		/* width: 100%; */

@@ -14,8 +14,6 @@ if (browser) {
 	project.hydrate(JSON.parse(localStorage.getItem('project') || '{}'))
 	tasks.hydrate(JSON.parse(localStorage.getItem('tasks') || '{"tasks":[]}'))
 	timer.onTick(() => {
-		console.log('tick')
-
 		tasks.updateTasks()
 		localStorage.setItem('project', JSON.stringify(project.serialize()))
 		localStorage.setItem('tasks', JSON.stringify(tasks.serialize()))
