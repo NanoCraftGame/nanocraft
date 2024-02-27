@@ -1,11 +1,19 @@
 <script lang="ts">
-	import { Task } from '$lib/model/tasks'
+	import { Task, type Status } from '$lib/model/tasks'
 	import type { Character } from '$lib/model/character'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
 	import DropDownItem from '$lib/components/DropDownItem.svelte'
 	export let task: Task
 	export let assignees: Character[]
+
+	let statuses: Record<Status, string> = {
+		blocked: '⛔️',
+		todo: '🆕',
+		done: '✅',
+		inProgress: '🛠️',
+		canceled: '❌',
+	}
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
 	$: {
@@ -61,6 +69,7 @@
 			Spent: {Math.floor(task.timeSpent)}
 		</div>
 	</td>
+	<td class="status">{statuses[task.status]}</td>
 </tr>
 
 <style>
@@ -102,5 +111,8 @@
 	.progress {
 		padding: 0.3rem;
 		background-color: #ffd139;
+	}
+	.status {
+		font-size: 2rem;
 	}
 </style>

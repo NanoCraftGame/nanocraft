@@ -6,6 +6,13 @@
 	import { Task } from '$lib/model/tasks'
 	import TaskRow from './TaskRow.svelte'
 
+	// TODO
+	// - cant reassign task tha are done or in progress
+	// - add checkmark to done tasks
+	// - cant start task in the past
+	// - drag'n'drop tasks to change priority
+	// - layout for long progress bars
+
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
 	store.timer.setTempo(50)
@@ -63,6 +70,7 @@
 				<th>Assignee</th>
 				<th>Task</th>
 				<th>Timeline</th>
+				<th>Status</th>
 			</tr>
 		</thead>
 		<tbody>

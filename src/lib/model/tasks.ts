@@ -22,12 +22,14 @@ function calculateRealTime(estimatedTime: number) {
 	return Math.ceil(estimatedTime + deviation)
 }
 
+export type Status = 'todo' | 'inProgress' | 'done' | 'canceled' | 'blocked'
+
 export class Task {
 	/** id of the crew member assigned to the task */
 	assignee: string | null = null
 	name: string
 	description = ''
-	status: 'todo' | 'inProgress' | 'done' | 'canceled' | 'blocked' = 'todo'
+	status: Status = 'todo'
 	priority: number
 	estimatedTime: number
 	timeSpent = 0
