@@ -31,20 +31,22 @@
 				<div class="userpic">
 					<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
 				</div>
-				<DropDown size="small" on:change={assign} label="Reassign">
-					{#each assignees.filter((a) => a.id !== task.assignee) as a}
-						<DropDownItem value={a.id}>
-							<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
-							{a.name}
-						</DropDownItem>
-					{/each}
-				</DropDown>
+				{#if task.status === 'todo' || task.status === 'blocked'}
+					<DropDown size="small" variant="ghost" on:change={assign} label="Reassign">
+						{#each assignees.filter((a) => a.id !== task.assignee) as a}
+							<DropDownItem value={a.id}>
+								<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
+								{a.name}
+							</DropDownItem>
+						{/each}
+					</DropDown>
+				{/if}
 			</div>
 			<div>
 				{assignee.name}
 			</div>
-		{:else}
-			<DropDown size="small" on:change={assign} label="Assign">
+		{:else if task.status === 'todo' || task.status === 'blocked'}
+			<DropDown size="small" variant="ghost" on:change={assign} label="Assign">
 				{#each assignees as a}
 					<DropDownItem value={a.id}>
 						<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
