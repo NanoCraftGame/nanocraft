@@ -1,15 +1,12 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount, setContext } from 'svelte'
+	import { createEventDispatcher, onMount, setContext, onDestroy } from 'svelte'
 	import Button from './Button.svelte'
 	import { writable } from 'svelte/store'
 	export let value = ''
 	export let label = ''
 
 	let isOpen = false
-	function open(e: Event) {
-		e.stopPropagation()
-		isOpen = true
-	}
+
 	const selected = writable(value)
 	const dispatch = createEventDispatcher()
 
@@ -19,15 +16,25 @@
 	})
 
 	onMount(() => {
-		document.addEventListener('click', (event) => {
-			isOpen = false
-		})
+		document.addEventListener('click', close)
+	})
+	onDestroy(() => {
+		document.removeEventListener('click', close)
 	})
 
 	function onSelect(value: string) {
 		selected.set(value)
 		isOpen = false
 		dispatch('change', value)
+	}
+
+	function open(e?: Event) {
+		if (e) e.stopPropagation()
+		isOpen = true
+	}
+	function close(e?: Event) {
+		if (e) e.stopPropagation()
+		isOpen = false
 	}
 </script>
 
