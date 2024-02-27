@@ -2,6 +2,9 @@
 	import Button from './Button.svelte'
 	import Drawer from './Drawer.svelte'
 	import { store } from '$lib/model/store'
+	import { onMount } from 'svelte'
+	import { Task } from '../model/tasks'
+	import { goto } from '$app/navigation'
 
 	let speed = store.settings.tempo
 
@@ -18,6 +21,42 @@
 		speed = parseInt(target.value)
 		store.settings.tempo = speed
 		store.timer.setTempo(speed)
+	}
+
+	onMount(async () => {
+		if (store.tasks.getTasks().length === 0) {
+			fakeTasks()
+		}
+	})
+
+	function fakeTasks() {
+		const crew = [store.project.getPlayer(), store.project.getColleague()]
+		if (!crew[0] || !crew[1]) {
+			return
+		}
+		const fakeTasks = [
+			new Task('Find the supplier of X', 1, 10),
+			new Task('Find prospective buyers for Y', 0, 28),
+			new Task('Find producer of the machine PP', 2, 10),
+			new Task('Find producer of the machine ER', 3, 10),
+			new Task('Find a producer of the machine QQ', 4, 10),
+			new Task('Test execution of the machine ER', 5, 12),
+		]
+		for (const task of fakeTasks) {
+			const id = crew[Math.floor(Math.random() * 3)]?.id
+			if (id) task.assign(id)
+			store.tasks.addTask(task)
+		}
+	}
+
+	function resetTasks() {
+		store.tasks.clear()
+		fakeTasks()
+	}
+
+	function resetAll() {
+		store.reset()
+		goto('/wizards/1/material')
 	}
 </script>
 
@@ -41,6 +80,9 @@
 >
 	<h3>Simulation speed: {speed} hours per second</h3>
 	<input type="range" min="1" max="100" value={speed} on:input={setSpeed} />
+
+	<Button style="margin-top: 1em;" on:click={resetTasks}>Reset tasks</Button> <br />
+	<Button style="margin-top: 1em;" on:click={resetAll}>Reset all</Button> <br />
 </Drawer>
 
 <style>

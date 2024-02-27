@@ -20,10 +20,14 @@ if (browser) {
 	timer.setTempo(settings.tempo)
 	timer.onTick(() => {
 		tasks.updateTasks()
-		localStorage.setItem('project', JSON.stringify(project.serialize()))
-		localStorage.setItem('tasks', JSON.stringify(tasks.serialize()))
-		localStorage.setItem('settings', JSON.stringify(settings))
+		save()
 	})
+}
+
+function save() {
+	localStorage.setItem('project', JSON.stringify(project.serialize()))
+	localStorage.setItem('tasks', JSON.stringify(tasks.serialize()))
+	localStorage.setItem('settings', JSON.stringify(settings))
 }
 
 const sim = new Sim(timer, tasks)
@@ -33,4 +37,11 @@ export const store = {
 	sim,
 	tasks,
 	timer,
+	reset() {
+		project.setMaterial(null)
+		project.setPlayer(null)
+		project.setColleague(null)
+		tasks.clear()
+		save()
+	},
 }

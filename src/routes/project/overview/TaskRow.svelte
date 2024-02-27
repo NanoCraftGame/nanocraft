@@ -81,7 +81,7 @@
 	}
 
 	.assignee {
-		width: 130px;
+		min-width: 130px;
 		position: relative;
 	}
 	.pic-row {

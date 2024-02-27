@@ -13,7 +13,7 @@ export class Project {
 
 	setMaterial(id: string | null) {
 		if (id === null) {
-			this.player = null
+			this.material = null
 			return
 		}
 		this.material = this.materialFactory.create(id)
@@ -29,7 +29,7 @@ export class Project {
 
 	setColleague(id: string | null) {
 		if (id === null) {
-			this.player = null
+			this.colleague = null
 			return
 		}
 		this.colleague = this.characterFactory.create(id)
