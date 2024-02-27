@@ -77,7 +77,7 @@
 
 <style>
 	.background {
-		min-height: 100vh;
+		min-height: calc(100vh - 65px);
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
 	}

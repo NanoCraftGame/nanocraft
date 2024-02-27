@@ -3,7 +3,7 @@
 	import Drawer from './Drawer.svelte'
 	import { store } from '$lib/model/store'
 
-	let speed = store.timer.getTempo()
+	let speed = store.settings.tempo
 
 	export let current: 'project' | 'inventory' | 'reports' = 'project'
 
@@ -16,6 +16,7 @@
 	function setSpeed(event: Event) {
 		const target = event.target as HTMLInputElement
 		speed = parseInt(target.value)
+		store.settings.tempo = speed
 		store.timer.setTempo(speed)
 	}
 </script>
@@ -38,7 +39,7 @@
 		drawerOpen = false
 	}}
 >
-	<h3>Simulation speed: {speed}</h3>
+	<h3>Simulation speed: {speed} hours per second</h3>
 	<input type="range" min="1" max="100" value={speed} on:input={setSpeed} />
 </Drawer>
 
@@ -51,6 +52,7 @@
 		background: rgb(10, 58, 180);
 		color: white;
 		border-bottom: 2px solid rgb(35, 222, 255);
+		height: 65px;
 	}
 	.header a {
 		color: white;
