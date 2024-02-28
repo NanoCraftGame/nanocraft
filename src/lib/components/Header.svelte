@@ -79,7 +79,7 @@
 	}}
 >
 	<h3>Simulation speed: {speed} hours per second</h3>
-	<input type="range" min="1" max="100" value={speed} on:input={setSpeed} />
+	<input type="range" min="1" max="40" value={speed} on:input={setSpeed} />
 
 	<Button style="margin-top: 1em;" on:click={resetTasks}>Reset tasks</Button> <br />
 	<Button style="margin-top: 1em;" on:click={resetAll}>Reset all</Button> <br />

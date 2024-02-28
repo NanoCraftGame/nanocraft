@@ -21,6 +21,7 @@ function calculateRealTime(estimatedTime: number) {
 	const deviation = lognormal() - mode
 	return Math.ceil(estimatedTime + deviation)
 }
+let counter = 0
 
 export type Status = 'todo' | 'inProgress' | 'done' | 'canceled' | 'blocked'
 
@@ -28,6 +29,7 @@ export class Task {
 	/** id of the crew member assigned to the task */
 	assignee: string | null = null
 	name: string
+	id: string
 	description = ''
 	status: Status = 'todo'
 	priority: number
@@ -35,8 +37,10 @@ export class Task {
 	timeSpent = 0
 	wait = 0
 	private realTime: number
+	dependencies: string[] = []
 
 	constructor(name: string, priority: number, estimatedTime: number) {
+		this.id = String(counter++)
 		this.name = name
 		this.priority = priority
 		this.estimatedTime = estimatedTime
@@ -54,6 +58,10 @@ export class Task {
 		if (this.timeSpent >= this.realTime) {
 			this.status = 'done'
 		}
+	}
+
+	dependOn(task: Task) {
+		this.dependencies.push(task.id)
 	}
 
 	serialize() {
@@ -91,6 +99,7 @@ export class TasksStore {
 			else queues[assignee].push(task)
 		}
 		Object.values(queues).forEach((queue) => {
+			let hasInProgress = queue.some((task) => task.status === 'inProgress')
 			queue.forEach((task, i) => {
 				// for each task calculate the wait time:
 				// it equals to the sum of the wait time and max(timeSpent, estimatedTime)
@@ -102,19 +111,14 @@ export class TasksStore {
 					task.wait = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
 				}
 
-				const hasInProgress = queue.some((task) => task.status === 'inProgress')
-				if (hasInProgress) return
-				if (i === 0 && task.status === 'todo') {
-					task.status = 'inProgress'
-					return
-				} else if (i > 0 && task.status === 'todo') {
-					task.status = 'inProgress'
-					return
+				if (!hasInProgress) {
+					if (task.status === 'todo') {
+						task.status = 'inProgress'
+						hasInProgress = true
+					}
 				}
+				task.update()
 			})
-		})
-		this.tasks.forEach((task) => {
-			task.update()
 		})
 	}
 
