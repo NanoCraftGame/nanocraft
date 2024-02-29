@@ -18,16 +18,18 @@ if (browser) {
 	tasks.hydrate(JSON.parse(localStorage.getItem('tasks') || '{"tasks":[]}'))
 	settings = JSON.parse(localStorage.getItem('settings') || '{"tempo":10}')
 	timer.setTempo(settings.tempo)
-	timer.onTick(() => {
-		tasks.updateTasks()
-		save()
+	timer.setTick(JSON.parse(localStorage.getItem('tick') || '0'))
+	timer.onTick((tick) => {
+		tasks.updateTasks(tick)
+		save(tick)
 	})
 }
 
-function save() {
+function save(tick: number) {
 	localStorage.setItem('project', JSON.stringify(project.serialize()))
 	localStorage.setItem('tasks', JSON.stringify(tasks.serialize()))
 	localStorage.setItem('settings', JSON.stringify(settings))
+	localStorage.setItem('tick', JSON.stringify(tick))
 }
 
 const sim = new Sim(timer, tasks)
@@ -41,7 +43,8 @@ export const store = {
 		project.setMaterial(null)
 		project.setPlayer(null)
 		project.setColleague(null)
+		timer.setTick(0)
 		tasks.clear()
-		save()
+		save(0)
 	},
 }

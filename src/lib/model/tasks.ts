@@ -8,11 +8,11 @@ function calculateRealTime(estimatedTime: number) {
 	const zScore = 2.326 // 99% confidence interval
 	const mode = estimatedTime * 0.25 // 25% of the estimated time
 	const percentile = estimatedTime * Math.PI // IBM's suggested estimate correction
-	// this results to a quadratic equation σ^2 + 2.326σ − ln(percentile/mode) = 0
+	// this results in a quadratic equation σ² + Zσ − ln(percentile/mode) = 0
 	const a = 1
 	const b = zScore
 	const c = -Math.log(percentile / mode)
-	const d = b ** 2 - 4 * a * c
+	const d = (b ^ 2) - 4 * a * c
 	const sigma1 = (-b + Math.sqrt(d)) / (2 * a)
 	const sigma2 = (-b - Math.sqrt(d)) / (2 * a)
 	const sigma = Math.max(sigma1, sigma2)
@@ -21,6 +21,9 @@ function calculateRealTime(estimatedTime: number) {
 	const deviation = lognormal() - mode
 	return Math.ceil(estimatedTime + deviation)
 }
+
+export const scale = 8 // one tick = 1 day, 1 day has 8 working hours
+
 let counter = 0
 
 export type Status = 'todo' | 'inProgress' | 'done' | 'canceled' | 'blocked'
@@ -51,9 +54,9 @@ export class Task {
 		this.assignee = assignee
 	}
 
-	update() {
+	update(tick: number) {
 		if (this.status === 'inProgress') {
-			this.timeSpent += 1 / 8
+			this.timeSpent = tick / scale - this.wait
 		}
 		if (this.timeSpent >= this.realTime) {
 			this.status = 'done'
@@ -87,7 +90,7 @@ export class TasksStore {
 	getTasks() {
 		return this.tasks
 	}
-	updateTasks() {
+	updateTasks(tick: number) {
 		// for all tasks ensure that there is at least one task in progress,
 		// if not, start the one with the highest priority (tasks are already sorted by priority)
 
@@ -101,14 +104,18 @@ export class TasksStore {
 		Object.values(queues).forEach((queue) => {
 			let hasInProgress = queue.some((task) => task.status === 'inProgress')
 			queue.forEach((task, i) => {
-				// for each task calculate the wait time:
-				// it equals to the sum of the wait time and max(timeSpent, estimatedTime)
-				// of previous tasks with the same assignee
-				if (i === 0) {
-					task.wait = 0
-				} else {
-					const prevTask = queue[i - 1]
-					task.wait = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
+				// if the task is in progress or done do not update wait time
+				if (task.status !== 'inProgress' && task.status !== 'done') {
+					// for each task calculate the wait time:
+					// it equals to the sum of the wait time and max(timeSpent, estimatedTime)
+					// of previous tasks with the same assignee
+					if (i === 0) {
+						task.wait = tick / scale
+					} else {
+						const prevTask = queue[i - 1]
+						const prevTaskEnd = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
+						task.wait = Math.max(prevTaskEnd, tick / scale)
+					}
 				}
 
 				if (!hasInProgress) {
@@ -117,7 +124,7 @@ export class TasksStore {
 						hasInProgress = true
 					}
 				}
-				task.update()
+				task.update(tick)
 			})
 		})
 	}

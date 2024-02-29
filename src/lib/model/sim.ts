@@ -11,7 +11,7 @@ export class Sim {
 		this.timer.onTick(this.tick)
 	}
 
-	private tick = () => {
-		this.tasksStore.updateTasks()
+	private tick = (tick: number) => {
+		this.tasksStore.updateTasks(tick)
 	}
 }

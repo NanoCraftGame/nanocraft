@@ -51,6 +51,7 @@
 
 	function resetTasks() {
 		store.tasks.clear()
+		store.timer.setTick(0)
 		fakeTasks()
 	}
 

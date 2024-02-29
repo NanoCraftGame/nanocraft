@@ -6,8 +6,6 @@
 	import Header from '$lib/components/Header.svelte'
 
 	// TODO
-	// - cant start task in the past
-	// - drag'n'drop tasks to change priority
 	// - layout for long progress bars
 
 	const crew = [store.project.getPlayer(), store.project.getColleague()]

@@ -1,11 +1,13 @@
+type Listener = (tick: number) => void
 export class Timer {
-	private listeners: (() => void)[] = []
+	private listeners: Listener[] = []
 	private timer: ReturnType<typeof setInterval>
 	private tempo: number = 100
+	private tickCount: number = 0
 	constructor() {
 		this.timer = setInterval(this.tick, this.tempo)
 	}
-	onTick(listener: () => void) {
+	onTick(listener: Listener) {
 		this.listeners.push(listener)
 	}
 
@@ -16,6 +18,10 @@ export class Timer {
 		this.tempo = 1000 / tempo
 		this.pause()
 		this.resume()
+	}
+
+	setTick(tick: number) {
+		this.tickCount = tick
 	}
 	getTempo() {
 		return 1000 / this.tempo
@@ -29,6 +35,6 @@ export class Timer {
 	}
 
 	private tick = () => {
-		this.listeners.forEach((listener) => listener())
+		this.listeners.forEach((listener) => listener(this.tickCount++))
 	}
 }
