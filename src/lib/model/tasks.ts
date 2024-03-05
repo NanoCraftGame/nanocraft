@@ -22,60 +22,126 @@ function calculateRealTime(estimatedTime: number) {
 	return Math.ceil(estimatedTime + deviation)
 }
 
-export const scale = 8 // one tick = 1 day, 1 day has 8 working hours
+export const scale = 1 / 8 // one tick = 1 day, 1 day has 8 working hours
 
 let counter = 0
 
-export type Status = 'todo' | 'inProgress' | 'done' | 'canceled' | 'blocked'
+export type Status = 'todo' | 'inProgress' | 'done'
 
-export class Task {
-	/** id of the crew member assigned to the task */
-	assignee: string | null = null
-	name: string
-	id: string
-	description = ''
+interface Serializable {
+	serialize(): object
+	hydrate(data: object): void
+}
+
+export class Dependable {
+	dependencies: Dependable[] = []
+	dependents: Dependable[] = []
+	constructor(public id: string) {}
+
+	dependsOn(dependency: Dependable) {
+		this.dependencies.push(dependency)
+		if (dependency.reportDependents().includes(this)) return
+		dependency.neededFor(this)
+	}
+	neededFor(dependent: Dependable) {
+		this.dependents.push(dependent)
+		if (dependent.reportDependencies().includes(this)) return
+		dependent.dependsOn(this)
+	}
+	reportDependencies() {
+		return this.dependencies
+	}
+	reportDependents() {
+		return this.dependents
+	}
+}
+
+export enum AttentionSpan {
+	FullAttention = 1,
+	PartialAttention = 0.1,
+}
+
+export abstract class Task extends Dependable implements Serializable {
+	abstract requiredAttention: AttentionSpan // to be overrode
+	isDormant = false
 	status: Status = 'todo'
-	priority: number
-	estimatedTime: number
-	timeSpent = 0
-	wait = 0
 	private realTime: number
-	dependencies: string[] = []
+	assignee: string | null = null
+	timeSpent = 0
 
-	constructor(name: string, priority: number, estimatedTime: number) {
-		this.id = String(counter++)
-		this.name = name
-		this.priority = priority
-		this.estimatedTime = estimatedTime
-		this.realTime = calculateRealTime(estimatedTime)
+	constructor(
+		public name: string,
+		public estimate: number,
+		public description = '',
+	) {
+		super(`task-${counter++}`)
+		this.realTime = calculateRealTime(estimate)
 	}
 
-	assign(assignee: string) {
-		this.assignee = assignee
+	assign(assigneeId: string) {
+		this.assignee = assigneeId
 	}
 
-	update(tick: number) {
+	tick(attention: number) {
 		if (this.status === 'inProgress') {
-			this.timeSpent = tick / scale - this.wait
-		}
-		if (this.timeSpent >= this.realTime) {
-			this.status = 'done'
+			this.timeSpent += attention * scale
+			if (this.timeSpent >= this.realTime) {
+				this.status = 'done'
+			}
 		}
 	}
 
-	dependOn(task: Task) {
-		this.dependencies.push(task.id)
+	awake() {
+		throw new Error('Method not implemented.')
 	}
 
 	serialize() {
-		return this
+		return {
+			id: this.id,
+			name: this.name,
+			estimatedTime: this.estimate,
+			attentionSpan: this.requiredAttention,
+			isDormant: this.isDormant,
+			status: this.status,
+			realTime: this.realTime,
+			dependencies: this.dependencies.map((d) => d.id),
+			dependents: this.dependents.map((d) => d.id),
+		}
 	}
-	hydrate(data: object) {
-		Object.entries(data).forEach(([key, value]) => {
-			if (!(key in this)) throw new Error(`Hydration error: unexpected key ${key}`)
-			// @ts-ignore
-			this[key] = value
-		})
+	hydrate(data: object): void {
+		throw new Error('Method not implemented.')
+	}
+}
+
+interface DecisionOption {
+	description: string
+	task: Task
+}
+
+export class Decision extends Dependable implements Serializable {
+	status: 'todo' | 'done'
+	constructor(
+		public report: string,
+		public options: DecisionOption[],
+	) {
+		super(`decision-${counter++}`)
+	}
+
+	tick() {
+		// checks if all dependencies are in `done` state, then it "unlocks"
+		throw new Error('Method not implemented.')
+	}
+	onUnlock(callback: (decision: Decision) => void) {
+		throw new Error('Method not implemented.')
+	}
+	decide(option: DecisionOption) {
+		throw new Error('Method not implemented.')
+	}
+	serialize(): object {
+		throw new Error('Method not implemented.')
+	}
+	hydrate(data: object): void {
+		throw new Error('Method not implemented.')
 	}
 }
 
@@ -84,8 +150,6 @@ export class TasksStore {
 
 	addTask(task: Task) {
 		this.tasks.push(task)
-
-		this.tasks.sort((a, b) => a.priority - b.priority)
 	}
 	getTasks() {
 		return this.tasks
@@ -113,7 +177,7 @@ export class TasksStore {
 						task.wait = tick / scale
 					} else {
 						const prevTask = queue[i - 1]
-						const prevTaskEnd = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimatedTime)
+						const prevTaskEnd = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimate)
 						task.wait = Math.max(prevTaskEnd, tick / scale)
 					}
 				}
@@ -124,7 +188,7 @@ export class TasksStore {
 						hasInProgress = true
 					}
 				}
-				task.update(tick)
+				task.tick(tick)
 			})
 		})
 	}
@@ -138,7 +202,7 @@ export class TasksStore {
 	}
 	hydrate(data: { tasks: any[] }) {
 		this.tasks = data.tasks.map((taskData) => {
-			const task = new Task('', 0, 0)
+			const task = new Task('', 0)
 			task.hydrate(taskData)
 			return task
 		})

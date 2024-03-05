@@ -60,9 +60,9 @@
 	<td class="time">
 		<div
 			class="bar estimate"
-			style="width: {10 * task.estimatedTime}px; margin-left: {10 * task.wait}px"
+			style="width: {10 * task.estimate}px; margin-left: {10 * task.wait}px"
 		>
-			Est.: {task.estimatedTime}
+			Est.: {task.estimate}
 		</div>
 		<div
 			class="bar progress"

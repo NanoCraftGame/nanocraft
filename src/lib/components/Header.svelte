@@ -35,12 +35,12 @@
 			return
 		}
 		const fakeTasks = [
-			new Task('Find the supplier of X', 1, 10),
-			new Task('Find prospective buyers for Y', 0, 28),
-			new Task('Find producer of the machine PP', 2, 10),
-			new Task('Find producer of the machine ER', 3, 10),
-			new Task('Find a producer of the machine QQ', 4, 10),
-			new Task('Test execution of the machine ER', 5, 12),
+			new Task('Find the supplier of X', 10),
+			new Task('Find prospective buyers for Y', 28),
+			new Task('Find producer of the machine PP', 10),
+			new Task('Find producer of the machine ER', 10),
+			new Task('Find a producer of the machine QQ', 10),
+			new Task('Test execution of the machine ER', 12),
 		]
 		for (const task of fakeTasks) {
 			const id = crew[Math.floor(Math.random() * 3)]?.id
