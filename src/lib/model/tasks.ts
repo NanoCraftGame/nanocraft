@@ -79,6 +79,10 @@ export abstract class Task extends Dependable implements Serializable {
 	}
 
 	assign(assigneeId: string) {
+		if (this.isDormant) {
+			console.warn(`Won't assign a dormant task ${this.name} to ${assigneeId}`)
+			return
+		}
 		this.assignee = assigneeId
 	}
 
@@ -91,8 +95,17 @@ export abstract class Task extends Dependable implements Serializable {
 		}
 	}
 
+	setDormant() {
+		this.isDormant = true
+		this.reportDependents().forEach((dependent) => {
+			if (dependent instanceof Task) dependent.setDormant()
+		})
+	}
 	awake() {
-		throw new Error('Method not implemented.')
+		this.isDormant = false
+		this.reportDependents().forEach((dependent) => {
+			if (dependent instanceof Task) dependent.awake()
+		})
 	}
 
 	serialize() {
@@ -118,24 +131,41 @@ interface DecisionOption {
 	task: Task
 }
 
+type UnlockListener = (decision: Decision) => void
+
 export class Decision extends Dependable implements Serializable {
-	status: 'todo' | 'done'
+	status: 'todo' | 'done' = 'todo'
+	private unlockListener: UnlockListener
 	constructor(
 		public report: string,
 		public options: DecisionOption[],
 	) {
 		super(`decision-${counter++}`)
+		options.forEach((option) => {
+			this.neededFor(option.task)
+			option.task.setDormant()
+		})
 	}
 
 	tick() {
-		// checks if all dependencies are in `done` state, then it "unlocks"
-		throw new Error('Method not implemented.')
+		if (
+			this.reportDependencies().every((task) => {
+				if (task instanceof Task || task instanceof Decision) {
+					return task.status === 'done'
+				}
+				return false
+			}) &&
+			this.unlockListener
+		) {
+			this.unlockListener(this)
+		}
 	}
-	onUnlock(callback: (decision: Decision) => void) {
-		throw new Error('Method not implemented.')
+	onUnlock(callback: UnlockListener) {
+		this.unlockListener = callback
 	}
 	decide(option: DecisionOption) {
-		throw new Error('Method not implemented.')
+		option.task.awake()
+		this.status = 'done'
 	}
 	serialize(): object {
 		throw new Error('Method not implemented.')
