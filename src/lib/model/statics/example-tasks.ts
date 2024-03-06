@@ -1,5 +1,13 @@
 import { AttentionSpan, Task, Decision } from '../tasks'
 
+class MarketResarch extends Task {
+	requiredAttention = AttentionSpan.FullAttention
+}
+
+class ContractTask extends Task {
+	requiredAttention = AttentionSpan.PartialAttention
+}
+
 class ProcurementResearch extends Task {
 	requiredAttention = AttentionSpan.FullAttention
 }
@@ -8,7 +16,27 @@ class Procurement extends Task {
 	requiredAttention = AttentionSpan.PartialAttention
 }
 
+const findCustomer = new MarketResarch('Find who wants to buy our product', 20)
+
+const contractWithCustomer1 = new ContractTask('contract with customer 1', 5)
+const contractWithCustomer2 = new ContractTask('contract with customer 2', 5)
+
+const customerDecison = new Decision('here goes report about market', [
+	{
+		description: 'customer 1: wants more but with higher quality',
+		task: contractWithCustomer1,
+	},
+	{
+		description: 'customer 2: wants less and shitty',
+		task: contractWithCustomer2,
+	},
+])
+
+customerDecison.dependsOn(findCustomer)
+
 const findPumpsSupplier = new ProcurementResearch('Find pumps suplier', 5)
+
+contractWithCustomer1.neededFor(findPumpsSupplier)
 
 const orderPumpsIveco = new Procurement('Order 3 Iveco high-pressure pumps', 10)
 
@@ -50,11 +78,11 @@ choosePumpsSupplier.dependsOn(findPumpsSupplier)
 orderPumpsIveco.dependsOn(choosePumpsSupplier)
 orderPumpsVolvo.dependsOn(choosePumpsSupplier)
 
-
 const findBiphasicReactorSupplier = new ProcurementResearch('Find Biphase reactor suplier', 15)
 // we found only one biphase reactor supplier, so no need for decison here..
 const orderBiphaseReactor = new Procurement('Order 3 Iveco high-pressure pumps', 10)
 orderBiphaseReactor.dependsOn(findBiphasicReactorSupplier)
 
+findBiphasicReactorSupplier.dependsOn(contractWithCustomer1)
 
-export const graphs = [choosePumpsSupplier, findBiphasicReactorSupplier]
+export const graphs = [findCustomer]
