@@ -50,4 +50,11 @@ choosePumpsSupplier.dependsOn(findPumpsSupplier)
 orderPumpsIveco.dependsOn(choosePumpsSupplier)
 orderPumpsVolvo.dependsOn(choosePumpsSupplier)
 
-export const graphs = [choosePumpsSupplier]
+
+const findBiphasicReactorSupplier = new ProcurementResearch('Find Biphase reactor suplier', 15)
+// we found only one biphase reactor supplier, so no need for decison here..
+const orderBiphaseReactor = new Procurement('Order 3 Iveco high-pressure pumps', 10)
+orderBiphaseReactor.dependsOn(findBiphasicReactorSupplier)
+
+
+export const graphs = [choosePumpsSupplier, findBiphasicReactorSupplier]
