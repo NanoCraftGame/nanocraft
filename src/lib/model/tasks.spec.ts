@@ -1,5 +1,5 @@
 import { expect, describe, it, vi } from 'vitest'
-import { AttentionSpan, Dependable, Task, Decision, scale } from './tasks'
+import { AttentionSpan, Dependable, Task, Decision, scale, PmSim } from './tasks'
 
 class AnyTask extends Task {
 	requiredAttention = AttentionSpan.FullAttention
@@ -100,6 +100,7 @@ describe('Task', () => {
 			task2.dependsOn(task)
 			task.dependsOn(task3)
 			expect(task.serialize()).toEqual({
+				type: 'AnyTask',
 				id: task.id,
 				name: 'task1',
 				estimatedTime: 5,
@@ -197,3 +198,89 @@ describe('Task', () => {
 		})
 	})
 })
+
+describe('PmSim', () => {
+	describe('Graph registration', () => {
+		it('detetcts a cycle', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const task3 = new AnyTask('task3', 5)
+			const decision = new Decision('decision1', [{ task: task2, description: 'desc1' }])
+			decision.dependsOn(task1)
+			task3.dependsOn(task2)
+			task1.dependsOn(task3)
+			const pm = new PmSim()
+			expect(() => pm.registerGraph([task3])).toThrow('Cycle depencies in taks graph')
+		})
+	})
+	describe('Getting tasks', () => {
+		it('returns tasks', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const task3 = new AnyTask('task3', 5)
+			const decision = new Decision('decision1', [{ task: task2, description: 'desc1' }])
+			decision.dependsOn(task1)
+			task3.dependsOn(task2)
+			const pm = new PmSim()
+			pm.registerGraph([task1])
+			const expected = [task1, task2, task3]
+			expect(pm.getTasks()).toEqual(expected)
+		})
+		it('returns all tasks in topological order', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const task3 = new AnyTask('task3', 5)
+			const task4 = new AnyTask('task4', 5)
+			const task5 = new AnyTask('task5', 5)
+			const task6 = new AnyTask('task6', 5)
+			const task7 = new AnyTask('task7', 5)
+			const decision = new Decision('decision1', [
+				{ task: task3, description: 'desc1' },
+				{ task: task4, description: 'desc2' },
+			])
+			decision.dependsOn(task1)
+			decision.dependsOn(task2)
+			task5.dependsOn(task3)
+			task6.dependsOn(task4)
+			task7.dependsOn(task5)
+			task7.dependsOn(task6)
+			const pm = new PmSim()
+			pm.registerGraph([task3])
+			const allTasks = [task1, task2, task3, task4, task5, task6, task7]
+			const reportedTasks = pm.getTasks()
+			// 1. getTasks should return all tasks included in allTasks
+			// the order may differ
+			for (const task of allTasks) {
+				expect(reportedTasks).toContain(task)
+			}
+			// 2. for each task, all its dependencies should come before it
+			reportedTasks.forEach((task, i) => {
+				const deps = task.reportDependencies()
+				deps.forEach((dep) => {
+					// @ts-ignore
+					expect(reportedTasks.indexOf(dep)).toBeLessThan(i)
+				})
+			})
+		})
+		it('returns tasks from disconnected graphs', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const task3 = new AnyTask('task3', 5)
+			const task4 = new AnyTask('task4', 5)
+			const allTasks = [task1, task2, task3, task4]
+			task2.dependsOn(task1)
+			task4.dependsOn(task3)
+			const pm = new PmSim()
+			pm.registerGraph([task1, task3])
+			const reportedTasks = pm.getTasks()
+			for (const task of allTasks) {
+				expect(reportedTasks).toContain(task)
+			}
+		})
+	})
+})
+
+function printTasks(expected: any[], actual: any[]) {
+	console.log('Expected:', expected.map((t) => t.name).join(', '))
+	console.log('Actual:  ', actual.map((t) => t.name).join(', '))
+}

@@ -130,7 +130,7 @@ abstract class Task implements Dependable {
   id: string
   attentionSpan: AttentionSpan // to be overrode
   isDormant: boolean
-  status: 'todo' | 'inProgress` | 'done'
+  status: 'todo' | 'inProgress' | 'done'
   assign(assigneeId: string): void
   tick:(attention: number): void
   awake(): void
@@ -149,7 +149,7 @@ const orderGasPump = new Procurement('Order gas pump', 3, 'The pump is needed be
 const orderLiquidPump = new Procurement('Order Liquid pump', 3, 'The pump is needed because...')
 
 class PmSim {
-  registerGraph(Dependable[]): void
+  registerGraph(d: Dependable[]): void
   tick(currentTick: number): void
 }
 

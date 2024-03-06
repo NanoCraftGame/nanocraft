@@ -62,7 +62,7 @@ export enum AttentionSpan {
 }
 
 export abstract class Task extends Dependable implements Serializable {
-	abstract requiredAttention: AttentionSpan // to be overrode
+	abstract requiredAttention: AttentionSpan
 	isDormant = false
 	status: Status = 'todo'
 	private realTime: number
@@ -110,6 +110,7 @@ export abstract class Task extends Dependable implements Serializable {
 
 	serialize() {
 		return {
+			type: this.constructor.name,
 			id: this.id,
 			name: this.name,
 			estimatedTime: this.estimate,
@@ -175,66 +176,66 @@ export class Decision extends Dependable implements Serializable {
 	}
 }
 
-export class TasksStore {
-	private tasks: Task[] = []
+export class PmSim implements Serializable {
+	private tasks: Task[]
+	registerGraph(graphs: Dependable[]) {
+		// detect cycles
+		graphs.forEach((graph) => {
+			const visited = new Set()
+			const stack = new Set()
+			const detect = (node: Dependable) => {
+				if (stack.has(node)) {
+					throw new Error('Cycle depencies in taks graph, suspicous node: ' + getNodeName(node))
+				}
+				if (visited.has(node)) return
+				visited.add(node)
+				stack.add(node)
+				node.reportDependents().forEach((dependent) => detect(dependent))
+				stack.delete(node)
+			}
+			detect(graph)
+		})
+		// DFS to find root nodes
+		const roots: Dependable[] = []
+		const visitedRoots = new Set()
+		function dfsRoots(node: Dependable) {
+			if (visitedRoots.has(node)) return
+			visitedRoots.add(node)
+			const children = [...node.reportDependents(), ...node.reportDependencies()]
+			children.forEach(dfsRoots)
+			if (node.reportDependencies().length === 0 && !roots.includes(node)) roots.push(node)
+		}
+		graphs.forEach((graph) => dfsRoots(graph))
 
-	addTask(task: Task) {
-		this.tasks.push(task)
+		// toposort with DFS
+		const tasks: Task[] = []
+		const visited4Tasks = new Set()
+		function dfTasks(node: Dependable) {
+			if (visited4Tasks.has(node)) return
+			visited4Tasks.add(node)
+			node.reportDependents().forEach(dfTasks)
+			if (node instanceof Task) tasks.push(node)
+		}
+
+		roots.forEach((graph) => dfTasks(graph))
+
+		this.tasks = tasks.reverse()
 	}
-	getTasks() {
+	tick(currentTick: number) {}
+	getTasks(): Task[] {
 		return this.tasks
 	}
-	updateTasks(tick: number) {
-		// for all tasks ensure that there is at least one task in progress,
-		// if not, start the one with the highest priority (tasks are already sorted by priority)
 
-		const queues: Record<string, Task[]> = {}
-		for (const task of this.tasks) {
-			const assignee = task.assignee
-			if (!assignee) continue
-			if (!queues[assignee]) queues[assignee] = [task]
-			else queues[assignee].push(task)
-		}
-		Object.values(queues).forEach((queue) => {
-			let hasInProgress = queue.some((task) => task.status === 'inProgress')
-			queue.forEach((task, i) => {
-				// if the task is in progress or done do not update wait time
-				if (task.status !== 'inProgress' && task.status !== 'done') {
-					// for each task calculate the wait time:
-					// it equals to the sum of the wait time and max(timeSpent, estimatedTime)
-					// of previous tasks with the same assignee
-					if (i === 0) {
-						task.wait = tick / scale
-					} else {
-						const prevTask = queue[i - 1]
-						const prevTaskEnd = prevTask.wait + Math.max(prevTask.timeSpent, prevTask.estimate)
-						task.wait = Math.max(prevTaskEnd, tick / scale)
-					}
-				}
+	serialize(): object {
+		throw new Error('Method not implemented.')
+	}
+	hydrate(data: object): void {
+		throw new Error('Method not implemented.')
+	}
+}
 
-				if (!hasInProgress) {
-					if (task.status === 'todo') {
-						task.status = 'inProgress'
-						hasInProgress = true
-					}
-				}
-				task.tick(tick)
-			})
-		})
-	}
-
-	clear() {
-		this.tasks = []
-	}
-
-	serialize() {
-		return this
-	}
-	hydrate(data: { tasks: any[] }) {
-		this.tasks = data.tasks.map((taskData) => {
-			const task = new Task('', 0)
-			task.hydrate(taskData)
-			return task
-		})
-	}
+function getNodeName(node: Dependable) {
+	let nodeName = node instanceof Task ? node.name : node.id
+	nodeName = node instanceof Decision ? node.report.slice(0, 20) + '…' : nodeName
+	return nodeName
 }
