@@ -4,6 +4,9 @@ import { AttentionSpan, Dependable, Task, Decision, scale, PmSim } from './tasks
 class AnyTask extends Task {
 	requiredAttention = AttentionSpan.FullAttention
 }
+class EasyTask extends Task {
+	requiredAttention = AttentionSpan.PartialAttention
+}
 
 describe('Dependable', () => {
 	it('should have a method dependOn', () => {
@@ -158,6 +161,8 @@ describe('Task', () => {
 		})
 	})
 
+	describe.todo('duration')
+
 	describe('dormant taks', () => {
 		it('awakens', () => {
 			const task = new AnyTask('task1', 5)
@@ -277,6 +282,84 @@ describe('PmSim', () => {
 				expect(reportedTasks).toContain(task)
 			}
 		})
+	})
+	describe('ticking', () => {
+		it('calls ticks for all ndoes of a graph', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const decision = new Decision('decision1', [{ task: task2, description: 'desc1' }])
+			decision.dependsOn(task1)
+			const pm = new PmSim()
+			pm.registerGraph([task1])
+			const tickSpy1 = vi.spyOn(task1, 'tick')
+			const tickSpy2 = vi.spyOn(task2, 'tick')
+			const tickSpy3 = vi.spyOn(decision, 'tick')
+			pm.tick(1)
+			expect(tickSpy1).toBeCalled()
+			expect(tickSpy2).toBeCalled()
+			expect(tickSpy3).toBeCalled()
+		})
+		describe('transitions to `inProgress`', () => {
+			it('next TODO task in assingee queue', () => {
+				const task1 = new AnyTask('task1', 5)
+				const task2 = new AnyTask('task2', 5)
+				task1.assign('user1')
+				task2.assign('user1')
+				task1.status = 'done'
+				const pm = new PmSim()
+				pm.registerGraph([task1, task2])
+				pm.tick(1)
+				expect(task2.status).toBe('inProgress')
+			})
+			it('moves tasks for several users', () => {
+				const task1 = new AnyTask('task1', 5)
+				const task2 = new AnyTask('task2', 5)
+				task1.assign('user1')
+				task2.assign('user2')
+				const pm = new PmSim()
+				pm.registerGraph([task1, task2])
+				pm.tick(1)
+				expect(task1.status).toBe('inProgress')
+				expect(task2.status).toBe('inProgress')
+			})
+			it.todo('transitions _before_ tick call')
+			it('unless a task has unresolved dependencies', () => {
+				const task1 = new AnyTask('task1', 5)
+				const task2 = new AnyTask('task2', 5)
+				task2.dependsOn(task1)
+				task2.assign('user1')
+				const pm = new PmSim()
+				pm.registerGraph([task1])
+				pm.tick(1)
+				expect(task2.status).toBe('todo')
+			})
+			it('several part.-att. tasks', () => {
+				const task1 = new EasyTask('task1', 5)
+				const task2 = new EasyTask('task2', 5)
+				task1.assign('user1')
+				task2.assign('user1')
+				const pm = new PmSim()
+				pm.registerGraph([task1, task2])
+				pm.tick(1)
+				expect(task1.status).toBe('inProgress')
+				expect(task2.status).toBe('inProgress')
+			})
+			it('>= 5 part.-att. tasks')
+			it('>= 3 part.-att. tasks if a full-att. task is in prog.')
+			it('only 1 full-att. task')
+		})
+		it('calls tasks tick with available attention span')
+	})
+	describe('wait time calculation', () => {
+		it('is 0 for the first time in queue')
+		it('is a biggest sum of wait and duration of all dependencies and prev. task in queue')
+		it('is not less then current tick * scale when reassinged')
+	})
+	describe('tasks assignment', () => {
+		it('assigns task if a character can take it')
+	})
+	describe('decsison subscription', () => {
+		it('subscribes a decsison callback to all decisions')
 	})
 })
 

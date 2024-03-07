@@ -178,6 +178,7 @@ export class Decision extends Dependable implements Serializable {
 
 export class PmSim implements Serializable {
 	private tasks: Task[]
+	private decisions: Decision[]
 	registerGraph(graphs: Dependable[]) {
 		// detect cycles
 		graphs.forEach((graph) => {
@@ -209,19 +210,49 @@ export class PmSim implements Serializable {
 
 		// toposort with DFS
 		const tasks: Task[] = []
+		const descisions: Decision[] = []
 		const visited4Tasks = new Set()
 		function dfTasks(node: Dependable) {
 			if (visited4Tasks.has(node)) return
 			visited4Tasks.add(node)
 			node.reportDependents().forEach(dfTasks)
 			if (node instanceof Task) tasks.push(node)
+			if (node instanceof Decision) descisions.push(node)
 		}
 
 		roots.forEach((graph) => dfTasks(graph))
 
 		this.tasks = tasks.reverse()
+		this.decisions = descisions.reverse()
 	}
-	tick(currentTick: number) {}
+	tick(currentTick: number) {
+		const queues = this.tasks.reduce<Record<string, Task[]>>((acc, task) => {
+			if (task.status === 'inProgress' && task.assignee) {
+				acc[task.assignee] = acc[task.assignee] || []
+				acc[task.assignee]?.push(task)
+			}
+			return acc
+		}, {})
+		this.tasks.forEach((task) => {
+			if (task.assignee) {
+				const activeTasks = queues[task.assignee]
+				const noActiveTasks = !activeTasks || activeTasks.length === 0
+				const canStart = task.reportDependencies().every((d) => isResolved(d))
+				if (noActiveTasks && task.status === 'todo' && canStart) {
+					if (activeTasks) {
+						activeTasks!.push(task)
+					} else {
+						queues[task.assignee] = [task]
+					}
+					task.status = 'inProgress'
+				}
+			}
+			task.tick(task.requiredAttention)
+		})
+		this.decisions.forEach((decision) => {
+			decision.tick()
+		})
+	}
 	getTasks(): Task[] {
 		return this.tasks
 	}
@@ -238,4 +269,14 @@ function getNodeName(node: Dependable) {
 	let nodeName = node instanceof Task ? node.name : node.id
 	nodeName = node instanceof Decision ? node.report.slice(0, 20) + '…' : nodeName
 	return nodeName
+}
+
+function isResolved(dependency: Dependable) {
+	if (dependency instanceof Task) {
+		return dependency.status === 'done'
+	}
+	if (dependency instanceof Decision) {
+		return dependency.status === 'done'
+	}
+	return false
 }

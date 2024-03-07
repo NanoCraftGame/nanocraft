@@ -40,7 +40,7 @@ Only tasks in `todo` status can be assigned (see below).
 
 ### Task statuses and transitions
 
-In any point of time a task is in one of the following statuses:
+At any point in time a task is in one of the following statuses:
 
 - `todo`,
 - `inProgress`,
@@ -66,12 +66,12 @@ simulation tick it checks following conditions:
   `inProgress` if that assignee has also a _full attention_ task assigned;
 - No more than five _partial attention_ tasks for an assignee can be `inProgress` simultaneously;
 
-On each simulation tick the _PM sim_ also calls `tick` on method for all tasks that are
-`inProgress`; as mentioned above, this method increases task's _time spent_ and also it checks if
-_time spent_ exceeded _real time_ and if that is the case, it transitions the task to `done` state.
-The argument for the `tick` method depends on the attention span: it is 0.1 for _partial attention_
-tasks and for the full-attention task it equal to 1 decreased on 0.1 for each partial attention
-task that is `inProgress` and assigned to the same assignee.
+On each simulation tick the _PM sim_ also calls `tick` method for all tasks that are `inProgress`
+and for decisions; as mentioned above, this method increases task's _time spent_ and also it checks
+if _time spent_ exceeded _real time_ and if that is the case, it transitions the task to `done`
+state. The argument for the `tick` method depends on the attention span: it is 0.1 for _partial
+attention_ tasks and for the full-attention task it equal to 1 decreased on 0.1 for each partial
+attention task that is `inProgress` and assigned to the same assignee.
 
 ### Dependencies
 
@@ -79,13 +79,12 @@ A task can depend on another task or on a _decision_.
 
 Decisions and tasks follow the same interface, _dependable_ which has two methods:
 
-- `dependOn(dependable: Dependable): void` and
-- `reportDependencies(): string[]` which return a list of dependencies IDs.
-- `reportDependents(): string[]` which return a list of dependent _dependable_ IDs.
+- `dependOn(dependable: Dependable): void`,
+- `neededFor(dependable: Dependable): void` (opposite of `dependOn`),
+- `reportDependencies(): Dependable[]` which return a list of dependencies,
+- `reportDependents(): Dependable[]` which return a list of dependents.
 
-When tasks and decisions are registered in the _PM sim_ it checks if all dependencies for each
-dependable have been registered, it throws an error if it doesn't find a dependency with proper id
-in its storage. It also throw an error if there's a cycle in dependencies.
+When tasks and decisions are registered in the _PM sim_ it throws an error if there's a cycle in dependencies.
 
 It holds a topologically ordered list of all tasks and decisions (i.e. a dependency in that list
 must always have lower index than a dependant).
@@ -99,7 +98,7 @@ Let's call _task duration_ a number that is for any given task:
 - Time spent when task is in `done` state.
 
 Then to get a current task's _wait time_ calculate a sum of wait time and the duration of all its
-dependencies and the of the previous task in its assignee queue and choose the bigger. For the first
+dependencies and of the previous task in its assignee queue and choose the bigger. For the first
 task in the queue with no dependencies wait time is set to 0.
 
 However, if task is assigned or re-assigned, its wait time is set to current tick times `scale`
