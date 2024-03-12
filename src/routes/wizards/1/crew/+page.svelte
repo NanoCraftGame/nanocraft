@@ -11,9 +11,9 @@
 	import { store } from '$lib/model/store'
 	import { onMount } from 'svelte'
 	import { goto } from '$app/navigation'
-	import { Character, getAllCharacters } from '$lib/model/character'
+	import { Character, getAllFounders } from '$lib/model/character'
 
-	let charactersList = getAllCharacters()
+	let charactersList = getAllFounders()
 	let characters: Character[] = []
 	let error = ''
 

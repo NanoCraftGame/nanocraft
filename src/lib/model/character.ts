@@ -1,5 +1,7 @@
 import { characters } from './statics/characters'
 import { writable, type Writable } from 'svelte/store'
+import unnamed from '/static/illustrations/characters/unnamed.webp'
+import type { Task } from './tasks'
 const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
 
 export interface CharacterData {
@@ -9,12 +11,14 @@ export interface CharacterData {
 	image: string
 }
 
-export class Character {
+export abstract class Character {
 	id: string
 	name: string
 	description: string
 	image: Writable<string>
 	private imagePath: string
+
+	abstract canTake(task: Task): boolean
 
 	constructor(data: CharacterData) {
 		this.id = data.id
@@ -25,10 +29,22 @@ export class Character {
 	}
 
 	loadImage() {
-		pictures[this.imagePath]().then((module) => {
-			this.image.set((module as any).default)
-		})
+		const meta = pictures[this.imagePath]
+		if (meta) {
+			meta().then((module) => {
+				this.image.set((module as any).default)
+			})
+		} else {
+			this.image.set(unnamed)
+		}
 		return this
+	}
+}
+
+export class Founder extends Character {
+	canTake(task: Task) {
+		// founders can take any task
+		return true
 	}
 }
 
@@ -38,10 +54,10 @@ export class CharacterFactory {
 		if (!character) {
 			throw new Error(`Character not found: ${id}`)
 		}
-		return new Character(character).loadImage()
+		return new Founder(character).loadImage()
 	}
 }
 
-export function getAllCharacters() {
-	return characters.map((c) => new Character(c).loadImage())
+export function getAllFounders() {
+	return characters.map((c) => new Founder(c).loadImage())
 }

@@ -1,5 +1,6 @@
 import { expect, describe, it, vi } from 'vitest'
 import { AttentionSpan, Dependable, Task, Decision, scale, PmSim } from './tasks'
+import { Character } from './character'
 
 class AnyTask extends Task {
 	requiredAttention = AttentionSpan.FullAttention
@@ -161,7 +162,43 @@ describe('Task', () => {
 		})
 	})
 
-	describe.todo('duration')
+	describe('duration', () => {
+		it('is an estimate when task is in todo', () => {
+			const task = new AnyTask('task1', 5)
+			expect(task.duration).toEqual(5)
+		})
+		it('is time spent, when task is inProgress and time spent is bigger', () => {
+			let task: Task
+			// we don't know the realTime, so let simulate  and find first
+			// task that takes longer than its estimate
+			while (true) {
+				task = new AnyTask('task1', 1)
+				task.status = 'inProgress'
+				do {
+					task.tick(1)
+					// break as soon as time spent exceeds estimate
+					if (task.estimate < task.timeSpent) break
+					// but don't run it forever, when it's done
+				} while (task.status === 'inProgress')
+				// if we got here because of previous break, not because the
+				// task is done – that's what we've been searching for
+				if (task.status === 'inProgress') break
+			}
+			expect(task.duration).toEqual(task.timeSpent)
+		})
+		it('is estimate, when task is inProgress and time spent is smaller', () => {
+			const task = new AnyTask('task1', 5)
+			task.status = 'inProgress'
+			task.tick(1)
+			expect(task.duration).toEqual(5)
+		})
+		it('is time spent, when task is done', () => {
+			const task = new AnyTask('task1', 5)
+			task.status = 'done'
+			task.timeSpent = 2
+			expect(task.duration).toEqual(2)
+		})
+	})
 
 	describe('dormant taks', () => {
 		it('awakens', () => {
@@ -344,22 +381,185 @@ describe('PmSim', () => {
 				expect(task1.status).toBe('inProgress')
 				expect(task2.status).toBe('inProgress')
 			})
-			it('>= 5 part.-att. tasks')
-			it('>= 3 part.-att. tasks if a full-att. task is in prog.')
-			it('only 1 full-att. task')
+			it('<= 5 part.-att. tasks', () => {
+				const tasks: Task[] = []
+				for (let i = 0; i < 6; i++) {
+					const task = new EasyTask(`task${i}`, 5)
+					task.assign('user1')
+					tasks.push(task)
+				}
+				const pm = new PmSim()
+				pm.registerGraph(tasks)
+				pm.tick(1)
+				const inProgress = tasks.filter((t) => t.status === 'inProgress')
+				const todo = tasks.filter((t) => t.status === 'todo')
+				expect(inProgress.length).toBe(5)
+				expect(todo.length).toBe(1)
+			})
+			it('<= 3 part.-att. tasks if a full-att. task is in prog.', () => {
+				const tasks: Task[] = []
+				for (let i = 0; i < 4; i++) {
+					const task = new EasyTask(`task${i}`, 5)
+					task.assign('user1')
+					tasks.push(task)
+				}
+				const task = new AnyTask('task5', 5)
+				task.status = 'inProgress'
+				task.assign('user1')
+				tasks.push(task)
+				const pm = new PmSim()
+				pm.registerGraph(tasks)
+				pm.tick(1)
+				const inProgress = tasks.filter((t) => t.status === 'inProgress')
+				const todo = tasks.filter((t) => t.status === 'todo')
+				expect(inProgress.length).toBe(4)
+				expect(todo.length).toBe(1)
+			})
+			it('only 1 full-att. task', () => {
+				const task1 = new AnyTask('task1', 5)
+				const task2 = new AnyTask('task2', 5)
+				task1.assign('user1')
+				task2.assign('user1')
+				task1.status = 'inProgress'
+				const pm = new PmSim()
+				pm.registerGraph([task1, task2])
+				pm.tick(1)
+				expect(task2.status).toBe('todo')
+			})
+			it.todo('no full-att. task if there are > 3 part.-att. tasks in prog.')
 		})
-		it('calls tasks tick with available attention span')
+		it('calls tasks tick with available attention span', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new EasyTask('task2', 5)
+			const task3 = new EasyTask('task3', 5)
+			task1.assign('user1')
+			task1.status = 'inProgress'
+			task2.assign('user1')
+			task2.status = 'inProgress'
+			task3.assign('user1')
+			task3.status = 'inProgress'
+			const pm = new PmSim()
+			pm.registerGraph([task1, task2, task3])
+
+			const tickSpy1 = vi.spyOn(task1, 'tick')
+			const tickSpy2 = vi.spyOn(task2, 'tick')
+			const tickSpy3 = vi.spyOn(task3, 'tick')
+			pm.tick(1)
+			expect(tickSpy1).toBeCalledWith(0.8)
+			expect(tickSpy2).toBeCalledWith(0.1)
+			expect(tickSpy3).toBeCalledWith(0.1)
+		})
 	})
 	describe('wait time calculation', () => {
-		it('is 0 for the first time in queue')
-		it('is a biggest sum of wait and duration of all dependencies and prev. task in queue')
-		it('is not less then current tick * scale when reassinged')
+		it('is 0 for the first time in queue', () => {
+			const task1 = new AnyTask('task1', 5)
+			task1.assign('user1')
+			const pm = new PmSim()
+			pm.registerGraph([task1])
+			pm.tick(0)
+			expect(task1.waitTime).toBe(0)
+		})
+		it('is not changing for done tasks', () => {
+			const task1 = new AnyTask('task1', 5)
+			task1.assign('user1')
+			task1.status = 'done'
+			task1.waitTime = 42
+			const pm = new PmSim()
+			pm.registerGraph([task1])
+			pm.tick(1)
+			expect(task1.waitTime).toBe(42)
+		})
+		it('is a end of a prev. task in queue for second task', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			task1.assign('user1')
+			task1.waitTime = 11
+			// we use 'done' and time spent to prove that the duration used,
+			// not estimate
+			task1.status = 'done'
+			task1.timeSpent = 4
+			task2.assign('user1')
+			const pm = new PmSim()
+			// TODO here is the problem with ordering taks.
+			// There is no guarantee that 'done' taks is before 'todo' task
+			// in the queue, because sorting takes into account only dependencies
+			pm.registerGraph([task2, task1])
+			pm.tick(1)
+			expect(task2.waitTime).toBe(task1.waitTime + task1.duration)
+		})
+		it('is latest end of dependencies', () => {
+			const task1 = new AnyTask('task1', 3)
+			const task2 = new AnyTask('task2', 4)
+			const task3 = new AnyTask('task3', 5)
+			task1.waitTime = 3
+			task1.timeSpent = 4
+			task1.status = 'done' // pervent from ticking
+			task3.dependsOn(task2)
+			task3.dependsOn(task1)
+			const pm = new PmSim()
+			pm.registerGraph([task3])
+			pm.tick(1)
+			expect(task3.waitTime).toBe(task1.waitTime + task1.duration)
+		})
+		it('is end of prev. task if it is later', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const task3 = new AnyTask('task3', 5)
+			task1.assign('user1')
+			task1.waitTime = 11
+			task1.status = 'done'
+			task1.timeSpent = 4
+			task3.assign('user1')
+			task2.waitTime = 10
+			task3.dependsOn(task2)
+			const pm = new PmSim()
+			pm.registerGraph([task2, task1])
+			pm.tick(1)
+			expect(task3.waitTime).toBe(task1.waitTime + task1.duration)
+		})
+		it('is not less then current tick * scale', () => {
+			const task1 = new AnyTask('task1', 5)
+			task1.assign('user1')
+			const pm = new PmSim()
+			pm.registerGraph([task1])
+			pm.tick(128)
+			expect(task1.waitTime).toBe(128 * scale)
+		})
 	})
 	describe('tasks assignment', () => {
-		it('assigns task if a character can take it')
+		it('assigns task if a character can take it', () => {
+			const task1 = new AnyTask('task1', 5)
+			class CharacterStub extends Character {
+				id = 'user1'
+				canTake = vi.fn().mockReturnValue(true)
+			}
+			const pm = new PmSim()
+			const character = new CharacterStub({
+				id: 'user1',
+				name: 'User 1',
+				description: 'User 1',
+				image: 'unnamed',
+			})
+			const assignSpy = vi.spyOn(task1, 'assign')
+			pm.registerGraph([task1])
+			pm.assign(character, task1)
+			expect(assignSpy).toBeCalledWith('user1')
+			expect(character.canTake).toBeCalledWith(task1)
+		})
 	})
 	describe('decsison subscription', () => {
-		it('subscribes a decsison callback to all decisions')
+		it('subscribes a decsison callback to all decisions', () => {
+			const decision = new Decision('decision1', [])
+			const decision2 = new Decision('decision1', [])
+			const pm = new PmSim()
+			const spy1 = vi.spyOn(decision, 'onUnlock')
+			const spy2 = vi.spyOn(decision2, 'onUnlock')
+			const fn = vi.fn()
+			pm.registerGraph([decision, decision2])
+			pm.onDecisionUnlocked(fn)
+			expect(spy1).toBeCalledWith(fn)
+			expect(spy2).toBeCalledWith(fn)
+		})
 	})
 })
 

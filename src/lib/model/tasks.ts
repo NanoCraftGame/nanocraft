@@ -1,5 +1,7 @@
 // @ts-ignore
 import probJs from 'prob.js'
+import type { Character } from './character'
+import type { Mock } from 'vitest'
 
 function calculateRealTime(estimatedTime: number) {
 	// system of equations:
@@ -68,6 +70,7 @@ export abstract class Task extends Dependable implements Serializable {
 	private realTime: number
 	assignee: string | null = null
 	timeSpent = 0
+	waitTime = 0
 
 	constructor(
 		public name: string,
@@ -76,6 +79,17 @@ export abstract class Task extends Dependable implements Serializable {
 	) {
 		super(`task-${counter++}`)
 		this.realTime = calculateRealTime(estimate)
+	}
+
+	get duration() {
+		if (this.status === 'todo') {
+			return this.estimate
+		}
+		if (this.status === 'inProgress') {
+			return Math.max(this.estimate, this.timeSpent)
+		} else {
+			return this.timeSpent
+		}
 	}
 
 	assign(assigneeId: string) {
@@ -179,6 +193,7 @@ export class Decision extends Dependable implements Serializable {
 export class PmSim implements Serializable {
 	private tasks: Task[]
 	private decisions: Decision[]
+
 	registerGraph(graphs: Dependable[]) {
 		// detect cycles
 		graphs.forEach((graph) => {
@@ -226,35 +241,85 @@ export class PmSim implements Serializable {
 		this.decisions = descisions.reverse()
 	}
 	tick(currentTick: number) {
-		const queues = this.tasks.reduce<Record<string, Task[]>>((acc, task) => {
-			if (task.status === 'inProgress' && task.assignee) {
-				acc[task.assignee] = acc[task.assignee] || []
-				acc[task.assignee]?.push(task)
+		type Queue = { all: Task[]; active: Task[] }
+		type QueuesMap = Record<string, Queue>
+		const queues = this.tasks.reduce<QueuesMap>((acc, task) => {
+			if (task.assignee) {
+				if (acc[task.assignee]) {
+					acc[task.assignee]!.all.push(task)
+					if (task.status === 'inProgress') {
+						acc[task.assignee]!.active.push(task)
+					}
+				} else {
+					acc[task.assignee] = {
+						all: [task],
+						active: task.status === 'inProgress' ? [task] : [],
+					}
+				}
 			}
 			return acc
 		}, {})
-		this.tasks.forEach((task) => {
+
+		for (let task of this.tasks) {
+			// transition tasks from todo to inProgress if possible
+			let attentionSpan = task.requiredAttention
+			let waitTime = currentTick * scale
+			const waitFor = task.reportDependencies()
 			if (task.assignee) {
-				const activeTasks = queues[task.assignee]
-				const noActiveTasks = !activeTasks || activeTasks.length === 0
+				const assigneeTasks = queues[task.assignee]
 				const canStart = task.reportDependencies().every((d) => isResolved(d))
-				if (noActiveTasks && task.status === 'todo' && canStart) {
-					if (activeTasks) {
-						activeTasks!.push(task)
-					} else {
-						queues[task.assignee] = [task]
-					}
-					task.status = 'inProgress'
+				const hasFull = assigneeTasks?.active.some(
+					(t) => t.requiredAttention === AttentionSpan.FullAttention,
+				)
+				const partials =
+					assigneeTasks?.active.filter(
+						(t) => t.requiredAttention === AttentionSpan.PartialAttention,
+					) || []
+				let canDo = false
+				if (task.requiredAttention === AttentionSpan.FullAttention) {
+					canDo = !hasFull
+					attentionSpan = 1 - partials.length * 0.1
+				} else {
+					const maxPartials = hasFull ? 3 : 5
+					canDo = partials.length < maxPartials
 				}
+				if (canDo && canStart && task.status === 'todo') {
+					task.status = 'inProgress'
+					if (assigneeTasks) {
+						assigneeTasks.active.push(task)
+					} else {
+						queues[task.assignee] = {
+							all: [task],
+							active: [task],
+						}
+					}
+				}
+				const prevTask = assigneeTasks?.all[assigneeTasks.all.indexOf(task) - 1]
+				if (prevTask) waitFor.push(prevTask)
 			}
-			task.tick(task.requiredAttention)
-		})
+			if (task.status !== 'done') {
+				task.waitTime = Math.max(waitTime, findLongestEnd(waitFor))
+			}
+			task.tick(attentionSpan)
+		}
+
 		this.decisions.forEach((decision) => {
 			decision.tick()
 		})
 	}
 	getTasks(): Task[] {
 		return this.tasks
+	}
+
+	assign(character: Character, task: Task) {
+		if (character.canTake(task)) {
+			task.assign(character.id)
+		}
+	}
+	onDecisionUnlocked(fn: (decision: Decision) => void) {
+		this.decisions.forEach((decision) => {
+			decision.onUnlock(fn)
+		})
 	}
 
 	serialize(): object {
@@ -279,4 +344,18 @@ function isResolved(dependency: Dependable) {
 		return dependency.status === 'done'
 	}
 	return false
+}
+
+function findLongestEnd(dependencies: Dependable[]): number {
+	const ends = dependencies.map((dependency) => {
+		if (dependency instanceof Task) {
+			return dependency.duration + dependency.waitTime
+		}
+		if (dependency instanceof Decision) {
+			return findLongestEnd(dependency.reportDependencies())
+		}
+		return 0
+	})
+
+	return Math.max(...ends, 0)
 }
