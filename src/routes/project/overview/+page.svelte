@@ -10,16 +10,16 @@
 
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
-	let tasks = store.tasks.getTasks()
+	let tasks = store.pmSim.getTasks()
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
 			goto('/wizards/1/crew')
 			return
 		}
-		tasks = store.tasks.getTasks()
+		tasks = store.pmSim.getTasks()
 		store.timer.onTick(() => {
-			tasks = store.tasks.getTasks()
+			tasks = store.pmSim.getTasks()
 		})
 	})
 
@@ -41,7 +41,9 @@
 		</thead>
 		<tbody>
 			{#each tasks as task}
-				<TaskRow {task} assignees={filterNonNull(crew)} />
+				{#if !task.isDormant}
+					<TaskRow {task} assignees={filterNonNull(crew)} />
+				{/if}
 			{/each}
 		</tbody>
 	</table>

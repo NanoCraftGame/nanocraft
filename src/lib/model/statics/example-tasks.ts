@@ -86,3 +86,4 @@ orderBiphaseReactor.dependsOn(findBiphasicReactorSupplier)
 findBiphasicReactorSupplier.dependsOn(contractWithCustomer1)
 
 export const graphs = [findCustomer]
+export const taskTypes = [MarketResarch, ContractTask, ProcurementResearch, Procurement]

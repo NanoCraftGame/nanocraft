@@ -8,11 +8,9 @@
 	export let assignees: Character[]
 
 	let statuses: Record<Status, string> = {
-		blocked: '⛔️',
 		todo: '🆕',
 		done: '✅',
 		inProgress: '🛠️',
-		canceled: '❌',
 	}
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
@@ -31,7 +29,7 @@
 				<div class="userpic">
 					<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
 				</div>
-				{#if task.status === 'todo' || task.status === 'blocked'}
+				{#if task.status === 'todo'}
 					<DropDown size="small" variant="secondary" on:change={assign} label="Reassign">
 						{#each assignees.filter((a) => a.id !== task.assignee) as a}
 							<DropDownItem value={a.id}>
@@ -45,7 +43,7 @@
 			<div>
 				{assignee.name}
 			</div>
-		{:else if task.status === 'todo' || task.status === 'blocked'}
+		{:else if task.status === 'todo'}
 			<DropDown size="small" variant="secondary" on:change={assign} label="Assign">
 				{#each assignees as a}
 					<DropDownItem value={a.id}>
@@ -60,13 +58,13 @@
 	<td class="time">
 		<div
 			class="bar estimate"
-			style="width: {10 * task.estimate}px; margin-left: {10 * task.wait}px"
+			style="width: {10 * task.estimate}px; margin-left: {10 * task.waitTime}px"
 		>
 			Est.: {task.estimate}
 		</div>
 		<div
 			class="bar progress"
-			style="width: {10 * task.timeSpent}px; margin-left: {10 * task.wait}px"
+			style="width: {10 * task.timeSpent}px; margin-left: {10 * task.waitTime}px"
 		>
 			Spent: {Math.floor(task.timeSpent)}
 		</div>

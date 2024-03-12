@@ -131,6 +131,7 @@ export abstract class Task extends Dependable implements Serializable {
 			isDormant: this.isDormant,
 			status: this.status,
 			realTime: this.realTime,
+			waitTime: this.waitTime,
 			dependencies: this.dependencies.map((d) => d.id),
 			dependents: this.dependents.map((d) => d.id),
 		}
@@ -296,7 +297,6 @@ export class PmSim implements Serializable {
 		for (let task of this.tasks) {
 			// transition tasks from todo to inProgress if possible
 			let attentionSpan = task.requiredAttention
-			let waitTime = currentTick * scale
 			const waitFor = task.reportDependencies()
 			if (task.assignee) {
 				const assigneeTasks = queues[task.assignee]
@@ -331,6 +331,7 @@ export class PmSim implements Serializable {
 				if (prevTask) waitFor.push(prevTask)
 			}
 			if (task.status !== 'done') {
+				let waitTime = task.status === 'todo' ? currentTick * scale : task.waitTime
 				task.waitTime = Math.max(waitTime, findLongestEnd(waitFor))
 			}
 			task.tick(attentionSpan)
@@ -413,6 +414,11 @@ export class PmSim implements Serializable {
 
 	setTaskFactory(factory: TaskFactory) {
 		this.taskFactory = factory
+	}
+
+	clear() {
+		this.tasks = []
+		this.decisions = []
 	}
 }
 

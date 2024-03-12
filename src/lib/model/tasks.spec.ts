@@ -147,9 +147,9 @@ describe('Task', () => {
 				type: 'AnyTask',
 				id: task.id,
 				name: 'task1',
-				estimatedTime: 5,
-				attentionSpan: 1,
+				estimate: 5,
 				isDormant: false,
+				waitTime: task.waitTime,
 				status: 'todo',
 				realTime: expect.any(Number),
 				dependencies: [task3.id],
@@ -559,9 +559,10 @@ describe('PmSim', () => {
 		})
 		it('is not less then current tick * scale', () => {
 			const task1 = new AnyTask('task1', 5)
-			task1.assign('user1')
 			const pm = new PmSim()
 			pm.registerGraph([task1])
+			pm.tick(128)
+			task1.assign('user1')
 			pm.tick(128)
 			expect(task1.waitTime).toBe(128 * scale)
 		})
@@ -616,7 +617,7 @@ describe('PmSim', () => {
 				decisions: [decision.serialize()],
 			})
 		})
-		it.only('hydrates a pm', (done) => {
+		it('hydrates a pm', (done) => {
 			const task1 = new AnyTask('task1', 5)
 			const task2 = new EasyTask('task2', 5)
 			const decision = new Decision('decision1', [{ task: task2, description: 'desc1' }])

@@ -2,6 +2,7 @@
 	import { createEventDispatcher, onMount, setContext, onDestroy } from 'svelte'
 	import Button from './Button.svelte'
 	import { writable } from 'svelte/store'
+	import { browser } from '$app/environment'
 	export let value = ''
 	export let label = ''
 
@@ -16,10 +17,14 @@
 	})
 
 	onMount(() => {
-		document.addEventListener('click', close)
+		if (browser) {
+			document.addEventListener('click', close)
+		}
 	})
 	onDestroy(() => {
-		document.removeEventListener('click', close)
+		if (browser) {
+			document.removeEventListener('click', close)
+		}
 	})
 
 	function onSelect(value: string) {

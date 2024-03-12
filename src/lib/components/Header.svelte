@@ -2,8 +2,7 @@
 	import Button from './Button.svelte'
 	import Drawer from './Drawer.svelte'
 	import { store } from '$lib/model/store'
-	import { onMount } from 'svelte'
-	import { Task } from '../model/tasks'
+	import { graphs } from '$lib/model/statics/example-tasks'
 	import { goto } from '$app/navigation'
 
 	let speed = store.settings.tempo
@@ -23,41 +22,24 @@
 		store.timer.setTempo(speed)
 	}
 
-	onMount(async () => {
-		if (store.tasks.getTasks().length === 0) {
-			fakeTasks()
-		}
-	})
-
-	function fakeTasks() {
-		const crew = [store.project.getPlayer(), store.project.getColleague()]
-		if (!crew[0] || !crew[1]) {
-			return
-		}
-		const fakeTasks = [
-			new Task('Find the supplier of X', 10),
-			new Task('Find prospective buyers for Y', 28),
-			new Task('Find producer of the machine PP', 10),
-			new Task('Find producer of the machine ER', 10),
-			new Task('Find a producer of the machine QQ', 10),
-			new Task('Test execution of the machine ER', 12),
-		]
-		for (const task of fakeTasks) {
-			const id = crew[Math.floor(Math.random() * 3)]?.id
-			if (id) task.assign(id)
-			store.tasks.addTask(task)
-		}
-	}
-
 	function resetTasks() {
-		store.tasks.clear()
+		store.pmSim.clear()
+		localStorage.setItem('tick', '0')
+		store.pmSim.registerGraph(graphs)
 		store.timer.setTick(0)
-		fakeTasks()
 	}
 
 	function resetAll() {
 		store.reset()
 		goto('/wizards/1/material')
+	}
+
+	function pause() {
+		store.timer.pause()
+	}
+
+	function resume() {
+		store.timer.resume()
 	}
 </script>
 
@@ -84,6 +66,8 @@
 
 	<Button style="margin-top: 1em;" on:click={resetTasks}>Reset tasks</Button> <br />
 	<Button style="margin-top: 1em;" on:click={resetAll}>Reset all</Button> <br />
+	<Button style="margin-top: 1em;" on:click={pause}>⏸️ Pause sim</Button> <br />
+	<Button style="margin-top: 1em;" on:click={resume}>▶️ Resume sim</Button> <br />
 </Drawer>
 
 <style>
