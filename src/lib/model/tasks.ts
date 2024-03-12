@@ -1,7 +1,6 @@
 // @ts-ignore
 import probJs from 'prob.js'
 import type { Character } from './character'
-import type { Mock } from 'vitest'
 
 function calculateRealTime(estimatedTime: number) {
 	// system of equations:
@@ -32,7 +31,8 @@ export type Status = 'todo' | 'inProgress' | 'done'
 
 interface Serializable {
 	serialize(): object
-	hydrate(data: object): void
+	// TODO should be the same class
+	hydrate(data: object): Serializable
 }
 
 export class Dependable {
@@ -127,8 +127,7 @@ export abstract class Task extends Dependable implements Serializable {
 			type: this.constructor.name,
 			id: this.id,
 			name: this.name,
-			estimatedTime: this.estimate,
-			attentionSpan: this.requiredAttention,
+			estimate: this.estimate,
 			isDormant: this.isDormant,
 			status: this.status,
 			realTime: this.realTime,
@@ -136,8 +135,17 @@ export abstract class Task extends Dependable implements Serializable {
 			dependents: this.dependents.map((d) => d.id),
 		}
 	}
-	hydrate(data: object): void {
-		throw new Error('Method not implemented.')
+	hydrate(data: any): Task {
+		// TODO check data fields before hydration
+		this.id = data.id
+		this.name = data.name
+		this.estimate = data.estimate
+		this.isDormant = data.isDormant
+		this.status = data.status
+		this.realTime = data.realTime
+		this.dependencies = data.dependencies
+		this.dependents = data.dependents
+		return this
 	}
 }
 
@@ -156,7 +164,11 @@ export class Decision extends Dependable implements Serializable {
 		public options: DecisionOption[],
 	) {
 		super(`decision-${counter++}`)
-		options.forEach((option) => {
+		this.prepareOptions()
+	}
+
+	private prepareOptions() {
+		this.options.forEach((option) => {
 			this.neededFor(option.task)
 			option.task.setDormant()
 		})
@@ -183,16 +195,37 @@ export class Decision extends Dependable implements Serializable {
 		this.status = 'done'
 	}
 	serialize(): object {
-		throw new Error('Method not implemented.')
+		return {
+			type: this.constructor.name,
+			id: this.id,
+			report: this.report,
+			status: this.status,
+			options: this.options.map((o) => ({
+				description: o.description,
+				task: o.task.id,
+			})),
+			dependencies: this.dependencies.map((d) => d.id),
+			dependents: this.dependents.map((d) => d.id),
+		}
 	}
-	hydrate(data: object): void {
-		throw new Error('Method not implemented.')
+	hydrate(data: any): Decision {
+		// TODO check data fielda befroe hydration
+		this.report = data.report
+		this.options = data.options
+		this.prepareOptions()
+		this.id = data.id
+		this.status = data.status
+		this.dependencies = data.dependencies
+		return this
 	}
 }
 
+type TaskFactory = (type: string) => Task
+
 export class PmSim implements Serializable {
-	private tasks: Task[]
-	private decisions: Decision[]
+	private tasks: Task[] = []
+	private decisions: Decision[] = []
+	private taskFactory: TaskFactory | null = null
 
 	registerGraph(graphs: Dependable[]) {
 		// detect cycles
@@ -323,10 +356,63 @@ export class PmSim implements Serializable {
 	}
 
 	serialize(): object {
-		throw new Error('Method not implemented.')
+		return {
+			type: this.constructor.name,
+			tasks: this.tasks.map((t) => t.serialize()),
+			decisions: this.decisions.map((d) => d.serialize()),
+		}
 	}
-	hydrate(data: object): void {
-		throw new Error('Method not implemented.')
+	hydrate(data: any): PmSim {
+		if (!this.taskFactory) {
+			throw new Error('Task factory not set')
+		}
+		const registry = new Map<string, Dependable>()
+		for (let taskData of data.tasks) {
+			const task = this.taskFactory(taskData.type)
+			registry.set(taskData.id, task)
+		}
+		for (let decisionData of data.decisions) {
+			const decision = new Decision('', [])
+			registry.set(decisionData.id, decision)
+		}
+		for (let taskData of data.tasks) {
+			const task = registry.get(taskData.id)
+			if (!task || !(task instanceof Task)) throw new Error(`Task ${taskData.id} not found`)
+			hydrateDependables(taskData, registry)
+			task.hydrate(taskData)
+			this.tasks.push(task)
+		}
+		for (let decisionData of data.decisions) {
+			const decision = registry.get(decisionData.id)
+			if (!decision || !(decision instanceof Decision))
+				throw new Error(`Decision ${decisionData.id} not found`)
+			hydrateDependables(decisionData, registry)
+			decisionData.options = decisionData.options.map((o: any) => {
+				const task = registry.get(o.task)
+				if (!task || !(task instanceof Task)) throw new Error(`Task ${o.task} not found`)
+				return { description: o.description, task }
+			})
+			decision.hydrate(decisionData)
+			this.decisions.push(decision)
+		}
+
+		function hydrateDependables(data: any, registry: Map<string, Dependable>) {
+			data.dependencies = data.dependencies.map((d: string) => {
+				const dependency = registry.get(d)
+				if (!dependency) throw new Error(`Dependency not found, ${d}`)
+				return dependency
+			})
+			data.dependents = data.dependents.map((d: string) => {
+				const dependent = registry.get(d)
+				if (!dependent) throw new Error(`Dependent not found, ${d}`)
+				return dependent
+			})
+		}
+		return this
+	}
+
+	setTaskFactory(factory: TaskFactory) {
+		this.taskFactory = factory
 	}
 }
 

@@ -42,6 +42,8 @@ describe('Dependable', () => {
 		task2.neededFor(task1)
 		expect(task2.reportDependents()).toEqual([task1])
 	})
+
+	it.todo("doesn't duplicate dependency")
 })
 
 describe('Decision', () => {
@@ -89,14 +91,52 @@ describe('Decision', () => {
 		expect(decision.status).toBe('done')
 	})
 
-	describe('serialize', () => {
-		it.todo('serializes a decision')
-		it.todo('hydrates a decision')
+	describe('serialization', () => {
+		it('serializes a decision', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const decision = new Decision('decision1', [{ task: task1, description: 'desc1' }])
+			decision.dependsOn(task2)
+			expect(decision.serialize()).toEqual({
+				type: 'Decision',
+				id: decision.id,
+				report: 'decision1',
+				options: [{ task: task1.id, description: 'desc1' }],
+				status: 'todo',
+				dependencies: [task2.id],
+				dependents: [task1.id],
+			})
+		})
+		it('hydrates a decision', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const decision = new Decision('decision1', [{ task: task1, description: 'desc1' }])
+			const registry = {
+				[task1.id]: task1,
+				[task2.id]: task2,
+				[decision.id]: decision,
+			}
+			decision.dependsOn(task2)
+			const serialised = decision.serialize() as any
+			serialised.dependencies = serialised.dependencies.map((id: string) => registry[id])
+			serialised.options = serialised.options.map((option: any) => {
+				option.task = registry[option.task]
+				return option
+			})
+			const hydrated = new Decision('', []).hydrate(serialised)
+			expect(hydrated).toBeInstanceOf(Decision)
+			expect(hydrated.id).toEqual(decision.id)
+			expect(hydrated.report).toEqual(decision.report)
+			expect(hydrated.status).toEqual(decision.status)
+			expect(hydrated.options).toEqual(decision.options)
+			expect(hydrated.dependencies).toEqual(decision.dependencies)
+			expect(hydrated.dependents).toEqual(decision.dependents)
+		})
 	})
 })
 
 describe('Task', () => {
-	describe('serialize', () => {
+	describe('serialization', () => {
 		it('serializes a task', () => {
 			const task = new AnyTask('task1', 5)
 			const task2 = new AnyTask('task2', 5)
@@ -559,6 +599,48 @@ describe('PmSim', () => {
 			pm.onDecisionUnlocked(fn)
 			expect(spy1).toBeCalledWith(fn)
 			expect(spy2).toBeCalledWith(fn)
+		})
+	})
+
+	describe('serialization', () => {
+		it('serializes a pm', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const decision = new Decision('decision1', [{ task: task2, description: 'desc1' }])
+			decision.dependsOn(task1)
+			const pm = new PmSim()
+			pm.registerGraph([task1])
+			expect(pm.serialize()).toEqual({
+				type: 'PmSim',
+				tasks: [task1.serialize(), task2.serialize()],
+				decisions: [decision.serialize()],
+			})
+		})
+		it.only('hydrates a pm', (done) => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new EasyTask('task2', 5)
+			const decision = new Decision('decision1', [{ task: task2, description: 'desc1' }])
+			decision.dependsOn(task1)
+			const pm = new PmSim()
+			pm.registerGraph([task1, task2])
+			const hydrated = new PmSim()
+			hydrated.setTaskFactory((type) => {
+				if (type === 'AnyTask') return new AnyTask('', 0)
+				if (type === 'EasyTask') return new EasyTask('', 0)
+				throw new Error('Unknown task type')
+			})
+			hydrated.hydrate(pm.serialize())
+			expect(hydrated).toBeInstanceOf(PmSim)
+			expect(hydrated.getTasks()).toEqual(pm.getTasks())
+			// TODO check that tasks are of correct types also
+			const onUnlock = vi.fn()
+			hydrated.onDecisionUnlocked(onUnlock)
+			pm.onDecisionUnlocked(onUnlock)
+			hydrated.getTasks().forEach((t) => (t.status = 'done'))
+			pm.getTasks().forEach((t) => (t.status = 'done'))
+			hydrated.tick(1)
+
+			expect(onUnlock).toBeCalledWith(decision)
 		})
 	})
 })
