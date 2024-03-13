@@ -4,9 +4,7 @@ export class Timer {
 	private timer: ReturnType<typeof setInterval>
 	private tempo: number = 100
 	private tickCount: number = 0
-	constructor() {
-		this.timer = setInterval(this.tick, this.tempo)
-	}
+	private isRunning = false
 	onTick(listener: Listener) {
 		this.listeners.push(listener)
 	}
@@ -17,7 +15,9 @@ export class Timer {
 	setTempo(tempo: number) {
 		this.tempo = 1000 / tempo
 		this.pause()
-		this.resume()
+		if (this.isRunning) {
+			this.resume()
+		}
 	}
 
 	setTick(tick: number) {
@@ -28,13 +28,16 @@ export class Timer {
 	}
 
 	pause() {
+		this.isRunning = false
 		clearInterval(this.timer)
 	}
 	resume() {
+		this.isRunning = true
 		this.timer = setInterval(this.tick, this.tempo)
 	}
 
 	private tick = () => {
-		this.listeners.forEach((listener) => listener(this.tickCount++))
+		this.tickCount++
+		this.listeners.forEach((listener) => listener(this.tickCount))
 	}
 }

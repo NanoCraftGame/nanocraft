@@ -61,20 +61,18 @@ describe('Decision', () => {
 		expect(onUnlockSpy).toBeCalledWith(decision)
 	})
 
-	it('makes all optional tasks dormat and dependant on it', () => {
+	it('makes all optional tasks dependant on it', () => {
 		const task1 = new AnyTask('task1', 5)
 		const task2 = new AnyTask('task2', 5)
-		const taks1spy = vi.spyOn(task1, 'setDormant')
-		const taks2spy = vi.spyOn(task2, 'setDormant')
 		const decision = new Decision('decision1', [
 			{ task: task1, description: 'desc1' },
 			{ task: task2, description: 'desc2' },
 		])
-		expect(taks1spy).toBeCalled()
-		expect(taks2spy).toBeCalled()
 		expect(task1.reportDependencies()).toEqual([decision])
 		expect(task2.reportDependencies()).toEqual([decision])
 	})
+
+	it.todo('makes all optional tasks dormant')
 
 	it('awakens a selected task', () => {
 		const task1 = new AnyTask('task1', 5)

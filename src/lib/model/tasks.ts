@@ -173,7 +173,14 @@ export class Decision extends Dependable implements Serializable {
 	private prepareOptions() {
 		this.options.forEach((option) => {
 			this.neededFor(option.task)
-			option.task.setDormant()
+		})
+	}
+
+	optionize() {
+		this.dependents.forEach((dependent) => {
+			if (dependent instanceof Task) {
+				dependent.setDormant()
+			}
 		})
 	}
 
@@ -275,6 +282,9 @@ export class PmSim implements Serializable {
 
 		this.tasks = tasks.reverse()
 		this.decisions = descisions.reverse()
+		this.decisions.forEach((decision) => {
+			decision.optionize()
+		})
 	}
 	tick(currentTick: number) {
 		type Queue = { all: Task[]; active: Task[] }

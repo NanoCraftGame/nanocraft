@@ -26,10 +26,11 @@ function taskFactory(type: string) {
 if (browser) {
 	project.hydrate(JSON.parse(localStorage.getItem('project') || '{}'))
 	pmSim.setTaskFactory(taskFactory)
-	pmSim.hydrate(JSON.parse(localStorage.getItem('tasks') || '{"tasks":[], "decisions": []}'))
+	if (pmSim.getTasks().length === 0) {
+		pmSim.hydrate(JSON.parse(localStorage.getItem('tasks') || '{"tasks":[], "decisions": []}'))
+	}
 	settings = JSON.parse(localStorage.getItem('settings') || '{"tempo":10}')
 	timer.setTempo(settings.tempo)
-	timer.pause()
 	timer.setTick(JSON.parse(localStorage.getItem('tick') || '0'))
 	timer.onTick((tick) => {
 		pmSim.tick(tick)
