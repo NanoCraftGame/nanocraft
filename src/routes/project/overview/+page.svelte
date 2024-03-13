@@ -41,9 +41,7 @@
 		</thead>
 		<tbody>
 			{#each tasks as task}
-				{#if !task.isDormant}
-					<TaskRow {task} assignees={filterNonNull(crew)} />
-				{/if}
+				<TaskRow {task} assignees={filterNonNull(crew)} />
 			{/each}
 		</tbody>
 	</table>

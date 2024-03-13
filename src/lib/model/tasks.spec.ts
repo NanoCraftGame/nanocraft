@@ -141,16 +141,21 @@ describe('Task', () => {
 			const task = new AnyTask('task1', 5)
 			const task2 = new AnyTask('task2', 5)
 			const task3 = new AnyTask('task3', 5)
+			task.assign('user1')
 			task2.dependsOn(task)
 			task.dependsOn(task3)
+			task.status = 'inProgress'
+			task.tick(1, 12)
 			expect(task.serialize()).toEqual({
 				type: 'AnyTask',
 				id: task.id,
-				name: 'task1',
-				estimate: 5,
-				isDormant: false,
+				name: task.name,
+				estimate: task.estimate,
+				isDormant: task.isDormant,
 				waitTime: task.waitTime,
-				status: 'todo',
+				assignee: task.assignee,
+				timeSpent: task.timeSpent,
+				status: task.status,
 				realTime: expect.any(Number),
 				dependencies: [task3.id],
 				dependents: [task2.id],
@@ -169,14 +174,15 @@ describe('Task', () => {
 	})
 
 	describe('tick', () => {
-		it('increases timeSpent by n * scale', () => {
+		it('increases timeSpent depending on tick and attention', () => {
 			const task = new AnyTask('task1', 5)
 			task.assign('user1')
 			task.status = 'inProgress'
-			task.tick(1)
-			expect(task.timeSpent).toEqual(1 * scale)
-			task.tick(0.8)
-			expect(task.timeSpent).toEqual(1 * scale + 0.8 * scale)
+			task.waitTime = 4
+			task.tick(1, 12)
+			expect(task.timeSpent).toEqual(12 * scale + 1 * scale - 4)
+			task.tick(0.8, 7)
+			expect(task.timeSpent).toEqual(7 * scale + 0.8 * scale - 4)
 		})
 		it('transitions task to done state if time spent exceeds real time', () => {
 			const task = new AnyTask('task1', 5)
@@ -186,9 +192,7 @@ describe('Task', () => {
 			// Simulate ticks, 5*4 ticks should be enough to exceed real time
 			// since 0.99 confidence level is 5 * 3.14
 			const enoughTicks = (5 * 5) / scale
-			for (let i = 0; i < enoughTicks; i++) {
-				task.tick(1)
-			}
+			task.tick(1, enoughTicks)
 
 			expect(task.status).toEqual('done')
 		})
@@ -197,7 +201,7 @@ describe('Task', () => {
 			const task = new AnyTask('task1', 5)
 			task.assign('user1')
 			task.status = 'todo'
-			task.tick(1)
+			task.tick(1, 12)
 			expect(task.timeSpent).toEqual(0)
 		})
 	})
@@ -214,8 +218,9 @@ describe('Task', () => {
 			while (true) {
 				task = new AnyTask('task1', 1)
 				task.status = 'inProgress'
+				let tick = 0
 				do {
-					task.tick(1)
+					task.tick(1, tick++)
 					// break as soon as time spent exceeds estimate
 					if (task.estimate < task.timeSpent) break
 					// but don't run it forever, when it's done
@@ -229,7 +234,7 @@ describe('Task', () => {
 		it('is estimate, when task is inProgress and time spent is smaller', () => {
 			const task = new AnyTask('task1', 5)
 			task.status = 'inProgress'
-			task.tick(1)
+			task.tick(1, 1)
 			expect(task.duration).toEqual(5)
 		})
 		it('is time spent, when task is done', () => {
@@ -485,9 +490,9 @@ describe('PmSim', () => {
 			const tickSpy2 = vi.spyOn(task2, 'tick')
 			const tickSpy3 = vi.spyOn(task3, 'tick')
 			pm.tick(1)
-			expect(tickSpy1).toBeCalledWith(0.8)
-			expect(tickSpy2).toBeCalledWith(0.1)
-			expect(tickSpy3).toBeCalledWith(0.1)
+			expect(tickSpy1).toBeCalledWith(0.8, 1)
+			expect(tickSpy2).toBeCalledWith(0.1, 1)
+			expect(tickSpy3).toBeCalledWith(0.1, 1)
 		})
 	})
 	describe('wait time calculation', () => {

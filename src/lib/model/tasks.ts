@@ -100,9 +100,9 @@ export abstract class Task extends Dependable implements Serializable {
 		this.assignee = assigneeId
 	}
 
-	tick(attention: number) {
+	tick(attention: number, tick: number) {
 		if (this.status === 'inProgress') {
-			this.timeSpent += attention * scale
+			this.timeSpent = attention * scale + tick * scale - this.waitTime
 			if (this.timeSpent >= this.realTime) {
 				this.status = 'done'
 			}
@@ -128,9 +128,11 @@ export abstract class Task extends Dependable implements Serializable {
 			id: this.id,
 			name: this.name,
 			estimate: this.estimate,
+			assignee: this.assignee,
 			isDormant: this.isDormant,
 			status: this.status,
 			realTime: this.realTime,
+			timeSpent: this.timeSpent,
 			waitTime: this.waitTime,
 			dependencies: this.dependencies.map((d) => d.id),
 			dependents: this.dependents.map((d) => d.id),
@@ -334,7 +336,7 @@ export class PmSim implements Serializable {
 				let waitTime = task.status === 'todo' ? currentTick * scale : task.waitTime
 				task.waitTime = Math.max(waitTime, findLongestEnd(waitFor))
 			}
-			task.tick(attentionSpan)
+			task.tick(attentionSpan, currentTick)
 		}
 
 		this.decisions.forEach((decision) => {

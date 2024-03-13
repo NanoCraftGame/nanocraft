@@ -22,7 +22,7 @@
 	}
 </script>
 
-<tr>
+<tr style="opacity: {task.isDormant ? 0.3 : 1};">
 	<td class="assignee">
 		{#if assignee}
 			<div class="pic-row">
