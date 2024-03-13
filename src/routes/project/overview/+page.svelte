@@ -4,6 +4,8 @@
 	import { store } from '$lib/model/store'
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
+	import type { Decision } from '../../../lib/model/tasks'
+	import Button from '../../../lib/components/Button.svelte'
 
 	// TODO
 	// - layout for long progress bars
@@ -11,6 +13,13 @@
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
 	let tasks = store.pmSim.getTasks()
+
+	let decision: Decision | null = null
+
+	store.pmSim.onDecisionUnlocked((d) => {
+		store.timer.pause()
+		decision = d
+	})
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
@@ -45,6 +54,24 @@
 			{/each}
 		</tbody>
 	</table>
+	{#if decision}
+		<div class="decision">
+			<p>{decision.report}</p>
+			{#each decision.options as option}
+				<p>
+					<Button
+						on:click={() => {
+							decision?.decide(option)
+							decision = null
+							store.timer.resume()
+						}}
+					>
+						{option.description}
+					</Button>
+				</p>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>

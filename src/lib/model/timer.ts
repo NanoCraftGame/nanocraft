@@ -1,10 +1,19 @@
 type Listener = (tick: number) => void
+import { writable, type Writable } from 'svelte/store'
+
 export class Timer {
 	private listeners: Listener[] = []
 	private timer: ReturnType<typeof setInterval>
 	private tempo: number = 100
 	private tickCount: number = 0
 	private isRunning = false
+
+	currentTick: Writable<number>
+
+	constructor() {
+		this.currentTick = writable(0)
+	}
+
 	onTick(listener: Listener) {
 		this.listeners.push(listener)
 	}
@@ -14,14 +23,16 @@ export class Timer {
 	 */
 	setTempo(tempo: number) {
 		this.tempo = 1000 / tempo
+		const wasRunning = this.isRunning
 		this.pause()
-		if (this.isRunning) {
+		if (wasRunning) {
 			this.resume()
 		}
 	}
 
 	setTick(tick: number) {
 		this.tickCount = tick
+		this.currentTick.set(tick)
 	}
 	getTempo() {
 		return 1000 / this.tempo
@@ -38,6 +49,7 @@ export class Timer {
 
 	private tick = () => {
 		this.tickCount++
+		this.currentTick.set(this.tickCount)
 		this.listeners.forEach((listener) => listener(this.tickCount))
 	}
 }

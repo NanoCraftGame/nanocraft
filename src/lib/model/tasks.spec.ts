@@ -61,6 +61,8 @@ describe('Decision', () => {
 		expect(onUnlockSpy).toBeCalledWith(decision)
 	})
 
+	it.todo('do not call onUnlock if already done')
+
 	it('makes all optional tasks dependant on it', () => {
 		const task1 = new AnyTask('task1', 5)
 		const task2 = new AnyTask('task2', 5)

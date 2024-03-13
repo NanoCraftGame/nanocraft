@@ -11,6 +11,11 @@
 
 	let drawerOpen = false
 
+	let currentTick = 0
+	store.timer.currentTick.subscribe((tick) => {
+		currentTick = tick
+	})
+
 	function toggleDrawer() {
 		drawerOpen = !drawerOpen
 	}
@@ -48,6 +53,9 @@
 		<a href="/project/overview" class:current={current === 'project'}>Project Overview</a>
 		<a href="/inventory" class:current={current === 'inventory'}>Inventory</a>
 		<a href="/reports" class:current={current === 'reports'}>Reports</a>
+	</div>
+	<div>
+		{(currentTick / 8).toFixed(2)} days
 	</div>
 	<div class="header-right">
 		<Button variant="ghost" on:click={toggleDrawer}>

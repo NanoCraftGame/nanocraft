@@ -192,7 +192,8 @@ export class Decision extends Dependable implements Serializable {
 				}
 				return false
 			}) &&
-			this.unlockListener
+			this.unlockListener &&
+			this.status !== 'done'
 		) {
 			this.unlockListener(this)
 		}
