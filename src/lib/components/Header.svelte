@@ -2,7 +2,6 @@
 	import Button from './Button.svelte'
 	import Drawer from './Drawer.svelte'
 	import { store } from '$lib/model/store'
-	import { graphs } from '$lib/model/statics/example-tasks'
 	import { goto } from '$app/navigation'
 
 	let speed = store.settings.tempo
@@ -28,14 +27,11 @@
 	}
 
 	function resetTasks() {
-		store.pmSim.clear()
-		localStorage.setItem('tick', '0')
-		store.pmSim.registerGraph(graphs)
-		store.timer.setTick(0)
+		store.reset(false)
 	}
 
 	function resetAll() {
-		store.reset()
+		store.reset(true)
 		goto('/wizards/1/material')
 	}
 

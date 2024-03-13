@@ -142,9 +142,12 @@ export abstract class Task extends Dependable implements Serializable {
 		// TODO check data fields before hydration
 		this.id = data.id
 		this.name = data.name
+		this.assignee = data.assignee
 		this.estimate = data.estimate
 		this.isDormant = data.isDormant
 		this.status = data.status
+		this.timeSpent = data.timeSpent
+		this.waitTime = data.waitTime
 		this.realTime = data.realTime
 		this.dependencies = data.dependencies
 		this.dependents = data.dependents
@@ -204,6 +207,7 @@ export class Decision extends Dependable implements Serializable {
 	decide(option: DecisionOption) {
 		option.task.awake()
 		this.status = 'done'
+		this.notify()
 	}
 	serialize(): object {
 		return {
@@ -228,6 +232,14 @@ export class Decision extends Dependable implements Serializable {
 		this.status = data.status
 		this.dependencies = data.dependencies
 		return this
+	}
+
+	private subscibrers: Array<() => void> = []
+	subscirbe(notify: () => void) {
+		this.subscibrers.push(notify)
+	}
+	private notify() {
+		this.subscibrers.forEach((subscriber) => subscriber())
 	}
 }
 
@@ -283,9 +295,7 @@ export class PmSim implements Serializable {
 
 		this.tasks = tasks.reverse()
 		this.decisions = descisions.reverse()
-		this.decisions.forEach((decision) => {
-			decision.optionize()
-		})
+		this.prepareDecisions()
 	}
 	tick(currentTick: number) {
 		type Queue = { all: Task[]; active: Task[] }
@@ -353,14 +363,20 @@ export class PmSim implements Serializable {
 		this.decisions.forEach((decision) => {
 			decision.tick()
 		})
+		this.notify()
 	}
-	getTasks(): Task[] {
+	getTasks() {
 		return this.tasks
+	}
+
+	getDecisions() {
+		return this.decisions
 	}
 
 	assign(character: Character, task: Task) {
 		if (character.canTake(task)) {
 			task.assign(character.id)
+			this.notify()
 		}
 	}
 	onDecisionUnlocked(fn: (decision: Decision) => void) {
@@ -422,6 +438,7 @@ export class PmSim implements Serializable {
 				return dependent
 			})
 		}
+		this.prepareDecisions()
 		return this
 	}
 
@@ -432,6 +449,21 @@ export class PmSim implements Serializable {
 	clear() {
 		this.tasks = []
 		this.decisions = []
+	}
+
+	private subscibrers: Array<() => void> = []
+	subscirbe(notify: () => void) {
+		this.subscibrers.push(notify)
+	}
+	private notify() {
+		this.subscibrers.forEach((subscriber) => subscriber())
+	}
+
+	private prepareDecisions() {
+		this.decisions.forEach((decision) => {
+			decision.optionize()
+			decision.subscirbe(() => this.notify())
+		})
 	}
 }
 

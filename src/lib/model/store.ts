@@ -1,15 +1,13 @@
 import { CharacterFactory } from './character'
 import { MaterialFactory } from './material'
 import { Project } from './project'
-import { Sim } from './sim'
 import { Timer } from './timer'
 import { PmSim } from './tasks'
 import { browser } from '$app/environment'
-import { graphs, taskTypes } from './statics/example-tasks'
+import { initTasks, taskTypes } from './statics/example-tasks'
 
 const project = new Project(new MaterialFactory(), new CharacterFactory())
 const pmSim = new PmSim()
-pmSim.registerGraph(graphs)
 const timer = new Timer()
 let settings = {
 	tempo: 10,
@@ -27,13 +25,23 @@ if (browser) {
 	project.hydrate(JSON.parse(localStorage.getItem('project') || '{}'))
 	pmSim.setTaskFactory(taskFactory)
 	if (pmSim.getTasks().length === 0) {
-		pmSim.hydrate(JSON.parse(localStorage.getItem('tasks') || '{"tasks":[], "decisions": []}'))
+		const stored = localStorage.getItem('tasks')
+		if (stored) {
+			pmSim.hydrate(JSON.parse(stored))
+		} else {
+			pmSim.registerGraph(initTasks())
+			pmSim.tick(0)
+		}
 	}
 	settings = JSON.parse(localStorage.getItem('settings') || '{"tempo":10}')
 	timer.setTempo(settings.tempo)
-	timer.setTick(JSON.parse(localStorage.getItem('tick') || '0'))
+	const tick = JSON.parse(localStorage.getItem('tick') || '0')
+	timer.setTick(tick)
+	pmSim.tick(tick)
+	pmSim.subscirbe(notify)
 	timer.onTick((tick) => {
 		pmSim.tick(tick)
+		notify()
 		save(tick)
 	})
 }
@@ -45,20 +53,34 @@ function save(tick: number) {
 	localStorage.setItem('tick', JSON.stringify(tick))
 }
 
-const sim = new Sim(timer, pmSim)
+type Store = typeof store
+type Subscriber = (store: Store) => void
+
+const subcribers: Subscriber[] = []
+
+function notify() {
+	subcribers.forEach((subcriber) => subcriber(store))
+}
+
 export const store = {
 	settings,
 	project,
-	sim,
 	pmSim,
 	timer,
-	reset() {
-		project.setMaterial(null)
-		project.setPlayer(null)
-		project.setColleague(null)
+	save,
+	subcribe(subcriber: Subscriber) {
+		subcribers.push(subcriber)
+	},
+	reset(all: boolean = false) {
+		if (all) {
+			project.setMaterial(null)
+			project.setPlayer(null)
+			project.setColleague(null)
+		}
 		timer.setTick(0)
 		pmSim.clear()
-		pmSim.registerGraph(graphs)
+		pmSim.registerGraph(initTasks())
+		pmSim.tick(0)
 		save(0)
 	},
 }

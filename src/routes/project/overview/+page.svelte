@@ -4,15 +4,15 @@
 	import { store } from '$lib/model/store'
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
-	import type { Decision } from '../../../lib/model/tasks'
-	import Button from '../../../lib/components/Button.svelte'
+	import type { Decision, Task } from '$lib/model/tasks'
+	import Button from '$lib/components/Button.svelte'
 
 	// TODO
 	// - layout for long progress bars
 
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
-	let tasks = store.pmSim.getTasks()
+	let tasks: Task[] = []
 
 	let decision: Decision | null = null
 
@@ -27,8 +27,14 @@
 			return
 		}
 		tasks = store.pmSim.getTasks()
-		store.timer.onTick(() => {
+		store.subcribe(() => {
 			tasks = store.pmSim.getTasks()
+			const alltasksDone = tasks.every((t) => t.status === 'done' || t.isDormant)
+			const allDecisionsDone = store.pmSim.getDecisions().every((d) => d.status === 'done')
+			if (alltasksDone && allDecisionsDone) {
+				store.timer.pause()
+				alert('Hoooray!!')
+			}
 		})
 	})
 
@@ -63,7 +69,6 @@
 						on:click={() => {
 							decision?.decide(option)
 							decision = null
-							store.timer.resume()
 						}}
 					>
 						{option.description}

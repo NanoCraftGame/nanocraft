@@ -4,6 +4,7 @@
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
 	import DropDownItem from '$lib/components/DropDownItem.svelte'
+	import { store } from '$lib/model/store'
 	export let task: Task
 	export let assignees: Character[]
 
@@ -18,7 +19,8 @@
 		assignee = assignees.find((a) => a.id === task.assignee)
 	}
 	function assign(e: CustomEvent<string>) {
-		task.assign(e.detail)
+		const assignee = assignees.find((a) => a.id === e.detail)
+		if (assignee) store.pmSim.assign(assignee, task)
 	}
 </script>
 
