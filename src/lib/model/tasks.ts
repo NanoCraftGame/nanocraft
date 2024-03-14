@@ -110,6 +110,7 @@ export abstract class Task extends Dependable implements Serializable {
 	}
 
 	setDormant() {
+		if (this.status === 'done') return
 		this.isDormant = true
 		this.reportDependents().forEach((dependent) => {
 			if (dependent instanceof Task) dependent.setDormant()
@@ -379,7 +380,9 @@ export class PmSim implements Serializable {
 			this.notify()
 		}
 	}
-	onDecisionUnlocked(fn: (decision: Decision) => void) {
+	private unlockListener: UnlockListener | null = null
+	onDecisionUnlocked(fn: UnlockListener) {
+		this.unlockListener = fn
 		this.decisions.forEach((decision) => {
 			decision.onUnlock(fn)
 		})
@@ -463,6 +466,7 @@ export class PmSim implements Serializable {
 		this.decisions.forEach((decision) => {
 			decision.optionize()
 			decision.subscirbe(() => this.notify())
+			if (this.unlockListener) decision.onUnlock(this.unlockListener)
 		})
 	}
 }

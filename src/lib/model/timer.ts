@@ -6,7 +6,7 @@ export class Timer {
 	private timer: ReturnType<typeof setInterval>
 	private tempo: number = 100
 	private tickCount: number = 0
-	private isRunning = false
+	isRunning = false
 
 	currentTick: Writable<number>
 

@@ -41,7 +41,6 @@ if (browser) {
 	pmSim.subscirbe(notify)
 	timer.onTick((tick) => {
 		pmSim.tick(tick)
-		notify()
 		save(tick)
 	})
 }

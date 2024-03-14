@@ -16,11 +16,6 @@
 
 	let decision: Decision | null = null
 
-	store.pmSim.onDecisionUnlocked((d) => {
-		store.timer.pause()
-		decision = d
-	})
-
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
 			goto('/wizards/1/crew')
@@ -35,6 +30,10 @@
 				store.timer.pause()
 				alert('Hoooray!!')
 			}
+		})
+		store.pmSim.onDecisionUnlocked((d) => {
+			store.timer.pause()
+			decision = d
 		})
 	})
 

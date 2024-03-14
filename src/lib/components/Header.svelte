@@ -3,6 +3,8 @@
 	import Drawer from './Drawer.svelte'
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
+	import { onMount } from 'svelte'
+	import { browser } from '$app/environment'
 
 	let speed = store.settings.tempo
 
@@ -13,6 +15,20 @@
 	let currentTick = 0
 	store.timer.currentTick.subscribe((tick) => {
 		currentTick = tick
+	})
+
+	onMount(() => {
+		if (browser) {
+			window.addEventListener('keydown', (event) => {
+				if (event.code === 'Space') {
+					if (store.timer.isRunning) {
+						store.timer.pause()
+					} else {
+						store.timer.resume()
+					}
+				}
+			})
+		}
 	})
 
 	function toggleDrawer() {
