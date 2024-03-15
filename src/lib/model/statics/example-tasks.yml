@@ -85,14 +85,42 @@ tasks:
       - *decision1
   - &taskSignContract Sign pilot contract:
     type: CustomerContract
+    estimate: 10
   - &taskProcurementDealPump Sign procurement deal:
     type: ProcurementContract
+    estimate: 10
   - Make a budget plan:
     type: ProjectManagement
+    estimate: 10
   - Make milestone and timeline planning:
     type: ProjectManagement
+    estimate: 10
   - Select Raw Materials:
     type: EngineeringDevelopment
-  - Procure Raw Materials:
+    estimate: 10
+  - Decision on location for testing:
+    type: ProjectManagement
+    estimate: 10
+  - Procure Raw Materials (Methylamine, Glyoxal, Formaldehyde, Ammonia, Water):
     type: ProcurementContract
+    estimate: 20
+  - Build Chemical Storage:
+    type: EngineeringDevelopment
+    estimate: 20
+  - Procure Mixing Tank:
+    type: ProcurementContract
+    estimate: 10
+  - Procure coolers and heaters:
+    type: ProcurementContract
+    estimate: 10
+  - Build pilotplant:
+    type: EngineeringDevelopment
+    estimate: 30
+  - Test individual equipments for performance:
+    type: EngineeringDevelopment
+    estimate: 20
+  - Safety Inspection of the pilot plant:
+    type: EngineeringDevelopment
+    estimate: 30
+
   
