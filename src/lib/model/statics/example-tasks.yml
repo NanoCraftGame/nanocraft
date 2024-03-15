@@ -9,6 +9,8 @@ taskTypes: # use semicolon to define nested fields or arrays using indentation
     attention: partial
   - EngineeringDevelopment:
     attention: full
+  - ProjectManagement:
+    attention: full
 tasks:
   - Find customers in Germany:
     description: Germany is a very promising market with a lot of customers and both founders worked there for quite some time
@@ -85,3 +87,12 @@ tasks:
     type: CustomerContract
   - &taskProcurementDealPump Sign procurement deal:
     type: ProcurementContract
+  - Make a budget plan:
+    type: ProjectManagement
+  - Make milestone and timeline planning:
+    type: ProjectManagement
+  - Select Raw Materials:
+    type: EngineeringDevelopment
+  - Procure Raw Materials:
+    type: ProcurementContract
+  
