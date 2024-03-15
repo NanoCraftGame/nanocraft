@@ -1,0 +1,87 @@
+taskTypes: # use semicolon to define nested fields or arrays using indentation
+  - MarketResearch: # list items start with dash
+    attention: full # if something just indented, it's an object's field
+  - CustomerContract:
+    attention: partial
+  - ProcurementResearch:
+    attention: full
+  - ProcurementContract:
+    attention: partial
+  - EngineeringDevelopment:
+    attention: full
+tasks:
+  - Find customers in Germany:
+    description: Germany is a very promising market with a lot of customers and both founders worked there for quite some time
+    type: MarketResearch
+    estimate: 20
+    downstream:
+      # this decision will appear in downstream of "Find customers in Scandinavia" task, 
+      # so we need id to reference it using &anchor syntax
+      - &decision1 Choose customer for pilot:
+        type: Decision
+        # the > means that following indented stuff is a multiline string (here we can use markdown syntax)
+        # note that in that string '#' is no longer a comment, but a part of the string.
+        report: > 
+          We identified two prospective customers: one in Germany and one in Finland:
+          
+          ## New Norsk Energy Oy
+          New Norsk Energy is a Finland battery manufacturer of middle size. They
+          produce big batteries for industrial equipment and our product can make
+          their production cheaper, therefore their primary objective is low price
+          however, they don't need a very high purity. They agreed for 14 tons at 
+          price €5,000 per ton.
+
+          ## Battarfungën Gmbh.
+          Battarfungën Gmbh. is a Berlin-based mobile batteries manufacturer. They 
+          see our product as a way to make their batteries lighter, however, their 
+          purity requirements are very tight. They agreed to buy two tons at a price
+          €17,000 per ton, however they need purity of 98% which we don't really know 
+          how to achieve yet, although we have some rough ideas.
+        options:
+          - Choose "New Norsk Energy Oy":
+            downstream:
+            - *taskSignContract
+            - Find cheap high volume pump supplier:
+              type: ProcurementResearch
+              downstream:
+                - Choose high volume pump supplier:
+                  type: Decision
+                  report: >
+                    We identified two high volume pump suppliers:
+                    1. **Ornata** is a reseller of Chinese equipment, their pumps cost €3,999 each and can pump
+                       up to 200 liters/hour
+                    2. **Iveco** is an Italian industrial equipment manufacturer they can supply us pumps for 
+                       €4,300, however they don't provide shipment options, so we have to find also a shipping company.
+                       Their pumps can pump up to 250 liters/hour and seem to be more reliable.
+                  options:
+                    - Choose "Ornata":
+                      downstream: 
+                        *taskProcurementDealPump
+                    - Choose "Iveco":
+                      downstream: 
+                        *taskProcurementDealPump
+            - Find biphasic reactor manufacturer:
+              type: ProcurementResearch
+              estimate: 15
+              downstream:
+                - Decide on biphasic reactor:
+                  type: Decision
+                  report: Looks like nobody selling a suitable reactors, we should make our own.
+                  options:
+                    # A decision can have only one option
+                    - Develop biphasic reactor specification:
+                      type: EngineeringDevelopment
+          - Choose "Battarfungën Gmbh.":
+            downstream:
+            -  *taskSignContract
+            # ... all other tasks
+  - Find customers in Scandinavia:
+    type: MarketResearch
+    estimate: 15
+    downstream:
+      # here goes reference to that &decision1 anchor used above
+      - *decision1
+  - &taskSignContract Sign pilot contract:
+    type: CustomerContract
+  - &taskProcurementDealPump Sign procurement deal:
+    type: ProcurementContract

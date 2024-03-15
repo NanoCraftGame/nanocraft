@@ -1,6 +1,6 @@
 import { AttentionSpan, Task, Decision } from '../tasks'
 
-class MarketResarch extends Task {
+class MarketResearch extends Task {
 	requiredAttention = AttentionSpan.FullAttention
 }
 
@@ -16,12 +16,12 @@ class Procurement extends Task {
 	requiredAttention = AttentionSpan.PartialAttention
 }
 export function initTasks() {
-	const findCustomer = new MarketResarch('Find who wants to buy our product', 20)
+	const findCustomer = new MarketResearch('Find who wants to buy our product', 20)
 
 	const contractWithCustomer1 = new ContractTask('contract with customer 1', 5)
 	const contractWithCustomer2 = new ContractTask('contract with customer 2', 5)
 
-	const customerDecison = new Decision('here goes report about market', [
+	const customerDecision = new Decision('here goes report about market', [
 		{
 			description: 'customer 1: wants more but with higher quality',
 			task: contractWithCustomer1,
@@ -32,11 +32,9 @@ export function initTasks() {
 		},
 	])
 
-	customerDecison.dependsOn(findCustomer)
+	customerDecision.dependsOn(findCustomer)
 
 	const findPumpsSupplier = new ProcurementResearch('Find pumps suplier', 5)
-
-	contractWithCustomer1.neededFor(findPumpsSupplier)
 
 	const orderPumpsIveco = new Procurement('Order 3 Iveco high-pressure pumps', 10)
 
@@ -88,4 +86,4 @@ Volvo pumps are more reliable, but they are more expensive and take longer to de
 	return [findCustomer]
 }
 
-export const taskTypes = [MarketResarch, ContractTask, ProcurementResearch, Procurement]
+export const taskTypes = [MarketResearch, ContractTask, ProcurementResearch, Procurement]
