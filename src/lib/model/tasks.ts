@@ -51,10 +51,10 @@ export class Dependable {
 		dependent.dependsOn(this)
 	}
 	reportDependencies() {
-		return this.dependencies
+		return this.dependencies.slice()
 	}
 	reportDependents() {
-		return this.dependents
+		return this.dependents.slice()
 	}
 }
 
@@ -282,20 +282,20 @@ export class PmSim implements Serializable {
 
 		// toposort with DFS
 		const tasks: Task[] = []
-		const descisions: Decision[] = []
+		const decisions: Decision[] = []
 		const visited4Tasks = new Set()
 		function dfTasks(node: Dependable) {
 			if (visited4Tasks.has(node)) return
 			visited4Tasks.add(node)
 			node.reportDependents().forEach(dfTasks)
 			if (node instanceof Task) tasks.push(node)
-			if (node instanceof Decision) descisions.push(node)
+			if (node instanceof Decision) decisions.push(node)
 		}
 
 		roots.forEach((graph) => dfTasks(graph))
 
 		this.tasks = tasks.reverse()
-		this.decisions = descisions.reverse()
+		this.decisions = decisions.reverse()
 		this.prepareDecisions()
 	}
 	tick(currentTick: number) {
@@ -352,7 +352,10 @@ export class PmSim implements Serializable {
 					}
 				}
 				const prevTask = assigneeTasks?.all[assigneeTasks.all.indexOf(task) - 1]
-				if (prevTask) waitFor.push(prevTask)
+				const canStartPrev = prevTask?.reportDependencies().every((d) => isResolved(d))
+				if (canStartPrev) {
+					if (prevTask) waitFor.push(prevTask)
+				}
 			}
 			if (task.status !== 'done') {
 				let waitTime = task.status === 'todo' ? currentTick * scale : task.waitTime
@@ -455,7 +458,7 @@ export class PmSim implements Serializable {
 	}
 
 	private subscibrers: Array<() => void> = []
-	subscirbe(notify: () => void) {
+	subscribe(notify: () => void) {
 		this.subscibrers.push(notify)
 	}
 	private notify() {

@@ -36,11 +36,13 @@ export function initTasks() {
 
 	const findPumpsSupplier = new ProcurementResearch('Find pumps suplier', 5)
 
+	contractWithCustomer1.neededFor(findPumpsSupplier)
+
 	const orderPumpsIveco = new Procurement('Order 3 Iveco high-pressure pumps', 10)
 
 	const orderPumpsVolvo = new Procurement('Order 2 Volvo high-pressure pumps', 12)
 
-	const pumpsSupliersReport = `
+	const pumpsSuppliersReport = `
 # Pumps suppliers report
 ## Market state
 The market is currently in a state of oversupply, with a lot of suppliers offering
@@ -60,7 +62,7 @@ However, they are not as reliable as Volvo pumps.
 Volvo pumps are more reliable, but they are more expensive and take longer to deliver.
 `
 
-	const choosePumpsSupplier = new Decision(pumpsSupliersReport, [
+	const choosePumpsSupplier = new Decision(pumpsSuppliersReport, [
 		{
 			task: orderPumpsIveco,
 			description: 'Iveco is cheaper and faster',
@@ -78,8 +80,8 @@ Volvo pumps are more reliable, but they are more expensive and take longer to de
 
 	const findBiphasicReactorSupplier = new ProcurementResearch('Find Biphase reactor suplier', 15)
 	// we found only one biphase reactor supplier, so no need for decison here..
-	const orderBiphaseReactor = new Procurement('Order 3 Iveco high-pressure pumps', 10)
-	orderBiphaseReactor.dependsOn(findBiphasicReactorSupplier)
+	const orderBiphasicReactor = new Procurement('Order 3 Iveco high-pressure pumps', 10)
+	orderBiphasicReactor.dependsOn(findBiphasicReactorSupplier)
 
 	findBiphasicReactorSupplier.dependsOn(contractWithCustomer1)
 

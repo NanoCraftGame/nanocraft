@@ -60,7 +60,8 @@ simulation tick it checks following conditions:
   - all tasks assigned to them are in `done` state, or
   - all tasks assigned to them have unresolved dependencies, i.e. a task can be transitioned to
     `inProgress` only when it has all its dependencies resolved (see below);
-- The next task to transition to `inProgress` is the first `todo` task in the queue.
+- The next task to transition to `inProgress` is the first `todo` task in the queue that doesn't
+  have unresolved dependencies.
 - For each assignee at any given time only one _full attention_ task can be `inProgress`;
 - For each assignee at any given time no more than three _partial attention_ tasks can be
   `inProgress` if that assignee has also a _full attention_ task assigned;

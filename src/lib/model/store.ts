@@ -38,7 +38,7 @@ if (browser) {
 	const tick = JSON.parse(localStorage.getItem('tick') || '0')
 	timer.setTick(tick)
 	pmSim.tick(tick)
-	pmSim.subscirbe(notify)
+	pmSim.subscribe(notify)
 	timer.onTick((tick) => {
 		pmSim.tick(tick)
 		save(tick)

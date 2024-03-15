@@ -366,7 +366,7 @@ describe('PmSim', () => {
 		})
 	})
 	describe('ticking', () => {
-		it('calls ticks for all ndoes of a graph', () => {
+		it('calls ticks for all nodes of a graph', () => {
 			const task1 = new AnyTask('task1', 5)
 			const task2 = new AnyTask('task2', 5)
 			const decision = new Decision('decision1', [{ task: task2, description: 'desc1' }])
@@ -382,7 +382,7 @@ describe('PmSim', () => {
 			expect(tickSpy3).toBeCalled()
 		})
 		describe('transitions to `inProgress`', () => {
-			it('next TODO task in assingee queue', () => {
+			it('next TODO task in assignee queue', () => {
 				const task1 = new AnyTask('task1', 5)
 				const task2 = new AnyTask('task2', 5)
 				task1.assign('user1')
@@ -515,7 +515,7 @@ describe('PmSim', () => {
 			pm.tick(1)
 			expect(task1.waitTime).toBe(42)
 		})
-		it('is a end of a prev. task in queue for second task', () => {
+		it('is an end of a prev. task in queue for second task', () => {
 			const task1 = new AnyTask('task1', 5)
 			const task2 = new AnyTask('task2', 5)
 			task1.assign('user1')
@@ -532,6 +532,20 @@ describe('PmSim', () => {
 			pm.registerGraph([task2, task1])
 			pm.tick(1)
 			expect(task2.waitTime).toBe(task1.waitTime + task1.duration)
+		})
+		it('waits for prev.task only if it can be done', () => {
+			const task1 = new AnyTask('task1', 5)
+			const task2 = new AnyTask('task2', 5)
+			const task3 = new AnyTask('task3', 5)
+			task2.dependsOn(task1)
+			task2.assign('user1')
+			task3.assign('user1')
+			const pm = new PmSim()
+			pm.registerGraph([task3, task2])
+			// the tests makes sense only if task2 is before task3 in the queue
+			expect(pm.getTasks()).toEqual([task1, task2, task3])
+			pm.tick(1)
+			expect(task3.waitTime).toBe(0)
 		})
 		it('is latest end of dependencies', () => {
 			const task1 = new AnyTask('task1', 3)
@@ -597,13 +611,13 @@ describe('PmSim', () => {
 			const task1 = new AnyTask('task1', 5)
 			const pm = new PmSim()
 			const onAssign = vi.fn()
-			pm.subscirbe(onAssign)
+			pm.subscribe(onAssign)
 			pm.registerGraph([task1])
 			pm.assign(character, task1)
 			expect(onAssign).toBeCalled()
 		})
 	})
-	describe('decsison subscription', () => {
+	describe('decision subscription', () => {
 		it('subscribes a decsison callback to all decisions', () => {
 			const decision = new Decision('decision1', [])
 			const decision2 = new Decision('decision1', [])
@@ -647,7 +661,7 @@ describe('PmSim', () => {
 			})
 			hydrated.hydrate(pm.serialize())
 			expect(hydrated).toBeInstanceOf(PmSim)
-			// FIXME this fails howerver objects **are** indentical
+			// FIXME this fails however objects **are** identical
 			expect(hydrated.getTasks()).toEqual(pm.getTasks())
 			// TODO check that tasks are of correct types also
 			const onUnlock = vi.fn()
