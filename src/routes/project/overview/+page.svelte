@@ -7,6 +7,10 @@
 	import type { Decision, Task } from '$lib/model/tasks'
 	import Button from '$lib/components/Button.svelte'
 
+	export let data
+
+	console.log('data', data)
+
 	// TODO
 	// - layout for long progress bars
 
