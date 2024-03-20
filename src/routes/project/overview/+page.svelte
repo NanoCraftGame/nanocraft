@@ -26,13 +26,13 @@
 			return
 		}
 		tasks = store.pmSim.getTasks()
-		store.subcribe(() => {
+		store.subscribe(() => {
 			tasks = store.pmSim.getTasks()
-			const alltasksDone = tasks.every((t) => t.status === 'done' || t.isDormant)
+			const allTasksDone = tasks.every((t) => t.status === 'done' || t.isDormant)
 			const allDecisionsDone = store.pmSim.getDecisions().every((d) => d.status === 'done')
-			if (alltasksDone && allDecisionsDone) {
+			if (allTasksDone && allDecisionsDone) {
 				store.timer.pause()
-				alert('Hoooray!!')
+				alert('Hooray!!')
 			}
 		})
 		store.pmSim.onDecisionUnlocked((d) => {

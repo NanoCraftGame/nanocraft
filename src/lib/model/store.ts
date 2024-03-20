@@ -4,7 +4,7 @@ import { Project } from './project'
 import { Timer } from './timer'
 import { PmSim } from './tasks'
 import { browser } from '$app/environment'
-import { initTasks, taskTypes } from './statics/example-tasks'
+import { taskTypes } from './statics/example-tasks'
 
 const project = new Project(new MaterialFactory(), new CharacterFactory())
 const pmSim = new PmSim()
@@ -67,7 +67,7 @@ export const store = {
 	pmSim,
 	timer,
 	save,
-	subcribe(subcriber: Subscriber) {
+	subscribe(subcriber: Subscriber) {
 		subcribers.push(subcriber)
 	},
 	reset(all: boolean = false) {
@@ -82,4 +82,9 @@ export const store = {
 		pmSim.tick(0)
 		save(0)
 	},
+}
+
+function initTasks() {
+	const tasks = taskTypes.map((Task) => new Task('', 0))
+	return tasks
 }
