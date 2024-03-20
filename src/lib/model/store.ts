@@ -84,7 +84,25 @@ export const store = {
 	},
 }
 
-function initTasks() {
-	const tasks = taskTypes.map((Task) => new Task('', 0))
-	return tasks
+interface TaskType {
+	requiredAttention: number
 }
+
+interface OptionRecord {
+	downstream: Record<string, TaskRecord>
+}
+
+interface DecisionRecord {
+	type: 'Decision'
+	report: string
+	options: Record<string, OptionRecord>
+}
+
+interface TaskRecord {
+	type: string
+	description: string
+	estimate: number
+	downstream: Record<string, TaskRecord>
+}
+
+function initTasks(tasksTypes: Record<string, TaskType>, tasks: Record<string, any>) {}

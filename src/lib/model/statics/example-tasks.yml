@@ -12,14 +12,23 @@ taskTypes: # use semicolon to define nested fields or arrays using indentation
   ProjectManagement:
     attention: full
 tasks:
-  Find customers in Germany:
+  - &taskSignContract
+    name: Sign pilot contract
+    type: CustomerContract
+    estimate: 10
+  - &taskProcurementDealPump
+    name: Sign procurement deal
+    type: ProcurementContract
+    estimate: 10
+  - name: Find customers in Germany
     description: Germany is a very promising market with a lot of customers and both founders worked there for quite some time
     type: MarketResearch
     estimate: 20
     downstream:
       # this decision will appear in downstream of "Find customers in Scandinavia" task,
       # so we need id to reference it using &anchor syntax
-      &decision1 Choose customer for pilot:
+      - &decision1
+        name: Choose customer for pilot
         type: Decision
         # the > means that following indented stuff is a multiline string (here we can use markdown syntax)
         # note that in that string '#' is no longer a comment, but a part of the string.
@@ -40,15 +49,13 @@ tasks:
           €17,000 per ton, however they need purity of 98% which we don't really know 
           how to achieve yet, although we have some rough ideas.
         options:
-          Choose "New Norsk Energy Oy":
+          - name: Choose "New Norsk Energy Oy"
             downstream:
-              &taskSignContract Sign pilot contract:
-                type: CustomerContract
-                estimate: 10
-              Find cheap high volume pump supplier:
+              - *taskSignContract
+              - name: Find cheap high volume pump supplier
                 type: ProcurementResearch
                 downstream:
-                  Choose high volume pump supplier:
+                  - Choose high volume pump supplier:
                     type: Decision
                     report: >
                       We identified two high volume pump suppliers:
@@ -58,63 +65,66 @@ tasks:
                          €4,300, however they don't provide shipment options, so we have to find also a shipping company.
                          Their pumps can pump up to 250 liters/hour and seem to be more reliable.
                     options:
-                      Choose "Ornata":
+                      - name: Choose "Ornata"
                         downstream:
-                          &taskProcurementDealPump Sign procurement deal:
-                            type: ProcurementContract
-                            estimate: 10
-                      Choose "Iveco":
-                        downstream: *taskProcurementDealPump
-              Find biphasic reactor manufacturer:
+                          - *taskProcurementDealPump
+                      - name: Choose "Iveco"
+                        downstream:
+                          - *taskProcurementDealPump
+                          - name: Find shipping from "Iveco" pumps
+                            type: ProcurementResearch
+                            estimate: 5
+              - name: Find biphasic reactor manufacturer
                 type: ProcurementResearch
                 estimate: 15
                 downstream:
-                  Decide on biphasic reactor:
+                  - name: Decide on biphasic reactor
                     type: Decision
                     report: Looks like nobody selling a suitable reactors, we should make our own.
                     options:
                       # A decision can have only one option
-                      Develop biphasic reactor specification:
+                      - Develop biphasic reactor specification:
                         type: EngineeringDevelopment
-          Choose "Battarfungën Gmbh.":
-            downstream: *taskSignContract
+          - name: Choose "Battarfungën Gmbh."
+            downstream:
+              - *taskSignContract
             # ... all other tasks
-  Find customers in Scandinavia:
+  - name: Find customers in Scandinavia
     type: MarketResearch
     estimate: 15
     downstream:
       # here goes reference to that &decision1 anchor used above
-      *decision1
-  Make a budget plan:
+      - *decision1
+  - name: Make a budget plan
     type: ProjectManagement
     estimate: 10
-  Make milestone and timeline planning:
+  - name: Make milestone and timeline planning
     type: ProjectManagement
     estimate: 10
-  Select Raw Materials:
+  - name: Select Raw Materials
     type: EngineeringDevelopment
     estimate: 10
-  Decision on location for testing:
+  - name: Decision on location for testing
     type: ProjectManagement
     estimate: 10
-  Procure Raw Materials (Methylamine, Glyoxal, Formaldehyde, Ammonia, Water):
+  - name: Procure Raw Materials (Methylamine, Glyoxal, Formaldehyde, Ammonia, Water)
     type: ProcurementContract
     estimate: 20
-  Build Chemical Storage:
+  - name: Build Chemical Storage
     type: EngineeringDevelopment
     estimate: 20
-  Procure Mixing Tank:
+  - name: Procure Mixing Tank
     type: ProcurementContract
     estimate: 10
-  Procure coolers and heaters:
+  - name: Procure coolers and heaters
     type: ProcurementContract
     estimate: 10
-  Build pilotplant:
+  - name: Build pilot plant
     type: EngineeringDevelopment
     estimate: 30
-  Test individual equipments for performance:
+  - name: Test individual equipments for performance
     type: EngineeringDevelopment
     estimate: 20
-  Safety Inspection of the pilot plant:
+  - name: Safety Inspection of the pilot plant
     type: EngineeringDevelopment
     estimate: 30
