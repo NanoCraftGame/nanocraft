@@ -44,7 +44,7 @@ export abstract class Character {
 export class Founder extends Character {
 	canTake(task: Task) {
 		// founders can take any task
-		return true
+		return true // TODO except construction...
 	}
 }
 

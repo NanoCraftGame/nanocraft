@@ -25,6 +25,7 @@
 			goto('/wizards/1/crew')
 			return
 		}
+		store.setTasksGraph(data.taskTypes, data.tasks)
 		tasks = store.pmSim.getTasks()
 		store.subscribe(() => {
 			tasks = store.pmSim.getTasks()

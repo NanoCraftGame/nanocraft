@@ -63,8 +63,7 @@ export enum AttentionSpan {
 	PartialAttention = 0.1,
 }
 
-export abstract class Task extends Dependable implements Serializable {
-	abstract requiredAttention: AttentionSpan
+export class Task extends Dependable implements Serializable {
 	isDormant = false
 	status: Status = 'todo'
 	private realTime: number
@@ -75,6 +74,8 @@ export abstract class Task extends Dependable implements Serializable {
 	constructor(
 		public name: string,
 		public estimate: number,
+		public type: string,
+		public requiredAttention = AttentionSpan.FullAttention,
 		public description = '',
 	) {
 		super(`task-${counter++}`)
@@ -125,8 +126,10 @@ export abstract class Task extends Dependable implements Serializable {
 
 	serialize() {
 		return {
-			type: this.constructor.name,
 			id: this.id,
+			description: this.description,
+			type: this.type,
+			requiredAttention: this.requiredAttention,
 			name: this.name,
 			estimate: this.estimate,
 			assignee: this.assignee,
@@ -142,7 +145,10 @@ export abstract class Task extends Dependable implements Serializable {
 	hydrate(data: any): Task {
 		// TODO check data fields before hydration
 		this.id = data.id
+		this.type = data.type
+		this.requiredAttention = data.requiredAttention
 		this.name = data.name
+		this.description = data.description
 		this.assignee = data.assignee
 		this.estimate = data.estimate
 		this.isDormant = data.isDormant
@@ -158,7 +164,7 @@ export abstract class Task extends Dependable implements Serializable {
 
 interface DecisionOption {
 	description: string
-	task: Task
+	tasks: Task[]
 }
 
 type UnlockListener = (decision: Decision) => void
@@ -176,11 +182,13 @@ export class Decision extends Dependable implements Serializable {
 
 	private prepareOptions() {
 		this.options.forEach((option) => {
-			this.neededFor(option.task)
+			option.tasks.forEach((task) => {
+				task.dependsOn(this)
+			})
 		})
 	}
 
-	optionize() {
+	runDormant() {
 		this.dependents.forEach((dependent) => {
 			if (dependent instanceof Task) {
 				dependent.setDormant()
@@ -206,7 +214,7 @@ export class Decision extends Dependable implements Serializable {
 		this.unlockListener = callback
 	}
 	decide(option: DecisionOption) {
-		option.task.awake()
+		option.tasks.forEach((task) => task.awake())
 		this.status = 'done'
 		this.notify()
 	}
@@ -218,14 +226,14 @@ export class Decision extends Dependable implements Serializable {
 			status: this.status,
 			options: this.options.map((o) => ({
 				description: o.description,
-				task: o.task.id,
+				tasks: o.tasks.map((t) => t.id),
 			})),
 			dependencies: this.dependencies.map((d) => d.id),
 			dependents: this.dependents.map((d) => d.id),
 		}
 	}
 	hydrate(data: any): Decision {
-		// TODO check data fielda befroe hydration
+		// TODO check data fields before hydration
 		this.report = data.report
 		this.options = data.options
 		this.prepareOptions()
@@ -235,21 +243,18 @@ export class Decision extends Dependable implements Serializable {
 		return this
 	}
 
-	private subscibrers: Array<() => void> = []
-	subscirbe(notify: () => void) {
-		this.subscibrers.push(notify)
+	private subscribers: Array<() => void> = []
+	subscribe(notify: () => void) {
+		this.subscribers.push(notify)
 	}
 	private notify() {
-		this.subscibrers.forEach((subscriber) => subscriber())
+		this.subscribers.forEach((subscriber) => subscriber())
 	}
 }
-
-type TaskFactory = (type: string) => Task
 
 export class PmSim implements Serializable {
 	private tasks: Task[] = []
 	private decisions: Decision[] = []
-	private taskFactory: TaskFactory | null = null
 
 	registerGraph(graphs: Dependable[]) {
 		// detect cycles
@@ -258,7 +263,7 @@ export class PmSim implements Serializable {
 			const stack = new Set()
 			const detect = (node: Dependable) => {
 				if (stack.has(node)) {
-					throw new Error('Cycle depencies in taks graph, suspicous node: ' + getNodeName(node))
+					throw new Error('Cyclic decencies in tasks graph, suspicious node: ' + getNodeName(node))
 				}
 				if (visited.has(node)) return
 				visited.add(node)
@@ -280,7 +285,7 @@ export class PmSim implements Serializable {
 		}
 		graphs.forEach((graph) => dfsRoots(graph))
 
-		// toposort with DFS
+		// topological sort with DFS
 		const tasks: Task[] = []
 		const decisions: Decision[] = []
 		const visited4Tasks = new Set()
@@ -399,12 +404,9 @@ export class PmSim implements Serializable {
 		}
 	}
 	hydrate(data: any): PmSim {
-		if (!this.taskFactory) {
-			throw new Error('Task factory not set')
-		}
 		const registry = new Map<string, Dependable>()
 		for (let taskData of data.tasks) {
-			const task = this.taskFactory(taskData.type)
+			const task = new Task('', 0, '')
 			registry.set(taskData.id, task)
 		}
 		for (let decisionData of data.decisions) {
@@ -424,9 +426,8 @@ export class PmSim implements Serializable {
 				throw new Error(`Decision ${decisionData.id} not found`)
 			hydrateDependables(decisionData, registry)
 			decisionData.options = decisionData.options.map((o: any) => {
-				const task = registry.get(o.task)
-				if (!task || !(task instanceof Task)) throw new Error(`Task ${o.task} not found`)
-				return { description: o.description, task }
+				const tasks = o.tasks.map((t: string) => registry.get(t)).filter(Boolean)
+				return { description: o.description, tasks }
 			})
 			decision.hydrate(decisionData)
 			this.decisions.push(decision)
@@ -448,27 +449,23 @@ export class PmSim implements Serializable {
 		return this
 	}
 
-	setTaskFactory(factory: TaskFactory) {
-		this.taskFactory = factory
-	}
-
 	clear() {
 		this.tasks = []
 		this.decisions = []
 	}
 
-	private subscibrers: Array<() => void> = []
+	private subscribers: Array<() => void> = []
 	subscribe(notify: () => void) {
-		this.subscibrers.push(notify)
+		this.subscribers.push(notify)
 	}
 	private notify() {
-		this.subscibrers.forEach((subscriber) => subscriber())
+		this.subscribers.forEach((subscriber) => subscriber())
 	}
 
 	private prepareDecisions() {
 		this.decisions.forEach((decision) => {
-			decision.optionize()
-			decision.subscirbe(() => this.notify())
+			decision.runDormant()
+			decision.subscribe(() => this.notify())
 			if (this.unlockListener) decision.onUnlock(this.unlockListener)
 		})
 	}

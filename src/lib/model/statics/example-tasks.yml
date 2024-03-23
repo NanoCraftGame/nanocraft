@@ -12,14 +12,6 @@ taskTypes: # use semicolon to define nested fields or arrays using indentation
   ProjectManagement:
     attention: full
 tasks:
-  - &taskSignContract
-    name: Sign pilot contract
-    type: CustomerContract
-    estimate: 10
-  - &taskProcurementDealPump
-    name: Sign procurement deal
-    type: ProcurementContract
-    estimate: 10
   - name: Find customers in Germany
     description: Germany is a very promising market with a lot of customers and both founders worked there for quite some time
     type: MarketResearch
@@ -51,9 +43,13 @@ tasks:
         options:
           - name: Choose "New Norsk Energy Oy"
             downstream:
-              - *taskSignContract
+              - &taskSignContract
+                name: Sign pilot contract
+                type: CustomerContract
+                estimate: 10
               - name: Find cheap high volume pump supplier
                 type: ProcurementResearch
+                estimate: 7
                 downstream:
                   - Choose high volume pump supplier:
                     type: Decision
@@ -67,7 +63,10 @@ tasks:
                     options:
                       - name: Choose "Ornata"
                         downstream:
-                          - *taskProcurementDealPump
+                          - &taskProcurementDealPump
+                            name: Sign procurement deal
+                            type: ProcurementContract
+                            estimate: 10
                       - name: Choose "Iveco"
                         downstream:
                           - *taskProcurementDealPump
@@ -83,8 +82,10 @@ tasks:
                     report: Looks like nobody selling a suitable reactors, we should make our own.
                     options:
                       # A decision can have only one option
-                      - Develop biphasic reactor specification:
-                        type: EngineeringDevelopment
+                      - downstream:
+                          - name: Develop biphasic reactor specification
+                            type: EngineeringDevelopment
+                            estimate: 3
           - name: Choose "Battarfungën Gmbh."
             downstream:
               - *taskSignContract

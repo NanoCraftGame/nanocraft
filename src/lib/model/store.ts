@@ -2,9 +2,8 @@ import { CharacterFactory } from './character'
 import { MaterialFactory } from './material'
 import { Project } from './project'
 import { Timer } from './timer'
-import { PmSim } from './tasks'
+import { AttentionSpan, Decision, PmSim, Task } from './tasks'
 import { browser } from '$app/environment'
-import { taskTypes } from './statics/example-tasks'
 
 const project = new Project(new MaterialFactory(), new CharacterFactory())
 const pmSim = new PmSim()
@@ -13,24 +12,17 @@ let settings = {
 	tempo: 10,
 }
 
-function taskFactory(type: string) {
-	const Task = taskTypes.find((t) => t.name === type)
-	if (!Task) {
-		throw new Error(`Task type not found: ${type}`)
-	}
-	return new Task('', 0)
-}
-
 if (browser) {
 	project.hydrate(JSON.parse(localStorage.getItem('project') || '{}'))
-	pmSim.setTaskFactory(taskFactory)
 	if (pmSim.getTasks().length === 0) {
 		const stored = localStorage.getItem('tasks')
 		if (stored) {
-			pmSim.hydrate(JSON.parse(stored))
-		} else {
-			pmSim.registerGraph(initTasks())
-			pmSim.tick(0)
+			try {
+				pmSim.hydrate(JSON.parse(stored))
+			} catch (e) {
+				console.error("Couldn't load tasks from localStorage", e)
+				localStorage.removeItem('tasks')
+			}
 		}
 	}
 	settings = JSON.parse(localStorage.getItem('settings') || '{"tempo":10}')
@@ -55,11 +47,12 @@ function save(tick: number) {
 type Store = typeof store
 type Subscriber = (store: Store) => void
 
-const subcribers: Subscriber[] = []
+const subscribers: Subscriber[] = []
 
 function notify() {
-	subcribers.forEach((subcriber) => subcriber(store))
+	subscribers.forEach((subscriber) => subscriber(store))
 }
+let tasksGraph: Task[] = []
 
 export const store = {
 	settings,
@@ -67,8 +60,14 @@ export const store = {
 	pmSim,
 	timer,
 	save,
-	subscribe(subcriber: Subscriber) {
-		subcribers.push(subcriber)
+	setTasksGraph(tasksTypes: Record<string, TaskType>, tasks: TaskRecord[]) {
+		tasksGraph = initTasks(tasksTypes, tasks)
+		if (pmSim.getTasks().length === 0) {
+			this.reset()
+		}
+	},
+	subscribe(subscriber: Subscriber) {
+		subscribers.push(subscriber)
 	},
 	reset(all: boolean = false) {
 		if (all) {
@@ -78,31 +77,83 @@ export const store = {
 		}
 		timer.setTick(0)
 		pmSim.clear()
-		pmSim.registerGraph(initTasks())
+		pmSim.registerGraph(tasksGraph)
 		pmSim.tick(0)
 		save(0)
 	},
 }
 
 interface TaskType {
-	requiredAttention: number
+	requiredAttention: 'full' | 'partial'
 }
 
 interface OptionRecord {
-	downstream: Record<string, TaskRecord>
+	name: string
+	downstream: TaskRecord[]
 }
 
 interface DecisionRecord {
 	type: 'Decision'
+	name: string
 	report: string
-	options: Record<string, OptionRecord>
+	options: OptionRecord[]
 }
 
 interface TaskRecord {
+	name: string
 	type: string
 	description: string
 	estimate: number
-	downstream: Record<string, TaskRecord>
+	downstream?: Array<TaskRecord | DecisionRecord>
 }
 
-function initTasks(tasksTypes: Record<string, TaskType>, tasks: Record<string, any>) {}
+function initTasks(tasksTypes: Record<string, TaskType>, tasks: TaskRecord[]) {
+	return tasks.map((taskRecord) => createTask(tasksTypes, taskRecord))
+}
+
+const taskRegistry = new Map<string, Task>()
+const decisionRegistry = new Map<string, Decision>()
+
+function createTask(taskTypes: Record<string, TaskType>, taskRecord: TaskRecord) {
+	if (taskRegistry.has(taskRecord.name)) {
+		return taskRegistry.get(taskRecord.name)!
+	}
+	const taskType = taskTypes[taskRecord.type] || { requiredAttention: 'full' }
+	const attentionSpan =
+		taskType.requiredAttention === 'full'
+			? AttentionSpan.FullAttention
+			: AttentionSpan.PartialAttention
+	const task = new Task(
+		taskRecord.name,
+		taskRecord.estimate,
+		taskRecord.type,
+		attentionSpan,
+		taskRecord.description,
+	)
+	if (taskRecord.downstream) {
+		taskRecord.downstream.forEach((downstreamItem) => {
+			if (isDecisionRecord(downstreamItem)) {
+				let decision: Decision
+				if (decisionRegistry.has(downstreamItem.name)) {
+					decision = decisionRegistry.get(downstreamItem.name)!
+				} else {
+					const options = downstreamItem.options.map((option) => ({
+						description: option.name,
+						tasks: option.downstream.map((downstreamTask) => createTask(taskTypes, downstreamTask)),
+					}))
+					decision = new Decision(downstreamItem.report, options)
+				}
+				decision.dependsOn(task)
+			} else {
+				const downstreamTask = createTask(taskTypes, downstreamItem as TaskRecord)
+				downstreamTask.dependsOn(task)
+			}
+		})
+	}
+	taskRegistry.set(taskRecord.name, task)
+	return task
+}
+
+function isDecisionRecord(record: TaskRecord | DecisionRecord): record is DecisionRecord {
+	return record.type === 'Decision'
+}
