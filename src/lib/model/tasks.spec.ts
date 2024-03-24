@@ -46,10 +46,14 @@ describe('Decision', () => {
 		const decision = new Decision('decision1', [])
 		decision.dependsOn(task1)
 		decision.dependsOn(task2)
-		task1.status = 'done'
-		task2.status = 'done'
 		const onUnlockSpy = vi.fn()
 		decision.onUnlock(onUnlockSpy)
+
+		task1.status = 'done'
+		decision.tick()
+		expect(onUnlockSpy).not.toBeCalledWith(decision)
+
+		task2.status = 'done'
 		decision.tick()
 		expect(onUnlockSpy).toBeCalledWith(decision)
 	})

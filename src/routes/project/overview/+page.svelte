@@ -9,8 +9,6 @@
 
 	export let data
 
-	console.log('data', data)
-
 	// TODO
 	// - layout for long progress bars
 
@@ -75,7 +73,7 @@
 							decision = null
 						}}
 					>
-						{option.description}
+						{decision.options.length > 1 ? option.description : 'OK'}
 					</Button>
 				</p>
 			{/each}

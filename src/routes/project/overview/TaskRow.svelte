@@ -32,7 +32,13 @@
 					<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
 				</div>
 				{#if task.status === 'todo'}
-					<DropDown size="small" variant="secondary" on:change={assign} label="Reassign">
+					<DropDown
+						size="small"
+						variant="secondary"
+						on:change={assign}
+						label="Reassign"
+						disabled={task.isDormant}
+					>
 						{#each assignees.filter((a) => a.id !== task.assignee) as a}
 							<DropDownItem value={a.id}>
 								<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
@@ -46,7 +52,13 @@
 				{assignee.name}
 			</div>
 		{:else if task.status === 'todo'}
-			<DropDown size="small" variant="secondary" on:change={assign} label="Assign">
+			<DropDown
+				size="small"
+				variant="secondary"
+				on:change={assign}
+				label="Assign"
+				disabled={task.isDormant}
+			>
 				{#each assignees as a}
 					<DropDownItem value={a.id}>
 						<WaitingImage src={a.image} alt={a.name} width={40} height={40} />

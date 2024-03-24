@@ -52,7 +52,8 @@ const subscribers: Subscriber[] = []
 function notify() {
 	subscribers.forEach((subscriber) => subscriber(store))
 }
-let tasksGraph: Task[] = []
+let tasksTypes: Record<string, TaskType> = {}
+let tasks: TaskRecord[] = []
 
 export const store = {
 	settings,
@@ -60,8 +61,10 @@ export const store = {
 	pmSim,
 	timer,
 	save,
-	setTasksGraph(tasksTypes: Record<string, TaskType>, tasks: TaskRecord[]) {
-		tasksGraph = initTasks(tasksTypes, tasks)
+	setTasksGraph(_tasksTypes: Record<string, TaskType>, _tasks: TaskRecord[]) {
+		tasksTypes = _tasksTypes
+		tasks = _tasks
+
 		if (pmSim.getTasks().length === 0) {
 			this.reset()
 		}
@@ -75,9 +78,13 @@ export const store = {
 			project.setPlayer(null)
 			project.setColleague(null)
 		}
-		timer.setTick(0)
 		pmSim.clear()
+		taskRegistry.clear()
+		decisionRegistry.clear()
+		const tasksGraph = initTasks(tasksTypes, tasks)
+
 		pmSim.registerGraph(tasksGraph)
+		timer.setTick(0)
 		pmSim.tick(0)
 		save(0)
 	},
@@ -134,6 +141,7 @@ function createTask(taskTypes: Record<string, TaskType>, taskRecord: TaskRecord)
 		taskRecord.downstream.forEach((downstreamItem) => {
 			if (isDecisionRecord(downstreamItem)) {
 				let decision: Decision
+
 				if (decisionRegistry.has(downstreamItem.name)) {
 					decision = decisionRegistry.get(downstreamItem.name)!
 				} else {
@@ -144,6 +152,7 @@ function createTask(taskTypes: Record<string, TaskType>, taskRecord: TaskRecord)
 					decision = new Decision(downstreamItem.report, options)
 				}
 				decision.dependsOn(task)
+				decisionRegistry.set(downstreamItem.name, decision)
 			} else {
 				const downstreamTask = createTask(taskTypes, downstreamItem as TaskRecord)
 				downstreamTask.dependsOn(task)

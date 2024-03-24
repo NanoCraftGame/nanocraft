@@ -51,7 +51,7 @@ tasks:
                 type: ProcurementResearch
                 estimate: 7
                 downstream:
-                  - Choose high volume pump supplier:
+                  - name: Choose high volume pump supplier
                     type: Decision
                     report: >
                       We identified two high volume pump suppliers:

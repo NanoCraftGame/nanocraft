@@ -16,6 +16,7 @@
 </svelte:element>
 
 <style>
+	/* TODO add styles for disabled state */
 	.button {
 		text-decoration: none;
 		display: inline-block;

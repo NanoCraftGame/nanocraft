@@ -197,16 +197,13 @@ export class Decision extends Dependable implements Serializable {
 	}
 
 	tick() {
-		if (
-			this.reportDependencies().every((task) => {
-				if (task instanceof Task || task instanceof Decision) {
-					return task.status === 'done'
-				}
-				return false
-			}) &&
-			this.unlockListener &&
-			this.status !== 'done'
-		) {
+		const isReady = this.reportDependencies().every((task) => {
+			if (task instanceof Task || task instanceof Decision) {
+				return task.status === 'done'
+			}
+			return false
+		})
+		if (isReady && this.unlockListener && this.status !== 'done') {
 			this.unlockListener(this)
 		}
 	}
