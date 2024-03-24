@@ -5,6 +5,7 @@ import path from 'path'
 
 const server = http.createServer((req, res) => {
 	if (req.method === 'POST') {
+		console.log('POST request received')
 		let body = ''
 
 		req.on('data', (chunk) => {
@@ -21,9 +22,11 @@ const server = http.createServer((req, res) => {
 				const [key, value] = line.split('=')
 				envVars[key] = value
 			})
+			console.log('env read')
 			// compare body with the secret key
 			if (body === envVars.PULL_TOKEN) {
 				// run the script
+				console.log('starting script execution')
 				exec(path.join(process.cwd(), 'deploy.sh'), (error, stdout, stderr) => {
 					if (error) {
 						console.error(`exec error: ${error}`)
