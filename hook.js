@@ -1,5 +1,6 @@
 import http from 'http'
 import fs from 'fs'
+import { exec } from 'child_process'
 
 const server = http.createServer((req, res) => {
 	if (req.method === 'POST') {
@@ -21,8 +22,15 @@ const server = http.createServer((req, res) => {
 			})
 			// compare body with the secret key
 			if (body === envVars.PULL_TOKEN) {
-				// print user under which the hook is running
-				console.log('Current user: ', process.env.USER)
+				// run the script
+				exec('deploy.sh', (error, stdout, stderr) => {
+					if (error) {
+						console.error(`exec error: ${error}`)
+						return
+					}
+					console.log(`stdout: ${stdout}`)
+					console.error(`stderr: ${stderr}`)
+				})
 			} else {
 				console.log('Invalid secret key')
 			}
