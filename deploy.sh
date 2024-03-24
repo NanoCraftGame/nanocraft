@@ -6,3 +6,4 @@ GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_bot" git pull
 yarn install
 yarn build
 pm2 restart nanocraft
+pm2 restart nano-hook

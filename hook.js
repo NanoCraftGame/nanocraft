@@ -27,19 +27,22 @@ const server = http.createServer((req, res) => {
 				exec(path.join(process.cwd(), 'deploy.sh'), (error, stdout, stderr) => {
 					if (error) {
 						console.error(`exec error: ${error}`)
+						res.statusCode = 500
+						res.end('Internal Server Error')
 						return
 					}
 					console.log(`stdout: ${stdout}`)
 					console.error(`stderr: ${stderr}`)
+
+					res.statusCode = 200
+					res.setHeader('Content-Type', 'text/plain')
+					res.end('OK')
 				})
 			} else {
 				console.log('Invalid secret key')
+				res.statusCode = 401
+				res.end('Unauthorized')
 			}
-
-			// Send a response
-			res.statusCode = 200
-			res.setHeader('Content-Type', 'text/plain')
-			res.end('OK')
 		})
 	} else {
 		res.statusCode = 404
