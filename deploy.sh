@@ -1,4 +1,6 @@
 #!/bin/bash
+# exit on error
+set -e
 
 cd /home/btm/nanocraft
 # git pull with specific ssh key
