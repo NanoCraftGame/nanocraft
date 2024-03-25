@@ -35,4 +35,12 @@
 	.list.two-col {
 		grid-template-columns: repeat(2, 1fr);
 	}
+
+	@media (max-width: 840px) {
+		.list {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+	}
 </style>

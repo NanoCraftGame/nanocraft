@@ -47,13 +47,8 @@
 			<RadioGroup on:change={handleChange} name="material" defaultValue={selectedMaterial}>
 				{#each materials as material}
 					<RadioGroupItem value={material.id}>
-						<WaitingImage
-							src={material.image}
-							alt={material.name}
-							height={80}
-							width={80}
-							style="margin-top: 1rem; margin-right: 1rem;"
-						/>
+						<WaitingImage src={material.image} alt={material.name} height={80} width={80} />
+						<!-- style="margin-top: 1rem; margin-right: 1rem;" -->
 						<div class="card">
 							<h3>{material.name}</h3>
 							<p><strong>Type: {material.type}</strong></p>
@@ -78,16 +73,25 @@
 </Background>
 
 <style>
+	.card {
+		margin-left: 1rem;
+	}
 	.card p {
 		margin: 0.5rem 0;
 	}
 	.card h3 {
-		margin: 0.8rem 0;
+		margin: 0;
 	}
 	.error {
 		background-color: rgb(86, 102, 119);
 		padding: 10px;
 		border-radius: 10px;
 		border: solid 2px rgb(253, 121, 121);
+	}
+	@media (max-width: 600px) {
+		.card {
+			margin-left: 0;
+			margin-top: 1rem;
+		}
 	}
 </style>
