@@ -72,7 +72,7 @@
 		{/if}
 		<svelte:fragment slot="footer">
 			<Button tag="a" style="margin-right: 1rem;" href="/wizards/1/crew">Back</Button>
-			<Button tag="a" href="/project/overview">Go!</Button>
+			<Button tag="a" href="/project">Go!</Button>
 		</svelte:fragment>
 	</Panel>
 </Background>

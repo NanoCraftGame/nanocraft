@@ -1,6 +1,6 @@
 name: Test and Send request on push to main
 on:
-  push:
+  pull_request:
     branches:
       - main
 jobs:
@@ -24,12 +24,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 2
-
-  send-request:
-    needs: test
-    runs-on: ubuntu-latest
-    if: success()
-    steps:
-      - name: Send request
-        run: |
-          curl -X POST https://nano-hook.rblab.net -d '${{ secrets.PULL_TOKEN }}' -H "Content-Type: text/plain"

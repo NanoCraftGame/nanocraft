@@ -8,7 +8,7 @@
 
 	let speed = store.settings.tempo
 
-	export let current: 'project' | 'inventory' | 'reports' = 'project'
+	export let current: 'project' | 'inventory' | 'reports' | 'staff' = 'project'
 
 	let drawerOpen = false
 
@@ -62,9 +62,10 @@
 
 <div class="header">
 	<div class="header-left">
-		<a href="/project/overview" class:current={current === 'project'}>Project Overview</a>
+		<a href="/project" class:current={current === 'project'}>Project Overview</a>
 		<a href="/inventory" class:current={current === 'inventory'}>Inventory</a>
 		<a href="/reports" class:current={current === 'reports'}>Reports</a>
+		<a href="/staff" class:current={current === 'staff'}>Staff</a>
 	</div>
 	<div>
 		{(currentTick / 8).toFixed(2)} days
