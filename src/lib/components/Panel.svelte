@@ -23,4 +23,13 @@
 		justify-content: end;
 		margin-top: 1rem;
 	}
+	@media (max-width: 480px) {
+		.panel {
+			padding: 10px;
+			max-width: 100%;
+			margin: 0;
+			border: 0;
+			border-radius: 0;
+		}
+	}
 </style>
