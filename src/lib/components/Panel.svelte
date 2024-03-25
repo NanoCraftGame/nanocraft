@@ -23,9 +23,10 @@
 		justify-content: end;
 		margin-top: 1rem;
 	}
-	@media (max-width: 480px) {
+	@media (max-width: 980px) {
 		.panel {
-			padding: 10px;
+			padding: 20px;
+			min-height: 100vh;
 			max-width: 100%;
 			margin: 0;
 			border: 0;

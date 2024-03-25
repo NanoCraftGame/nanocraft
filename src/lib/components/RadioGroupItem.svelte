@@ -33,7 +33,7 @@
 		on:change={handleChange}
 		checked={value === selected}
 	/>
-	<label for={value}>
+	<label for={value} class="radio-label">
 		<slot />
 	</label>
 </li>
@@ -54,7 +54,7 @@
 	.radio-select:hover {
 		background-color: rgba(0, 0, 255, 0.7);
 	}
-	.radio-select label {
+	.radio-label {
 		padding: 20px;
 		display: flex;
 	}
@@ -63,5 +63,10 @@
 	}
 	.radio-select.selected {
 		border: 2px solid rgb(101, 240, 255);
+	}
+	@media (max-width: 600px) {
+		.radio-label {
+			flex-direction: column;
+		}
 	}
 </style>
