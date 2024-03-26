@@ -47,14 +47,21 @@
 			<RadioGroup on:change={handleChange} name="material" defaultValue={selectedMaterial}>
 				{#each materials as material}
 					<RadioGroupItem value={material.id}>
-						<WaitingImage src={material.image} alt={material.name} height={80} width={80} />
-						<!-- style="margin-top: 1rem; margin-right: 1rem;" -->
 						<div class="card">
-							<h3>{material.name}</h3>
-							<p><strong>Type: {material.type}</strong></p>
-							<p><strong>Use Cases:</strong> {material.desc.useCases}</p>
-							<p><strong>Market Size:</strong> {material.desc.targetMarket}</p>
-							<p><strong>Challenges:</strong> {material.desc.challenges}</p>
+							<div class="card__title">
+								<div class="card__image">
+									<WaitingImage src={material.image} alt={material.name} height={80} width={80} />
+								</div>
+								<div class="card__details">
+									<h3 class="card__name">{material.name}</h3>
+									<p><strong>Type: {material.type}</strong></p>
+								</div>
+							</div>
+							<div class="card__body">
+								<p><strong>Use Cases:</strong> {material.desc.useCases}</p>
+								<p><strong>Market Size:</strong> {material.desc.targetMarket}</p>
+								<p><strong>Challenges:</strong> {material.desc.challenges}</p>
+							</div>
 						</div>
 					</RadioGroupItem>
 				{/each}
@@ -73,13 +80,19 @@
 </Background>
 
 <style>
-	.card {
-		margin-left: 1rem;
+	.card__title {
+		display: flex;
+		align-items: flex-end;
+		gap: 1rem;
 	}
-	.card p {
+	.card__image {
+	}
+	.card__body {
+	}
+	.card__body p {
 		margin: 0.5rem 0;
 	}
-	.card h3 {
+	.card__body h3 {
 		margin: 0;
 	}
 	.error {
