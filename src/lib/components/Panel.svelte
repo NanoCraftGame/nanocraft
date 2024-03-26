@@ -27,10 +27,14 @@
 		.panel {
 			padding: 20px;
 			min-height: 100vh;
-			max-width: 100%;
+			min-height: 100dvh;
+			width: 100%;
 			margin: 0;
 			border: 0;
 			border-radius: 0;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
 		}
 	}
 </style>
