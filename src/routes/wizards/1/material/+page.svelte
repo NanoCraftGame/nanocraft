@@ -85,16 +85,6 @@
 		align-items: flex-end;
 		gap: 1rem;
 	}
-	.card__image {
-	}
-	.card__body {
-	}
-	.card__body p {
-		margin: 0.5rem 0;
-	}
-	.card__body h3 {
-		margin: 0;
-	}
 	.error {
 		background-color: rgb(86, 102, 119);
 		padding: 10px;

@@ -128,10 +128,6 @@
 		align-items: flex-end;
 		gap: 1rem;
 	}
-	.card__image {
-	}
-	.card__body {
-	}
 	.card__body p {
 		margin: 0.5rem 0;
 	}
