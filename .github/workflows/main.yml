@@ -51,4 +51,4 @@ jobs:
           host: ${{ vars.REMOTE_HOST }}
           username: ${{ vars.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: 'tar -xzvf  ${{ vars.HOME_DIR }}/nanocraft.tar.gz -C  ${{ vars.HOME_DIR }}/nanocraft --strip-components=1'
+          script: 'tar -xzvf  ${{ vars.HOME_DIR }}/nanocraft.tar.gz -C  ${{ vars.HOME_DIR }} && rm -rf nanocraft && mv build nanocraft'
