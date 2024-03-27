@@ -6,6 +6,9 @@
 	import Header from '$lib/components/Header.svelte'
 	import type { Decision, Task } from '$lib/model/tasks'
 	import Button from '$lib/components/Button.svelte'
+	import SvelteMarkdown from 'svelte-markdown'
+	import Panel from '../../lib/components/Panel.svelte'
+	import { fade } from 'svelte/transition'
 
 	export let data
 
@@ -63,25 +66,40 @@
 		</tbody>
 	</table>
 	{#if decision}
-		<div class="decision">
-			<p>{decision.report}</p>
-			{#each decision.options as option}
-				<p>
-					<Button
-						on:click={() => {
-							decision?.decide(option)
-							decision = null
-						}}
-					>
-						{decision.options.length > 1 ? option.description : 'OK'}
-					</Button>
-				</p>
-			{/each}
+		<div class="backdrop" transition:fade>
+			<Panel>
+				<SvelteMarkdown source={decision.report} />
+				<div class="footer" slot="footer">
+					{#each decision.options as option}
+						<Button
+							on:click={() => {
+								decision?.decide(option)
+								decision = null
+							}}
+						>
+							{decision.options.length > 1 ? option.description : 'OK'}
+						</Button>
+					{/each}
+				</div>
+			</Panel>
 		</div>
 	{/if}
 </div>
 
 <style>
+	.backdrop {
+		min-height: calc(100vh - 65px);
+		background-color: rgba(16, 37, 68, 0.7);
+		position: fixed;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center; /* Add this line */
+	}
+	.footer {
+		display: flex;
+		gap: 24px;
+	}
 	.background {
 		min-height: calc(100vh - 65px);
 		background-color: rgb(234, 240, 255);
