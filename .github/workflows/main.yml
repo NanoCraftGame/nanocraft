@@ -1,10 +1,15 @@
-name: Test and Send request on push to main
+name: Test and Deploy
 on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+
 jobs:
   test:
+    if: github.event_name == 'pull_request'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -24,3 +29,26 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 2
+
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: yarn install --production && yarn build && tar -czvf nanocraft.tar.gz ./build
+      - name: Copy file via scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ vars.REMOTE_HOST }}
+          username: ${{ vars.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: './nanocraft.tar.gz'
+          target: ${{ vars.HOME_DIR }}
+      - name: Unpack on remote
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.REMOTE_HOST }}
+          username: ${{ vars.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: 'tar -xzvf  ${{ vars.HOME_DIR }}/nanocraft.tar.gz -C  ${{ vars.HOME_DIR }} && rm -rf nanocraft && mv build nanocraft'

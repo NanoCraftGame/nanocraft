@@ -28,6 +28,7 @@ tasks:
           We identified two prospective customers: one in Germany and one in Finland:
 
           ## New Norsk Energy Oy
+
           New Norsk Energy is a Finland battery manufacturer of middle size. They
           produce big batteries for industrial equipment and our product can make
           their production cheaper, therefore their primary objective is low price
@@ -35,10 +36,11 @@ tasks:
           price €5,000 per ton.
 
           ## Battarfungën Gmbh.
+
           Battarfungën Gmbh. is a Berlin-based mobile batteries manufacturer. They 
           see our product as a way to make their batteries lighter, however, their 
-          purity requirements are very tight. They agreed to buy two tons at a price
-          €17,000 per ton, however they need purity of 98% which we don't really know 
+          purity requirements are very tight. They agreed to buy **two tons** at a price
+          **€17,000 per ton**, however they need **purity of 98%** which we don't really know 
           how to achieve yet, although we have some rough ideas.
         options:
           - name: Choose "New Norsk Energy Oy"

@@ -95,11 +95,16 @@
 			<RadioGroup name="character" columns={2} on:change={handleChange}>
 				{#each characters as character}
 					<RadioGroupItem value={character.id}>
-						<WaitingImage src={character.image} alt={character.name} height={80} width={80} />
-						<!-- style="margin-top: 1rem; margin-right: 1rem;" -->
-						<div class="char-card">
-							<h3>{character.name}</h3>
-							<p>{character.description}</p>
+						<div class="card">
+							<div class="card__title">
+								<div class="card__image">
+									<WaitingImage src={character.image} alt={character.name} height={80} width={80} />
+								</div>
+								<h3 class="card__name">{character.name}</h3>
+							</div>
+							<div class="card__body">
+								<p>{character.description}</p>
+							</div>
 						</div>
 					</RadioGroupItem>
 				{/each}
@@ -118,13 +123,15 @@
 </Background>
 
 <style>
-	.char-card {
-		margin-left: 1rem;
+	.card__title {
+		display: flex;
+		align-items: flex-end;
+		gap: 1rem;
 	}
-	.char-card p {
+	.card__body p {
 		margin: 0.5rem 0;
 	}
-	.char-card h3 {
+	.card__name {
 		margin: 0;
 	}
 
@@ -148,7 +155,7 @@
 		}
 	}
 	@media (max-width: 600px) {
-		.char-card {
+		.card__body {
 			margin-left: 0;
 			margin-top: 1rem;
 		}
