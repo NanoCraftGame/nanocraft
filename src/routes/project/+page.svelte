@@ -61,9 +61,6 @@
 			right,
 		}
 	}
-	$: {
-		console.log(visibleAreaCoords)
-	}
 </script>
 
 <Header current="project" />

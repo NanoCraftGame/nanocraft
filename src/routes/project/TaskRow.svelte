@@ -10,9 +10,9 @@
 	export let visibleAreaCoords: VisibleAreaCoordsDate
 
 	let statuses: Record<Status, string> = {
-		todo: '#C0C0C0',
-		done: '		#32cd32',
-		inProgress: '	#ffd139',
+		todo: '#E8ECEF',
+		done: '		#B1F1BC',
+		inProgress: '	#A2D9FF',
 	}
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
@@ -29,9 +29,9 @@
 			case 'todo':
 				return '#fff'
 			case 'done':
-				return '#AAF1AA'
+				return '#E5FFEC'
 			case 'inProgress':
-				return '#C0C0C0'
+				return '#ECF0F3'
 		}
 	}
 	let moreIsOpen = false
@@ -63,11 +63,11 @@
 			<!-- {task.description} -->
 		{/if}
 		<div class="task__bars">
-			<div class="task__bar task__bar_primary" style="width: {10 * task.estimate}px;" />
 			<div
-				class="task__bar task__bar_secondary"
-				style="width: {10 * task.timeSpent}px; background: {statuses[task.status]};"
+				class="task__bar task__bar_primary"
+				style="width: {10 * task.estimate}px; background: {statuses[task.status]};"
 			/>
+			<div class="task__bar task__bar_secondary" style="width: {10 * task.timeSpent}px;" />
 		</div>
 	</div>
 	<div class="task__assignee assignee">
@@ -75,8 +75,21 @@
 			<div class="assignee__avatar">
 				<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
 			</div>
-			<div class="assignee__name">
-				{assignee.name}
+			<div class="assignee__reassign">
+				<DropDown
+					size="small"
+					variant="secondary"
+					on:change={assign}
+					label="Reassign"
+					disabled={task.isDormant}
+				>
+					{#each assignees.filter((a) => a.id !== task.assignee) as a}
+						<DropDownItem value={a.id}>
+							<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
+							{a.name}
+						</DropDownItem>
+					{/each}
+				</DropDown>
 			</div>
 		{:else if task.status === 'todo'}
 			<DropDown
@@ -127,11 +140,11 @@
 		position: relative;
 	}
 	.task__bar_primary {
-		background: rgb(170, 228, 251);
+		background: #e8ecef;
 		height: 40px;
 	}
 	.task__bar_secondary {
-		background: #ffed93;
+		background: #feec99;
 		height: 20px;
 		position: relative;
 		top: -20px;
@@ -155,9 +168,8 @@
 	.assignee {
 		margin-left: 20px;
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
 		align-items: center;
+		gap: 0.5rem;
 	}
 	.assignee__avatar {
 		width: 40px;
