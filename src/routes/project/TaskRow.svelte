@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Task, type Status } from '$lib/model/tasks'
+	import { Task, type Status, type VisibleAreaCoordsDate } from '$lib/model/tasks'
 	import type { Character } from '$lib/model/character'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
@@ -7,6 +7,7 @@
 	import { store } from '$lib/model/store'
 	export let task: Task
 	export let assignees: Character[]
+	export let visibleAreaCoords: VisibleAreaCoordsDate
 
 	let statuses: Record<Status, string> = {
 		todo: '#C0C0C0',
@@ -54,15 +55,15 @@
 				{task.timeSpent.toFixed(1)}/{task.estimate}
 			</div>
 		</button>
-		<!-- {#if moreIsOpen}
+		{#if moreIsOpen}
 			<div class="task__description">
 				Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque corporis consequatur est
 				vero. Incidunt aut, ipsam rem nemo dolorem animi!
 			</div>
-			{task.description}
-		{/if} -->
+			<!-- {task.description} -->
+		{/if}
 		<div class="task__bars">
-			<div class="task__bar task__bar_primary" style="width: {10 * task.estimate}px" />
+			<div class="task__bar task__bar_primary" style="width: {10 * task.estimate}px;" />
 			<div
 				class="task__bar task__bar_secondary"
 				style="width: {10 * task.timeSpent}px; background: {statuses[task.status]};"
@@ -130,7 +131,7 @@
 		height: 40px;
 	}
 	.task__bar_secondary {
-		background: #ffd139;
+		background: #ffed93;
 		height: 20px;
 		position: relative;
 		top: -20px;

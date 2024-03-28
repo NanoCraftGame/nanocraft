@@ -4,7 +4,7 @@
 	import { store } from '$lib/model/store'
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
-	import type { Decision, Task } from '$lib/model/tasks'
+	import type { Decision, Task, VisibleAreaCoordsDate } from '$lib/model/tasks'
 	import Button from '$lib/components/Button.svelte'
 
 	export let data
@@ -43,13 +43,31 @@
 	function filterNonNull<T>(arr: (T | null)[]): T[] {
 		return arr.filter((a) => a !== null) as T[]
 	}
+
+	let visibleAreaCoords = {
+		left: 0,
+		right: 0,
+	}
+	function getVisibleAreaCoords(e: Event) {
+		const t = (e.target as Element)?.closest('.tasks')
+		if (!t) return
+		let left = t.scrollLeft
+		let right = t.clientWidth + left
+		visibleAreaCoords = {
+			left,
+			right,
+		}
+	}
+	$: {
+		console.log(visibleAreaCoords)
+	}
 </script>
 
 <Header current="project" />
 <div class="background">
-	<div class="tasks">
+	<div class="tasks" on:scroll={getVisibleAreaCoords}>
 		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} />
+			<TaskRow {task} assignees={filterNonNull(crew)} {visibleAreaCoords} />
 		{/each}
 	</div>
 	{#if decision}

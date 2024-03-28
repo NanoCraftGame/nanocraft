@@ -38,7 +38,7 @@ interface Serializable {
 export class Dependable {
 	dependencies: Dependable[] = []
 	dependents: Dependable[] = []
-	constructor(public id: string) {}
+	constructor(public id: string) { }
 
 	dependsOn(dependency: Dependable) {
 		this.dependencies.push(dependency)
@@ -61,6 +61,11 @@ export class Dependable {
 export enum AttentionSpan {
 	FullAttention = 1,
 	PartialAttention = 0.1,
+}
+
+export interface VisibleAreaCoordsDate {
+	right: number
+	left: number
 }
 
 export class Task extends Dependable implements Serializable {
