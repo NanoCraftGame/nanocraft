@@ -9,9 +9,9 @@
 	export let assignees: Character[]
 
 	let statuses: Record<Status, string> = {
-		todo: '🆕',
-		done: '✅',
-		inProgress: '🛠️',
+		todo: '#C0C0C0',
+		done: '		#32cd32',
+		inProgress: '	#ffd139',
 	}
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
@@ -22,33 +22,59 @@
 		const assignee = assignees.find((a) => a.id === e.detail)
 		if (assignee) store.pmSim.assign(assignee, task)
 	}
+
+	function getProcess(status: Status) {
+		switch (status) {
+			case 'todo':
+				return '#fff'
+			case 'done':
+				return '#AAF1AA'
+			case 'inProgress':
+				return '#C0C0C0'
+		}
+	}
+	let moreIsOpen = false
+	function toggleOpen() {
+		moreIsOpen = !moreIsOpen
+	}
 </script>
 
-<tr style="opacity: {task.isDormant ? 0.3 : 1};">
-	<td class="assignee">
-		{#if assignee}
-			<div class="pic-row">
-				<div class="userpic">
-					<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
-				</div>
-				{#if task.status === 'todo'}
-					<DropDown
-						size="small"
-						variant="secondary"
-						on:change={assign}
-						label="Reassign"
-						disabled={task.isDormant}
-					>
-						{#each assignees.filter((a) => a.id !== task.assignee) as a}
-							<DropDownItem value={a.id}>
-								<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
-								{a.name}
-							</DropDownItem>
-						{/each}
-					</DropDown>
-				{/if}
+<div class="tasks__row task" style="background: {getProcess(task.status)}">
+	<div class="task__piston" style="width:  {10 * task.waitTime}px" />
+	<div class="task__chart">
+		<div class="hidden">
+			<div class="hidden__name">{task.name}</div>
+			<div class="hidden__ratio">
+				{task.timeSpent.toFixed(1)}/{task.estimate}
 			</div>
-			<div>
+		</div>
+		<button class="task__detailts" on:click={toggleOpen}>
+			<div class="task__detail task__detail_name">{task.name}</div>
+			<div class="task__detail task__detail_ratio">
+				{task.timeSpent.toFixed(1)}/{task.estimate}
+			</div>
+		</button>
+		<!-- {#if moreIsOpen}
+			<div class="task__description">
+				Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque corporis consequatur est
+				vero. Incidunt aut, ipsam rem nemo dolorem animi!
+			</div>
+			{task.description}
+		{/if} -->
+		<div class="task__bars">
+			<div class="task__bar task__bar_primary" style="width: {10 * task.estimate}px" />
+			<div
+				class="task__bar task__bar_secondary"
+				style="width: {10 * task.timeSpent}px; background: {statuses[task.status]};"
+			/>
+		</div>
+	</div>
+	<div class="task__assignee assignee">
+		{#if assignee}
+			<div class="assignee__avatar">
+				<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
+			</div>
+			<div class="assignee__name">
 				{assignee.name}
 			</div>
 		{:else if task.status === 'todo'}
@@ -67,67 +93,83 @@
 				{/each}
 			</DropDown>
 		{/if}
-	</td>
-	<td>{task.name}</td>
-	<td class="time">
-		<div
-			class="bar estimate"
-			style="width: {10 * task.estimate}px; margin-left: {10 * task.waitTime}px"
-		>
-			Est.: {task.estimate}
-		</div>
-		<div
-			class="bar progress"
-			style="width: {10 * task.timeSpent}px; margin-left: {10 * task.waitTime}px"
-		>
-			Spent: {Math.floor(task.timeSpent)}
-		</div>
-	</td>
-	<td class="status">{statuses[task.status]}</td>
-</tr>
+	</div>
+</div>
 
 <style>
-	td {
-		border: 1px solid #000;
-		padding: 5px;
+	button {
+		font-family: inherit;
+		font-size: inherit;
+		font-weight: inherit;
+		color: inherit;
+		background: none;
+		border: 0;
+		outline: 0;
+		text-align: left;
+		cursor: pointer;
+		color: inherit;
 	}
-
-	.assignee {
-		min-width: 130px;
-		position: relative;
+	button::-moz-focus-inner {
+		padding: 0;
+		border: 0;
 	}
-	.pic-row {
+	/* ============= */
+	.task {
 		display: flex;
-		margin: 0.3rem 0;
+		padding: 0.5rem 100px 0 0;
+		border-bottom: 1px solid black;
 	}
-	.userpic {
-		width: 2em;
-		height: 2em;
-		overflow: hidden;
-		border-radius: 50%;
-		margin-right: 0.5em;
+	.task:last-of-type {
+		border-bottom: 0;
 	}
-	.time {
+	.task__chart {
 		position: relative;
-		height: 3.5rem;
-		width: 900px;
 	}
-	.bar {
+	.task__bar_primary {
+		background: rgb(170, 228, 251);
+		height: 40px;
+	}
+	.task__bar_secondary {
+		background: #ffd139;
+		height: 20px;
+		position: relative;
+		top: -20px;
+	}
+	.task__detailts {
+		display: block;
 		position: absolute;
-		bottom: 0;
-		left: 0;
+		top: 0;
+		z-index: 2;
+		padding: 0;
+	}
+	.task__detail {
 		white-space: nowrap;
 	}
-	.estimate {
-		padding: 0.3rem 0.3rem 1.9rem 0.3rem;
-		background-color: #b5f6bf;
-		overflow: visible;
+	.task__description {
+		max-width: 350px;
+		background: #fff;
+		padding: 0.5rem 1.4rem;
+		border: 1px solid black;
 	}
-	.progress {
-		padding: 0.3rem;
-		background-color: #ffd139;
+	.assignee {
+		margin-left: 20px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
 	}
-	.status {
-		font-size: 2rem;
+	.assignee__avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		overflow: hidden;
+	}
+	.hidden {
+		height: 0;
+		opacity: 0;
+	}
+	.hidden__name,
+	.hidden__ratio {
+		white-space: nowrap;
 	}
 </style>
