@@ -4,7 +4,7 @@
 	import { store } from '$lib/model/store'
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
-	import type { Decision, Task, VisibleAreaCoordsDate } from '$lib/model/tasks'
+	import type { Decision, Task } from '$lib/model/tasks'
 	import Button from '$lib/components/Button.svelte'
 	import SvelteMarkdown from 'svelte-markdown'
 	import Panel from '../../lib/components/Panel.svelte'
@@ -51,23 +51,13 @@
 		left: 0,
 		right: 0,
 	}
-	function getVisibleAreaCoords(e: Event) {
-		const t = (e.target as Element)?.closest('.tasks')
-		if (!t) return
-		let left = t.scrollLeft
-		let right = t.clientWidth + left
-		visibleAreaCoords = {
-			left,
-			right,
-		}
-	}
 </script>
 
 <Header current="project" />
 <div class="background">
-	<div class="tasks" on:scroll={getVisibleAreaCoords}>
+	<div class="tasks">
 		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} {visibleAreaCoords} />
+			<TaskRow {task} assignees={filterNonNull(crew)} />
 		{/each}
 	</div>
 	{#if decision}

@@ -62,11 +62,6 @@
 		{:else}
 			{label}
 		{/if}
-		{#if isOpen}
-			<div class="dropdown">
-				<slot />
-			</div>
-		{/if}
 	</Button>
 	{#if isOpen}
 		<div class="dropdown" bind:this={dropdownDiv}>

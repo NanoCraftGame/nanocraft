@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Task, type Status, type VisibleAreaCoordsDate } from '$lib/model/tasks'
+	import { Task, type Status } from '$lib/model/tasks'
 	import type { Character } from '$lib/model/character'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
@@ -7,7 +7,6 @@
 	import { store } from '$lib/model/store'
 	export let task: Task
 	export let assignees: Character[]
-	export let visibleAreaCoords: VisibleAreaCoordsDate
 
 	let statuses: Record<Status, string> = {
 		todo: '#E8ECEF',
@@ -24,24 +23,15 @@
 		if (assignee) store.pmSim.assign(assignee, task)
 	}
 
-	function getProcess(status: Status) {
-		switch (status) {
-			case 'todo':
-				return '#fff'
-			case 'done':
-				return '#E5FFEC'
-			case 'inProgress':
-				return '#ECF0F3'
-		}
-	}
-	let moreIsOpen = false
-	function toggleOpen() {
-		moreIsOpen = !moreIsOpen
+	const statusToColor: Record<Status, string> = {
+		todo: '#fff',
+		done: '#E5FFEC',
+		inProgress: '#ECF0F3',
 	}
 </script>
 
-<div class="tasks__row task" style="background: {getProcess(task.status)}">
-	<div class="task__piston" style="width:  {10 * task.waitTime}px" />
+<div class="task" style="background: {statusToColor[task.status]}">
+	<div class="task__expander" style="width:  {10 * task.waitTime}px" />
 	<div class="task__chart">
 		<div class="hidden">
 			<div class="hidden__name">{task.name}</div>
@@ -49,19 +39,12 @@
 				{task.timeSpent.toFixed(1)}/{task.estimate}
 			</div>
 		</div>
-		<button class="task__detailts" on:click={toggleOpen}>
+		<div class="task__details">
 			<div class="task__detail task__detail_name">{task.name}</div>
 			<div class="task__detail task__detail_ratio">
 				{task.timeSpent.toFixed(1)}/{task.estimate}
 			</div>
-		</button>
-		{#if moreIsOpen}
-			<div class="task__description">
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque corporis consequatur est
-				vero. Incidunt aut, ipsam rem nemo dolorem animi!
-			</div>
-			<!-- {task.description} -->
-		{/if}
+		</div>
 		<div class="task__bars">
 			<div
 				class="task__bar task__bar_primary"
@@ -111,23 +94,6 @@
 </div>
 
 <style>
-	button {
-		font-family: inherit;
-		font-size: inherit;
-		font-weight: inherit;
-		color: inherit;
-		background: none;
-		border: 0;
-		outline: 0;
-		text-align: left;
-		cursor: pointer;
-		color: inherit;
-	}
-	button::-moz-focus-inner {
-		padding: 0;
-		border: 0;
-	}
-	/* ============= */
 	.task {
 		display: flex;
 		padding: 0.5rem 100px 0 0;
@@ -149,7 +115,7 @@
 		position: relative;
 		top: -20px;
 	}
-	.task__detailts {
+	.task__details {
 		display: block;
 		position: absolute;
 		top: 0;
@@ -158,12 +124,6 @@
 	}
 	.task__detail {
 		white-space: nowrap;
-	}
-	.task__description {
-		max-width: 350px;
-		background: #fff;
-		padding: 0.5rem 1.4rem;
-		border: 1px solid black;
 	}
 	.assignee {
 		margin-left: 20px;
