@@ -23,7 +23,6 @@
 		border-radius: 5px;
 		font-size: 1.2em;
 		cursor: pointer;
-		position: relative;
 	}
 	.button.primary {
 		background-color: #00f;

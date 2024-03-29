@@ -91,7 +91,6 @@
 		gap: 24px;
 	}
 	.background {
-		min-height: calc(100vh - 65px);
 		min-height: calc(100dvh - 65px);
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;

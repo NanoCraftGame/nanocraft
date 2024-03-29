@@ -10,8 +10,8 @@
 
 	let statuses: Record<Status, string> = {
 		todo: '#E8ECEF',
-		done: '		#B1F1BC',
-		inProgress: '	#A2D9FF',
+		done: '#B1F1BC',
+		inProgress: '#A2D9FF',
 	}
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
@@ -22,18 +22,9 @@
 		const assignee = assignees.find((a) => a.id === e.detail)
 		if (assignee) store.pmSim.assign(assignee, task)
 	}
-
-	const statusToColor: Record<Status, string> = {
-		todo: '#fff',
-		done: '#E5FFEC',
-		inProgress: '#ECF0F3',
-	}
 </script>
 
-<div
-	class="task"
-	style="background: {statusToColor[task.status]};opacity: {task.isDormant ? 0.3 : 1};"
->
+<div class="task task--{task.status}" style="opacity: {task.isDormant ? 0.3 : 1};">
 	<div class="task__expander" style="width:  {10 * task.waitTime}px" />
 	<div class="task__chart">
 		<div class="hidden">
@@ -50,10 +41,10 @@
 		</div>
 		<div class="task__bars">
 			<div
-				class="task__bar task__bar_primary"
+				class="task__bar task__bar--estimate"
 				style="width: {10 * task.estimate}px; background: {statuses[task.status]};"
 			/>
-			<div class="task__bar task__bar_secondary" style="width: {10 * task.timeSpent}px;" />
+			<div class="task__bar task__bar--spent" style="width: {10 * task.timeSpent}px;" />
 		</div>
 	</div>
 	<div class="task__assignee assignee">
@@ -107,14 +98,22 @@
 	.task:last-of-type {
 		border-bottom: 0;
 	}
+	.task--todo {
+		background: #fff;
+	}
+	.task--done {
+		background: #e5ffec;
+	}
+	.task--inProgress {
+		background: #ecf0f3;
+	}
 	.task__chart {
 		position: relative;
 	}
-	.task__bar_primary {
-		background: #e8ecef;
+	.task__bar--estimate {
 		height: 40px;
 	}
-	.task__bar_secondary {
+	.task__bar--spent {
 		background: #feec99;
 		height: 20px;
 		position: relative;
