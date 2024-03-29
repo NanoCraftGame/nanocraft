@@ -30,7 +30,10 @@
 	}
 </script>
 
-<div class="task" style="background: {statusToColor[task.status]}">
+<div
+	class="task"
+	style="background: {statusToColor[task.status]};opacity: {task.isDormant ? 0.3 : 1};"
+>
 	<div class="task__expander" style="width:  {10 * task.waitTime}px" />
 	<div class="task__chart">
 		<div class="hidden">
@@ -58,22 +61,24 @@
 			<div class="assignee__avatar">
 				<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
 			</div>
-			<div class="assignee__reassign">
-				<DropDown
-					size="small"
-					variant="secondary"
-					on:change={assign}
-					label="Reassign"
-					disabled={task.isDormant}
-				>
-					{#each assignees.filter((a) => a.id !== task.assignee) as a}
-						<DropDownItem value={a.id}>
-							<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
-							{a.name}
-						</DropDownItem>
-					{/each}
-				</DropDown>
-			</div>
+			{#if task.status === 'todo'}
+				<div class="assignee__reassign">
+					<DropDown
+						size="small"
+						variant="secondary"
+						on:change={assign}
+						label="Reassign"
+						disabled={task.isDormant}
+					>
+						{#each assignees.filter((a) => a.id !== task.assignee) as a}
+							<DropDownItem value={a.id}>
+								<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
+								{a.name}
+							</DropDownItem>
+						{/each}
+					</DropDown>
+				</div>
+			{/if}
 		{:else if task.status === 'todo'}
 			<DropDown
 				size="small"

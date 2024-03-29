@@ -46,11 +46,6 @@
 	function filterNonNull<T>(arr: (T | null)[]): T[] {
 		return arr.filter((a) => a !== null) as T[]
 	}
-
-	let visibleAreaCoords = {
-		left: 0,
-		right: 0,
-	}
 </script>
 
 <Header current="project" />
