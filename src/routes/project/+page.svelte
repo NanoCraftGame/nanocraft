@@ -50,21 +50,11 @@
 
 <Header current="project" />
 <div class="background">
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Assignee</th>
-				<th>Task</th>
-				<th>Timeline</th>
-				<th>Status</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each tasks as task}
-				<TaskRow {task} assignees={filterNonNull(crew)} />
-			{/each}
-		</tbody>
-	</table>
+	<div class="tasks">
+		{#each tasks as task}
+			<TaskRow {task} assignees={filterNonNull(crew)} />
+		{/each}
+	</div>
 	{#if decision}
 		<div class="backdrop" transition:fade>
 			<Panel>
@@ -101,16 +91,15 @@
 		gap: 24px;
 	}
 	.background {
-		min-height: calc(100vh - 65px);
+		min-height: calc(100dvh - 65px);
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
 	}
-	.table {
-		/* width: 100%; */
-		border-collapse: collapse;
-	}
-	.table th,
-	.table th {
-		font-weight: bold;
+	.tasks {
+		border: 1px solid black;
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-auto-rows: auto;
+		overflow: auto;
 	}
 </style>
