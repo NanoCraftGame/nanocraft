@@ -32,9 +32,7 @@
 		top: 0;
 		left: 0;
 		z-index: 9999;
-		width: 100vw;
 		width: 100dvw;
-		height: 100vh;
 		height: 100dvh;
 		background-color: rgba(16, 37, 68, 0.7);
 		display: flex;
