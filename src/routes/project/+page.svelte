@@ -71,7 +71,7 @@
 		{/each}
 	</div>
 	{#if decision}
-		<Backdrop isOpen={Boolean(decision)} let:toggler>
+		<Backdrop isOpen={Boolean(decision)} closable={false} let:toggler>
 			<Panel>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
