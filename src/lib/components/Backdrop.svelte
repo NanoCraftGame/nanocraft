@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte'
+	import { onDestroy, onMount } from 'svelte'
 	import { fade } from 'svelte/transition'
 	export const isOpen: boolean = false
 	export const closable: boolean = false
 
+	onMount(() => {
+		document.body.classList.add('hidden-scroll')
+	})
 	onDestroy(() => {
 		document.body.classList.remove('hidden-scroll')
 	})
-
-	document.body.classList.add('hidden-scroll')
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
