@@ -8,7 +8,7 @@
 	import Button from '$lib/components/Button.svelte'
 	import SvelteMarkdown from 'svelte-markdown'
 	import Panel from '../../lib/components/Panel.svelte'
-	import { fade } from 'svelte/transition'
+	import Backdrop from '$lib/components/Backdrop.svelte'
 
 	export let data
 
@@ -56,7 +56,7 @@
 		{/each}
 	</div>
 	{#if decision}
-		<div class="backdrop" transition:fade>
+		<Backdrop isOpen={Boolean(decision)}>
 			<Panel>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
@@ -72,20 +72,11 @@
 					{/each}
 				</div>
 			</Panel>
-		</div>
+		</Backdrop>
 	{/if}
 </div>
 
 <style>
-	.backdrop {
-		min-height: calc(100vh - 65px);
-		background-color: rgba(16, 37, 68, 0.7);
-		position: fixed;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center; /* Add this line */
-	}
 	.footer {
 		display: flex;
 		gap: 24px;
