@@ -13,7 +13,7 @@
 </script>
 
 {#if open}
-	<Backdrop isOpen={open} closable={true}>
+	<Backdrop isOpen={open}>
 		<div
 			class="drawer"
 			use:escape
