@@ -13,14 +13,11 @@
 </script>
 
 {#if open}
-	<Backdrop isOpen={open} closable={true} let:toggler>
+	<Backdrop isOpen={open} closable={true}>
 		<div
 			class="drawer"
 			use:escape
-			on:escape={() => {
-				close()
-				toggler()
-			}}
+			on:escape={close}
 			transition:slide={{ delay: duration, duration: duration, axis: 'x' }}
 		>
 			<slot />

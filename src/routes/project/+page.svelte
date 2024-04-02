@@ -71,7 +71,7 @@
 		{/each}
 	</div>
 	{#if decision}
-		<Backdrop isOpen={Boolean(decision)} closable={false} let:toggler>
+		<Backdrop isOpen={Boolean(decision)}>
 			<Panel>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
@@ -80,7 +80,6 @@
 							on:click={() => {
 								decision?.decide(option)
 								decision = null
-								toggler()
 							}}
 						>
 							{decision.options.length > 1 ? option.description : 'OK'}
