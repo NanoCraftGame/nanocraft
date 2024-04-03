@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte'
 	import { goto } from '$app/navigation'
 	import { store } from '$lib/model/store'
+	import { writable } from 'svelte/store'
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
 	import type { Decision, Task } from '$lib/model/tasks'
@@ -46,13 +47,27 @@
 	function filterNonNull<T>(arr: (T | null)[]): T[] {
 		return arr.filter((a) => a !== null) as T[]
 	}
+
+	let visibleAreaCoords = writable({
+		left: 0,
+		right: 0,
+	})
+	let tasksListNode: HTMLElement
+
+	function getVisibleAreaCoords() {
+		if (!tasksListNode) return
+		let left = tasksListNode.scrollLeft
+		let right = tasksListNode.clientWidth + left
+		visibleAreaCoords.update(() => ({ left, right }))
+	}
+	onMount(() => getVisibleAreaCoords())
 </script>
 
 <Header current="project" />
 <div class="background">
-	<div class="tasks">
-		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} />
+	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
+		{#each tasks.slice(0) as task}
+			<TaskRow {task} assignees={filterNonNull(crew)} visibleAreaCoords={$visibleAreaCoords} />
 		{/each}
 	</div>
 	{#if decision}
@@ -101,5 +116,6 @@
 		grid-template-columns: 1fr;
 		grid-auto-rows: auto;
 		overflow: auto;
+		position: relative;
 	}
 </style>

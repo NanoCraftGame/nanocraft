@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Task, type Status } from '$lib/model/tasks'
+	import { Task, type Status, type VisibleAreaCoordsDate } from '$lib/model/tasks'
 	import type { Character } from '$lib/model/character'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
@@ -7,6 +7,7 @@
 	import { store } from '$lib/model/store'
 	export let task: Task
 	export let assignees: Character[]
+	export let visibleAreaCoords: VisibleAreaCoordsDate
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
 	$: {
@@ -22,11 +23,40 @@
 		inProgress: 'task--inProgress',
 		todo: 'task--todo',
 	}
+
+	let chartNode: HTMLElement
+	let isVisible: boolean = false
+	let blockPosition: 'right' | 'left' = 'left'
+
+	$: {
+		if (chartNode instanceof HTMLElement && visibleAreaCoords) {
+			const taskLeftSide = chartNode.offsetLeft
+			const taskRightSide = chartNode.offsetLeft + chartNode.offsetWidth
+			isVisible =
+				(taskLeftSide > visibleAreaCoords.left && taskLeftSide < visibleAreaCoords.right) ||
+				(taskRightSide < visibleAreaCoords.right && taskRightSide > visibleAreaCoords.left)
+			if (taskRightSide < visibleAreaCoords.left) {
+				blockPosition = 'right'
+			} else if (taskLeftSide > visibleAreaCoords.right) {
+				blockPosition = 'left'
+			}
+		}
+	}
 </script>
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
-	<div class="task__chart" style="margin-left: {10 * task.waitTime}px">
-		<div class="task__detail-name">{task.name}</div>
+	<div class="task__chart" style="margin-left: {10 * task.waitTime}px" bind:this={chartNode}>
+		<div
+			class="task__detail-name {isVisible ? '' : 'sticky-name'}"
+			style={isVisible ? '' : `left:${visibleAreaCoords.left}px`}
+		>
+			{task.name}
+			{#if !isVisible && blockPosition === 'left'}
+				&#10095
+			{:else if !isVisible && blockPosition === 'right'}
+				&#10094
+			{/if}
+		</div>
 		<div class="task__detail-ratio">
 			{task.timeSpent.toFixed(1)}/{task.estimate}
 		</div>
@@ -143,5 +173,14 @@
 		height: 40px;
 		border-radius: 50%;
 		overflow: hidden;
+	}
+	.sticky-name {
+		position: absolute;
+		top: auto;
+		height: auto;
+		max-width: 100%;
+		display: inline-block;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 </style>
