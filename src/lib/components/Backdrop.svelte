@@ -22,6 +22,7 @@
 		inset: 0;
 		background-color: rgba(16, 37, 68, 0.7);
 		display: flex;
+		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 	}
