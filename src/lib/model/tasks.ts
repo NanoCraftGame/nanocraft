@@ -63,11 +63,6 @@ export enum AttentionSpan {
 	PartialAttention = 0.1,
 }
 
-export interface VisibleAreaCoordsDate {
-	right: number
-	left: number
-}
-
 export class Task extends Dependable implements Serializable {
 	isDormant = false
 	status: Status = 'todo'

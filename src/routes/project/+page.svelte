@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte'
 	import { goto } from '$app/navigation'
 	import { store } from '$lib/model/store'
-	import { writable } from 'svelte/store'
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
 	import type { Decision, Task } from '$lib/model/tasks'
@@ -48,17 +47,14 @@
 		return arr.filter((a) => a !== null) as T[]
 	}
 
-	let visibleAreaCoords = writable({
-		left: 0,
-		right: 0,
-	})
+	let leftBorder: number
+	let rightBorder: number
 	let tasksListNode: HTMLElement
 
 	function getVisibleAreaCoords() {
 		if (!tasksListNode) return
-		let left = tasksListNode.scrollLeft
-		let right = tasksListNode.clientWidth + left
-		visibleAreaCoords.update(() => ({ left, right }))
+		leftBorder = tasksListNode.scrollLeft
+		rightBorder = tasksListNode.scrollLeft + tasksListNode.clientWidth
 	}
 	onMount(() => getVisibleAreaCoords())
 </script>
@@ -67,7 +63,7 @@
 <div class="background">
 	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
 		{#each tasks.slice(0) as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} visibleAreaCoords={$visibleAreaCoords} />
+			<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
 		{/each}
 	</div>
 	{#if decision}

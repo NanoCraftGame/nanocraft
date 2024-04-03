@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Task, type Status, type VisibleAreaCoordsDate } from '$lib/model/tasks'
+	import { Task, type Status } from '$lib/model/tasks'
 	import type { Character } from '$lib/model/character'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
@@ -7,7 +7,8 @@
 	import { store } from '$lib/model/store'
 	export let task: Task
 	export let assignees: Character[]
-	export let visibleAreaCoords: VisibleAreaCoordsDate
+	export let leftBorder: number
+	export let rightBorder: number
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
 	$: {
@@ -29,15 +30,15 @@
 	let blockPosition: 'right' | 'left' = 'left'
 
 	$: {
-		if (chartNode instanceof HTMLElement && visibleAreaCoords) {
+		if (chartNode instanceof HTMLElement) {
 			const taskLeftSide = chartNode.offsetLeft
 			const taskRightSide = chartNode.offsetLeft + chartNode.offsetWidth
 			isVisible =
-				(taskLeftSide > visibleAreaCoords.left && taskLeftSide < visibleAreaCoords.right) ||
-				(taskRightSide < visibleAreaCoords.right && taskRightSide > visibleAreaCoords.left)
-			if (taskRightSide < visibleAreaCoords.left) {
+				(taskLeftSide > leftBorder && taskLeftSide < rightBorder) ||
+				(taskRightSide < rightBorder && taskRightSide > leftBorder)
+			if (taskRightSide < leftBorder) {
 				blockPosition = 'right'
-			} else if (taskLeftSide > visibleAreaCoords.right) {
+			} else if (taskLeftSide > rightBorder) {
 				blockPosition = 'left'
 			}
 		}
@@ -48,7 +49,7 @@
 	<div class="task__chart" style="margin-left: {10 * task.waitTime}px" bind:this={chartNode}>
 		<div
 			class="task__detail-name {isVisible ? '' : 'sticky-name'}"
-			style={isVisible ? '' : `left:${visibleAreaCoords.left}px`}
+			style={isVisible ? '' : `left:${leftBorder}px`}
 		>
 			{task.name}
 			{#if !isVisible && blockPosition === 'left'}
