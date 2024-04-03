@@ -5,7 +5,7 @@
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
 	import { Decision, Task } from '$lib/model/tasks'
-	import type { Character, CharacterData } from '$lib/model/character'
+	import type { Character } from '$lib/model/character'
 	import Button from '$lib/components/Button.svelte'
 	import SvelteMarkdown from 'svelte-markdown'
 	import Panel from '../../lib/components/Panel.svelte'
