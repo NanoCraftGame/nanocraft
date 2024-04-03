@@ -26,7 +26,6 @@
 	@media (max-width: 980px) {
 		.panel {
 			padding: 20px;
-			min-height: 100vh;
 			min-height: 100dvh;
 			width: 100%;
 			margin: 0;

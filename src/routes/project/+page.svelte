@@ -9,8 +9,8 @@
 	import Button from '$lib/components/Button.svelte'
 	import SvelteMarkdown from 'svelte-markdown'
 	import Panel from '../../lib/components/Panel.svelte'
-	import { fade } from 'svelte/transition'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
+	import Backdrop from '$lib/components/Backdrop.svelte'
 
 	export let data
 
@@ -66,23 +66,13 @@
 
 <Header current="project" />
 <div class="background">
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Assignee</th>
-				<th>Task</th>
-				<th>Timeline</th>
-				<th>Status</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each tasks as task}
-				<TaskRow {task} assignees={filterNonNull(crew)} />
-			{/each}
-		</tbody>
-	</table>
+	<div class="tasks">
+		{#each tasks as task}
+			<TaskRow {task} assignees={filterNonNull(crew)} />
+		{/each}
+	</div>
 	{#if decision}
-		<div class="backdrop" transition:fade>
+		<Backdrop isOpen={Boolean(decision)}>
 			<Panel>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
@@ -110,37 +100,26 @@
 					{/if}
 				</div>
 			</div>
-		</div>
+		</Backdrop>
 	{/if}
 </div>
 
 <style>
-	.backdrop {
-		min-height: calc(100vh - 65px);
-		background-color: rgba(16, 37, 68, 0.7);
-		position: fixed;
-		inset: 0;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center; /* Add this line */
-	}
 	.footer {
 		display: flex;
 		gap: 24px;
 	}
 	.background {
-		min-height: calc(100vh - 65px);
+		min-height: calc(100dvh - 65px);
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
 	}
-	.table {
-		/* width: 100%; */
-		border-collapse: collapse;
-	}
-	.table th,
-	.table th {
-		font-weight: bold;
+	.tasks {
+		border: 1px solid black;
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-auto-rows: auto;
+		overflow: auto;
 	}
 	.assigned {
 		width: 90%;

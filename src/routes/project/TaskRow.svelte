@@ -8,12 +8,6 @@
 	export let task: Task
 	export let assignees: Character[]
 
-	let statuses: Record<Status, string> = {
-		todo: '🆕',
-		done: '✅',
-		inProgress: '🛠️',
-	}
-
 	let assignee = assignees.find((a) => a.id === task.assignee)
 	$: {
 		assignee = assignees.find((a) => a.id === task.assignee)
@@ -22,16 +16,30 @@
 		const assignee = assignees.find((a) => a.id === e.detail)
 		if (assignee) store.pmSim.assign(assignee, task)
 	}
+
+	const taskStatusClasses: Record<Status, string> = {
+		done: 'task--done',
+		inProgress: 'task--inProgress',
+		todo: 'task--todo',
+	}
 </script>
 
-<tr style="opacity: {task.isDormant ? 0.3 : 1};">
-	<td class="assignee">
+<div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
+	<div class="task__chart" style="margin-left: {10 * task.waitTime}px">
+		<div class="task__detail-name">{task.name}</div>
+		<div class="task__detail-ratio">
+			{task.timeSpent.toFixed(1)}/{task.estimate}
+		</div>
+		<div class="task__bar-estimate" style="width: {10 * task.estimate}px" />
+		<div class="task__bar-spent" style="width: {10 * task.timeSpent}px;" />
+	</div>
+	<div class="task__assignee assignee">
 		{#if assignee}
-			<div class="pic-row">
-				<div class="userpic">
-					<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
-				</div>
-				{#if task.status === 'todo'}
+			<div class="assignee__avatar">
+				<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
+			</div>
+			{#if task.status === 'todo'}
+				<div class="assignee__reassign">
 					<DropDown
 						size="small"
 						variant="secondary"
@@ -46,11 +54,8 @@
 							</DropDownItem>
 						{/each}
 					</DropDown>
-				{/if}
-			</div>
-			<div>
-				{assignee.name}
-			</div>
+				</div>
+			{/if}
 		{:else if task.status === 'todo'}
 			<DropDown
 				size="small"
@@ -67,67 +72,76 @@
 				{/each}
 			</DropDown>
 		{/if}
-	</td>
-	<td>{task.name}</td>
-	<td class="time">
-		<div
-			class="bar estimate"
-			style="width: {10 * task.estimate}px; margin-left: {10 * task.waitTime}px"
-		>
-			Est.: {task.estimate}
-		</div>
-		<div
-			class="bar progress"
-			style="width: {10 * task.timeSpent}px; margin-left: {10 * task.waitTime}px"
-		>
-			Spent: {Math.floor(task.timeSpent)}
-		</div>
-	</td>
-	<td class="status">{statuses[task.status]}</td>
-</tr>
+	</div>
+</div>
 
 <style>
-	td {
-		border: 1px solid #000;
-		padding: 5px;
+	.task {
+		display: flex;
+		border-bottom: 1px solid #d0d0d0;
+		--padding-bars: 0.4rem;
+		--bar-height: 1.2rem;
+	}
+	.task:last-of-type {
+		border-bottom: 0;
+	}
+
+	.task__detail-name {
+		height: 0;
+		top: var(--padding-bars);
+		padding: 0 var(--padding-bars);
+		line-height: var(--bar-height);
+		overflow-y: visible;
+		white-space: nowrap;
+		position: relative;
+	}
+	.task__detail-ratio {
+		height: 0;
+		top: calc(var(--bar-height) + 3 * var(--padding-bars));
+		padding: 0 var(--padding-bars);
+		line-height: var(--bar-height);
+		overflow-y: visible;
+		position: relative;
+		white-space: nowrap;
+	}
+	.task__bar-estimate {
+		height: calc(var(--bar-height) * 2 + var(--padding-bars) * 4);
+	}
+	.task__bar-spent {
+		height: calc(var(--bar-height) + var(--padding-bars) * 2);
+		margin-top: calc(-1 * (var(--bar-height) + var(--padding-bars) * 2));
+		background-color: #feec99;
+	}
+
+	.task--todo {
+		background: #fff;
+	}
+	.task--done {
+		background: #e5ffec;
+	}
+	.task--inProgress {
+		background: #ecf0f3;
+	}
+	.task--todo .task__bar-estimate {
+		background-color: #e8ecef;
+	}
+	.task--done .task__bar-estimate {
+		background-color: #b1f1bc;
+	}
+	.task--inProgress .task__bar-estimate {
+		background-color: #a2d9ff;
 	}
 
 	.assignee {
-		min-width: 130px;
-		position: relative;
-	}
-	.pic-row {
+		margin-left: 20px;
 		display: flex;
-		margin: 0.3rem 0;
+		align-items: center;
+		gap: 0.5rem;
 	}
-	.userpic {
-		width: 2em;
-		height: 2em;
-		overflow: hidden;
+	.assignee__avatar {
+		width: 40px;
+		height: 40px;
 		border-radius: 50%;
-		margin-right: 0.5em;
-	}
-	.time {
-		position: relative;
-		height: 3.5rem;
-		width: 900px;
-	}
-	.bar {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		white-space: nowrap;
-	}
-	.estimate {
-		padding: 0.3rem 0.3rem 1.9rem 0.3rem;
-		background-color: #b5f6bf;
-		overflow: visible;
-	}
-	.progress {
-		padding: 0.3rem;
-		background-color: #ffd139;
-	}
-	.status {
-		font-size: 2rem;
+		overflow: hidden;
 	}
 </style>
