@@ -73,7 +73,7 @@
 	</div>
 	{#if decision}
 		<Backdrop isOpen={Boolean(decision)}>
-			<Panel>
+			<Panel scrollable={true}>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
 					{#each decision.options as option}
@@ -130,5 +130,10 @@
 		border-radius: 50%;
 		overflow: hidden;
 		border: 2px solid rgb(35, 222, 255);
+	}
+	@media (max-width: 980px) {
+		.assigned {
+			display: none;
+		}
 	}
 </style>

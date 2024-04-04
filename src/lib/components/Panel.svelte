@@ -1,4 +1,8 @@
-<div class="panel" {...$$restProps}>
+<script lang="ts">
+	export let scrollable: boolean = false
+</script>
+
+<div class="panel {scrollable ? 'scrollable' : ''}" {...$$restProps}>
 	<slot />
 	{#if $$slots.footer}
 		<div class="footer">
@@ -17,6 +21,9 @@
 		color: rgb(255, 255, 255);
 		max-width: 960px;
 		margin: 3rem 0;
+	}
+	.scrollable {
+		overflow: auto;
 	}
 	.footer {
 		display: flex;
