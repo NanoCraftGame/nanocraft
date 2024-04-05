@@ -33,12 +33,12 @@
 		if (chartNode instanceof HTMLElement) {
 			const taskLeftSide = chartNode.offsetLeft
 			const taskRightSide = chartNode.offsetLeft + chartNode.offsetWidth
-			isVisible =
-				(taskLeftSide > leftBorder && taskLeftSide < rightBorder) ||
-				(taskRightSide < rightBorder && taskRightSide > leftBorder)
-			if (taskRightSide < leftBorder) {
+			isVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
+			// (taskLeftSide > leftBorder && taskLeftSide < rightBorder) ||
+			// (taskRightSide < rightBorder && taskRightSide > leftBorder)
+			if (taskRightSide > rightBorder) {
 				blockPosition = 'right'
-			} else if (taskLeftSide > rightBorder) {
+			} else if (taskRightSide <= leftBorder) {
 				blockPosition = 'left'
 			}
 		}
@@ -47,16 +47,9 @@
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
 	<div class="task__chart" style="margin-left: {10 * task.waitTime}px" bind:this={chartNode}>
-		<div
-			class="task__detail-name {isVisible ? '' : 'sticky-name'}"
-			style={isVisible ? '' : `left:${leftBorder}px`}
-		>
+		<div class="task__detail-hidden">{task.name}</div>
+		<div class="task__detail-name {isVisible ? '' : 'sticky-name'} sticky-name_{blockPosition}">
 			{task.name}
-			{#if !isVisible && blockPosition === 'left'}
-				&#10095
-			{:else if !isVisible && blockPosition === 'right'}
-				&#10094
-			{/if}
 		</div>
 		<div class="task__detail-ratio">
 			{task.timeSpent.toFixed(1)}/{task.estimate}
@@ -116,7 +109,12 @@
 	.task:last-of-type {
 		border-bottom: 0;
 	}
-
+	.task__detail-hidden {
+		opacity: 0;
+		height: 0;
+		overflow: hidden;
+		white-space: nowrap;
+	}
 	.task__detail-name {
 		height: 0;
 		top: var(--padding-bars);
@@ -178,10 +176,18 @@
 	.sticky-name {
 		position: absolute;
 		top: auto;
+		left: 0;
+		padding: 0 2rem;
 		height: auto;
-		max-width: 100%;
+		width: 100%;
 		display: inline-block;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+	.sticky-name_left {
+		/* text-align: left; */
+	}
+	.sticky-name_right {
+		/* text-align: right; */
 	}
 </style>

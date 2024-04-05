@@ -62,7 +62,7 @@
 <Header current="project" />
 <div class="background">
 	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
-		{#each tasks.slice(0) as task}
+		{#each tasks.slice(0, 2) as task}
 			<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
 		{/each}
 	</div>
@@ -112,6 +112,6 @@
 		grid-template-columns: 1fr;
 		grid-auto-rows: auto;
 		overflow: auto;
-		position: relative;
+		/* position: relative; */
 	}
 </style>
