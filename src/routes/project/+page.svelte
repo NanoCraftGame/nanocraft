@@ -4,11 +4,13 @@
 	import { store } from '$lib/model/store'
 	import TaskRow from './TaskRow.svelte'
 	import Header from '$lib/components/Header.svelte'
-	import type { Decision, Task } from '$lib/model/tasks'
+	import { Decision, Task } from '$lib/model/tasks'
+	import type { Character } from '$lib/model/character'
 	import Button from '$lib/components/Button.svelte'
 	import SvelteMarkdown from 'svelte-markdown'
 	import Panel from '../../lib/components/Panel.svelte'
-	import { fade } from 'svelte/transition'
+	import WaitingImage from '$lib/components/WaitingImage.svelte'
+	import Backdrop from '$lib/components/Backdrop.svelte'
 
 	export let data
 
@@ -47,6 +49,20 @@
 		return arr.filter((a) => a !== null) as T[]
 	}
 
+	let assignedPerson: Character | null = null
+	$: {
+		assignedPerson =
+			crew.find((character) => {
+				if (decision instanceof Decision) {
+					const firstTask = decision?.dependencies[0]
+					if (firstTask instanceof Task) {
+						return character?.id === firstTask.assignee
+					}
+				}
+				return false
+			}) ?? null
+	}
+
 	let leftBorder: number
 	let rightBorder: number
 	let tasksListNode: HTMLElement
@@ -67,7 +83,7 @@
 		{/each}
 	</div>
 	{#if decision}
-		<div class="backdrop" transition:fade>
+		<Backdrop isOpen={Boolean(decision)}>
 			<Panel>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
@@ -83,20 +99,23 @@
 					{/each}
 				</div>
 			</Panel>
-		</div>
+			<div class="assigned">
+				<div class="assigned__avatar">
+					{#if assignedPerson}
+						<WaitingImage
+							src={assignedPerson.image}
+							alt={assignedPerson.id}
+							width={200}
+							height={200}
+						/>
+					{/if}
+				</div>
+			</div>
+		</Backdrop>
 	{/if}
 </div>
 
 <style>
-	.backdrop {
-		min-height: calc(100vh - 65px);
-		background-color: rgba(16, 37, 68, 0.7);
-		position: fixed;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center; /* Add this line */
-	}
 	.footer {
 		display: flex;
 		gap: 24px;
@@ -113,5 +132,15 @@
 		grid-auto-rows: auto;
 		overflow: auto;
 		/* position: relative; */
+	}
+	.assigned {
+		width: 90%;
+		display: flex;
+		justify-content: flex-end;
+	}
+	.assigned__avatar {
+		border-radius: 50%;
+		overflow: hidden;
+		border: 2px solid rgb(35, 222, 255);
 	}
 </style>
