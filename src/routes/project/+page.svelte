@@ -131,7 +131,6 @@
 		grid-template-columns: 1fr;
 		grid-auto-rows: auto;
 		overflow: auto;
-		/* position: relative; */
 	}
 	.assigned {
 		width: 90%;
