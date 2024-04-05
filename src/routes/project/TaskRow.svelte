@@ -27,19 +27,17 @@
 
 	let chartNode: HTMLElement
 	let isVisible: boolean = false
-	let blockPosition: 'right' | 'left' = 'left'
+	let rightPosition: boolean = false
 
 	$: {
 		if (chartNode instanceof HTMLElement) {
 			const taskLeftSide = chartNode.offsetLeft
 			const taskRightSide = chartNode.offsetLeft + chartNode.offsetWidth
 			isVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
-			// (taskLeftSide > leftBorder && taskLeftSide < rightBorder) ||
-			// (taskRightSide < rightBorder && taskRightSide > leftBorder)
 			if (taskRightSide > rightBorder) {
-				blockPosition = 'right'
-			} else if (taskRightSide <= leftBorder) {
-				blockPosition = 'left'
+				rightPosition = true
+			} else {
+				rightPosition = false
 			}
 		}
 	}
@@ -48,7 +46,11 @@
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
 	<div class="task__chart" style="margin-left: {10 * task.waitTime}px" bind:this={chartNode}>
 		<div class="task__detail-hidden">{task.name}</div>
-		<div class="task__detail-name {isVisible ? '' : 'sticky-name'} sticky-name_{blockPosition}">
+		<div
+			class="task__detail-name
+			{isVisible ? '' : 'sticky-name'} 
+			{rightPosition ? 'sticky-name_right' : ''}"
+		>
 			{task.name}
 		</div>
 		<div class="task__detail-ratio">
@@ -177,17 +179,15 @@
 		position: absolute;
 		top: auto;
 		left: 0;
-		padding: 0 2rem;
+		padding: var(--padding-bars) 2rem 0;
 		height: auto;
-		width: 100%;
+		max-width: 100%;
 		display: inline-block;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
-	.sticky-name_left {
-		/* text-align: left; */
-	}
 	.sticky-name_right {
-		/* text-align: right; */
+		left: auto;
+		right: 0;
 	}
 </style>

@@ -62,7 +62,7 @@
 <Header current="project" />
 <div class="background">
 	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
-		{#each tasks.slice(0, 2) as task}
+		{#each tasks as task}
 			<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
 		{/each}
 	</div>
