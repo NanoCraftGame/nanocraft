@@ -1,8 +1,8 @@
 <script lang="ts">
-	export let scrollable: boolean = false
+	export let uncentered: boolean
 </script>
 
-<div class="panel {scrollable ? 'scrollable' : ''}" {...$$restProps}>
+<div class="panel {uncentered ? 'uncentered' : ''}" {...$$restProps}>
 	<slot />
 	{#if $$slots.footer}
 		<div class="footer">
@@ -21,8 +21,6 @@
 		color: rgb(255, 255, 255);
 		max-width: 960px;
 		margin: 3rem 0;
-	}
-	.scrollable {
 		overflow: auto;
 	}
 	.footer {
@@ -39,8 +37,11 @@
 			border: 0;
 			border-radius: 0;
 			display: flex;
-			flex-direction: column;
 			justify-content: center;
+			flex-direction: column;
+		}
+		.uncentered {
+			justify-content: flex-start;
 		}
 	}
 </style>
