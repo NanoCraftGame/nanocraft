@@ -26,18 +26,18 @@
 	}
 
 	let chartNode: HTMLElement
-	let isVisible: boolean = false
-	let rightPosition: boolean = false
+	let chartIsVisible: boolean = false
+	let stickyNamePopsition: 'left' | 'right' = 'left'
 
 	$: {
 		if (chartNode instanceof HTMLElement) {
 			const taskLeftSide = chartNode.offsetLeft
 			const taskRightSide = chartNode.offsetLeft + chartNode.offsetWidth
-			isVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
+			chartIsVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
 			if (taskRightSide > rightBorder) {
-				rightPosition = true
+				stickyNamePopsition = 'right'
 			} else {
-				rightPosition = false
+				stickyNamePopsition = 'left'
 			}
 		}
 	}
@@ -47,9 +47,9 @@
 	<div class="task__chart" style="margin-left: {10 * task.waitTime}px" bind:this={chartNode}>
 		<div class="task__detail-hidden">{task.name}</div>
 		<div
-			class="task__detail-name
-			{isVisible ? '' : 'sticky-name'} 
-			{rightPosition ? 'sticky-name_right' : ''}"
+			class="task__detail-name"
+			class:sticky_name={!chartIsVisible}
+			class:sticky_name-right={stickyNamePopsition === 'right'}
 		>
 			{task.name}
 		</div>
@@ -111,13 +111,8 @@
 	.task:last-of-type {
 		border-bottom: 0;
 	}
+	.task__detail-name,
 	.task__detail-hidden {
-		opacity: 0;
-		height: 0;
-		overflow: hidden;
-		white-space: nowrap;
-	}
-	.task__detail-name {
 		height: 0;
 		top: var(--padding-bars);
 		padding: 0 var(--padding-bars);
@@ -125,6 +120,24 @@
 		overflow-y: visible;
 		white-space: nowrap;
 		position: relative;
+	}
+	.sticky_name {
+		position: absolute;
+		top: auto;
+		left: 0;
+		/* padding: var(--padding-bars) 2rem 0; */
+		padding-top: var(--padding-bars);
+		height: auto;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.sticky_name-right {
+		left: auto;
+		right: 0;
+	}
+	.task__detail-hidden {
+		visibility: hidden;
 	}
 	.task__detail-ratio {
 		height: 0;
@@ -174,20 +187,5 @@
 		height: 40px;
 		border-radius: 50%;
 		overflow: hidden;
-	}
-	.sticky-name {
-		position: absolute;
-		top: auto;
-		left: 0;
-		padding: var(--padding-bars) 2rem 0;
-		height: auto;
-		max-width: 100%;
-		display: inline-block;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-	.sticky-name_right {
-		left: auto;
-		right: 0;
 	}
 </style>

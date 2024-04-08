@@ -72,15 +72,21 @@
 		leftBorder = tasksListNode.scrollLeft
 		rightBorder = tasksListNode.scrollLeft + tasksListNode.clientWidth
 	}
-	onMount(() => getVisibleAreaCoords())
+	onMount(() => {
+		getVisibleAreaCoords()
+		window.addEventListener('resize', getVisibleAreaCoords)
+		return () => window.removeEventListener('resize', getVisibleAreaCoords)
+	})
 </script>
 
 <Header current="project" />
 <div class="background">
-	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
-		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
-		{/each}
+	<div class="tasks-contianer">
+		<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
+			{#each tasks as task}
+				<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
+			{/each}
+		</div>
 	</div>
 	{#if decision}
 		<Backdrop isOpen={Boolean(decision)}>
@@ -124,6 +130,9 @@
 		min-height: calc(100dvh - 65px);
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
+	}
+	.tasks-contianer {
+		position: relative;
 	}
 	.tasks {
 		border: 1px solid black;
