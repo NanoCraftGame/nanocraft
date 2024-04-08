@@ -1,8 +1,8 @@
 <script lang="ts">
-	export let uncentered: boolean
+	export let verticalAlign: 'top' | 'center' | 'bottom' = 'center'
 </script>
 
-<div class="panel {uncentered ? 'uncentered' : ''}" {...$$restProps}>
+<div class="panel panel-{verticalAlign}" {...$$restProps}>
 	<slot />
 	{#if $$slots.footer}
 		<div class="footer">
@@ -43,5 +43,11 @@
 		.uncentered {
 			justify-content: flex-start;
 		}
+	}
+	.panel-top {
+		justify-content: flex-start;
+	}
+	.panel-bottom {
+		justify-content: flex-end;
 	}
 </style>

@@ -73,7 +73,7 @@
 	</div>
 	{#if decision}
 		<Backdrop isOpen={Boolean(decision)}>
-			<Panel scrollable={true} uncentered={true}>
+			<Panel scrollable={true} verticalAlign="top">
 				<div class="profile">
 					<div class="profile__avatar">
 						{#if assignedPerson}
