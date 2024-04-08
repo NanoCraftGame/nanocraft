@@ -103,7 +103,10 @@ export class Task extends Dependable implements Serializable {
 
 	tick(attention: number, tick: number) {
 		if (this.status === 'inProgress') {
-			this.timeSpent = attention * scale + tick * scale - this.waitTime
+			const timeSpent = attention * scale + tick * scale - this.waitTime
+			if (timeSpent > 0) {
+				this.timeSpent = timeSpent
+			}
 			if (this.timeSpent >= this.realTime) {
 				this.status = 'done'
 			}
