@@ -81,12 +81,10 @@
 
 <Header current="project" />
 <div class="background">
-	<div class="tasks-contianer">
-		<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
-			{#each tasks as task}
-				<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
-			{/each}
-		</div>
+	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
+		{#each tasks as task}
+			<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
+		{/each}
 	</div>
 	{#if decision}
 		<Backdrop isOpen={Boolean(decision)}>
@@ -130,8 +128,6 @@
 		min-height: calc(100dvh - 65px);
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
-	}
-	.tasks-contianer {
 		position: relative;
 	}
 	.tasks {

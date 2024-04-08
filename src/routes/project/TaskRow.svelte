@@ -25,15 +25,15 @@
 		todo: 'task--todo',
 	}
 
-	let chartNode: HTMLElement
-	let chartIsVisible: boolean = false
+	let nameNode: HTMLElement
+	let nameIsVisible: boolean = false
 	let stickyNamePopsition: 'left' | 'right' = 'left'
 
 	$: {
-		if (chartNode instanceof HTMLElement) {
-			const taskLeftSide = chartNode.offsetLeft
-			const taskRightSide = chartNode.offsetLeft + chartNode.offsetWidth
-			chartIsVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
+		if (nameNode instanceof HTMLElement) {
+			const taskLeftSide = nameNode.offsetLeft
+			const taskRightSide = nameNode.offsetLeft + nameNode.offsetWidth
+			nameIsVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
 			if (taskRightSide > rightBorder) {
 				stickyNamePopsition = 'right'
 			} else {
@@ -44,11 +44,11 @@
 </script>
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
-	<div class="task__chart" style="margin-left: {10 * task.waitTime}px" bind:this={chartNode}>
-		<div class="task__detail-hidden">{task.name}</div>
+	<div style="margin-left: {10 * task.waitTime}px">
+		<div class="task__detail-hidden" bind:this={nameNode}>{task.name}</div>
 		<div
 			class="task__detail-name"
-			class:sticky_name={!chartIsVisible}
+			class:sticky_name={!nameIsVisible}
 			class:sticky_name-right={stickyNamePopsition === 'right'}
 		>
 			{task.name}
@@ -125,8 +125,7 @@
 		position: absolute;
 		top: auto;
 		left: 0;
-		/* padding: var(--padding-bars) 2rem 0; */
-		padding-top: var(--padding-bars);
+		padding: var(--padding-bars) 2rem 0;
 		height: auto;
 		max-width: 100%;
 		overflow: hidden;
@@ -137,7 +136,9 @@
 		right: 0;
 	}
 	.task__detail-hidden {
+		/* have to remove gap */
 		visibility: hidden;
+		display: inline-block;
 	}
 	.task__detail-ratio {
 		height: 0;
