@@ -136,9 +136,8 @@
 		right: 0;
 	}
 	.task__detail-hidden {
-		/* have to remove gap */
 		visibility: hidden;
-		display: inline-block;
+		width: min-content;
 	}
 	.task__detail-ratio {
 		height: 0;
