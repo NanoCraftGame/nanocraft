@@ -48,18 +48,18 @@
 		<div class="task__detail-hidden" bind:this={nameNode}>{task.name}</div>
 		<div
 			class="task__detail-name"
-			class:sticky_name={!nameIsVisible}
-			class:sticky_name-right={stickyNamePopsition === 'right'}
+			class:task__detail-name--sticky={!nameIsVisible}
+			class:task__detail-name--sticky-right={stickyNamePopsition === 'right'}
 		>
 			{task.name}
 		</div>
 		<div class="task__detail-ratio">
 			{task.timeSpent.toFixed(1)}/{task.estimate}
 		</div>
-		<div class="task__bar-estimate" style="width: {10 * task.estimate}px" />
-		<div class="task__bar-spent" style="width: {10 * task.timeSpent}px;" />
+		<div class="task__bar--estimate" style="width: {10 * task.estimate}px" />
+		<div class="task__bar--spent" style="width: {10 * task.timeSpent}px;" />
 	</div>
-	<div class="task__assignee assignee">
+	<div class="assignee">
 		{#if assignee}
 			<div class="assignee__avatar">
 				<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
@@ -121,7 +121,7 @@
 		white-space: nowrap;
 		position: relative;
 	}
-	.sticky_name {
+	.task__detail-name--sticky {
 		position: absolute;
 		top: auto;
 		left: 0;
@@ -131,7 +131,7 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
-	.sticky_name-right {
+	.task__detail-name--sticky-right {
 		left: auto;
 		right: 0;
 	}
@@ -148,10 +148,10 @@
 		position: relative;
 		white-space: nowrap;
 	}
-	.task__bar-estimate {
+	.task__bar--estimate {
 		height: calc(var(--bar-height) * 2 + var(--padding-bars) * 4);
 	}
-	.task__bar-spent {
+	.task__bar--spent {
 		height: calc(var(--bar-height) + var(--padding-bars) * 2);
 		margin-top: calc(-1 * (var(--bar-height) + var(--padding-bars) * 2));
 		background-color: #feec99;
