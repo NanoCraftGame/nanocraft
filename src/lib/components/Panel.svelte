@@ -1,8 +1,13 @@
 <script lang="ts">
 	export let verticalAlign: 'top' | 'center' | 'bottom' = 'center'
+	const alignClassNames = {
+		top: 'panel-top',
+		center: 'panel-center',
+		bottom: 'panel-bottom',
+	}
 </script>
 
-<div class="panel panel-{verticalAlign}" {...$$restProps}>
+<div class="panel {alignClassNames[verticalAlign]}" {...$$restProps}>
 	<slot />
 	{#if $$slots.footer}
 		<div class="footer">
@@ -37,7 +42,6 @@
 			border: 0;
 			border-radius: 0;
 			display: flex;
-			justify-content: center;
 			flex-direction: column;
 		}
 		.uncentered {
@@ -46,6 +50,9 @@
 	}
 	.panel-top {
 		justify-content: flex-start;
+	}
+	.panel-center {
+		justify-content: center;
 	}
 	.panel-bottom {
 		justify-content: flex-end;
