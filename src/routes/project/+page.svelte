@@ -80,7 +80,7 @@
 </script>
 
 <Header current="project" />
-<div class="background">
+<div class="tasks-container">
 	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
 		{#each tasks as task}
 			<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
@@ -124,7 +124,7 @@
 		display: flex;
 		gap: 24px;
 	}
-	.background {
+	.tasks-container {
 		min-height: calc(100dvh - 65px);
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;

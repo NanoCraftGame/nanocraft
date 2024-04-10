@@ -30,9 +30,11 @@
 	let stickyNamePosition: 'left' | 'right' = 'left'
 
 	$: {
-		if (nameNode instanceof HTMLElement) {
-			const taskLeftSide = nameNode.offsetLeft
-			const taskRightSide = nameNode.offsetLeft + nameNode.offsetWidth
+		if (nameNode instanceof HTMLElement && nameNode.offsetParent instanceof HTMLElement) {
+			const parent = getComputedStyle(nameNode?.offsetParent)
+			const taskLeftSide = nameNode.offsetLeft - parseFloat(parent.paddingLeft)
+			const taskRightSide =
+				nameNode.offsetLeft + nameNode.offsetWidth - parseFloat(parent.paddingLeft)
 			nameIsVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
 			if (taskRightSide > rightBorder) {
 				stickyNamePosition = 'right'
@@ -114,7 +116,9 @@
 	.task__detail-name,
 	.task__detail-hidden {
 		height: 0;
+		width: min-content;
 		top: var(--padding-bars);
+		padding: 0 var(--padding-bars);
 		line-height: var(--bar-height);
 		overflow-y: visible;
 		white-space: nowrap;
@@ -124,7 +128,7 @@
 		position: absolute;
 		top: auto;
 		left: 0;
-		margin: var(--padding-bars) 2rem 0;
+		margin: var(--padding-bars) 1rem 0;
 		height: auto;
 		max-width: 100%;
 		overflow: hidden;
@@ -136,7 +140,6 @@
 	}
 	.task__detail-hidden {
 		visibility: hidden;
-		width: min-content;
 	}
 	.task__detail-ratio {
 		height: 0;
