@@ -80,7 +80,12 @@
 <div class="background">
 	<div class="tasks">
 		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} on:click={() => openTaskDescription(task)} />
+			<TaskRow
+				{task}
+				assignees={filterNonNull(crew)}
+				on:click={() => openTaskDescription(task)}
+				focused={task === openedTask}
+			/>
 		{/each}
 	</div>
 	{#if decision}

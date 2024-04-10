@@ -7,6 +7,7 @@
 	import { store } from '$lib/model/store'
 	export let task: Task
 	export let assignees: Character[]
+	export let focused: boolean = false
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
 	$: {
@@ -25,7 +26,12 @@
 </script>
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
-	<button class="task__chart" style="margin-left: {10 * task.waitTime}px" on:click>
+	<button
+		class="task__chart"
+		class:task__chart--focused={focused}
+		style="margin-left: {10 * task.waitTime}px"
+		on:click
+	>
 		<div class="task__detail-name">{task.name}</div>
 		<div class="task__detail-ratio">
 			{task.timeSpent.toFixed(1)}/{task.estimate}
@@ -88,6 +94,7 @@
 	.task__chart {
 		background: none;
 		border: 0;
+		padding: 0;
 		font-size: inherit;
 		font-family: inherit;
 		font-weight: inherit;
@@ -95,6 +102,11 @@
 		display: block;
 		text-align: left;
 		cursor: pointer;
+	}
+	.task__chart--focused {
+		outline: 2px solid rgb(35, 222, 255);
+		position: relative;
+		z-index: 1;
 	}
 	.task__detail-name {
 		height: 0;
