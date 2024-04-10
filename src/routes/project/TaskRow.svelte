@@ -25,14 +25,14 @@
 </script>
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
-	<button class="task__chart" style="margin-left: {10 * task.waitTime}px" on:click>
+	<div class="task__chart" style="margin-left: {10 * task.waitTime}px">
 		<div class="task__detail-name">{task.name}</div>
 		<div class="task__detail-ratio">
 			{task.timeSpent.toFixed(1)}/{task.estimate}
 		</div>
 		<div class="task__bar-estimate" style="width: {10 * task.estimate}px" />
 		<div class="task__bar-spent" style="width: {10 * task.timeSpent}px;" />
-	</button>
+	</div>
 	<div class="task__assignee assignee">
 		{#if assignee}
 			<div class="assignee__avatar">
@@ -85,17 +85,7 @@
 	.task:last-of-type {
 		border-bottom: 0;
 	}
-	.task__chart {
-		background: none;
-		border: 0;
-		font-size: inherit;
-		font-family: inherit;
-		font-weight: inherit;
-		color: inherit;
-		display: block;
-		text-align: left;
-		cursor: pointer;
-	}
+
 	.task__detail-name {
 		height: 0;
 		top: var(--padding-bars);

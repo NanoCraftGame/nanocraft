@@ -11,7 +11,6 @@
 	import Panel from '../../lib/components/Panel.svelte'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import Backdrop from '$lib/components/Backdrop.svelte'
-	import TaskDescription from './TaskDescription.svelte'
 
 	export let data
 
@@ -23,17 +22,6 @@
 	let tasks: Task[] = []
 
 	let decision: Decision | null = null
-
-	let descriptionIsOpen: boolean = false
-	let openedTask: Task | null = null
-
-	function openTaskDescription(task: Task) {
-		openedTask = task
-		descriptionIsOpen = true
-	}
-	function closeTaskDescription() {
-		descriptionIsOpen = false
-	}
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
@@ -80,7 +68,7 @@
 <div class="background">
 	<div class="tasks">
 		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} on:click={() => openTaskDescription(task)} />
+			<TaskRow {task} assignees={filterNonNull(crew)} />
 		{/each}
 	</div>
 	{#if decision}
@@ -128,9 +116,6 @@
 				</div>
 			</div>
 		</Backdrop>
-	{/if}
-	{#if descriptionIsOpen}
-		<TaskDescription isOpen={descriptionIsOpen} close={closeTaskDescription} task={openedTask} />
 	{/if}
 </div>
 
