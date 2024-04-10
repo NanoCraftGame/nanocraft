@@ -85,7 +85,22 @@
 	</div>
 	{#if decision}
 		<Backdrop isOpen={Boolean(decision)}>
-			<Panel>
+			<Panel scrollable={true} verticalAlign="top">
+				<div class="profile">
+					<div class="profile__avatar">
+						{#if assignedPerson}
+							<WaitingImage
+								src={assignedPerson.image}
+								alt={assignedPerson.id}
+								width={100}
+								height={100}
+							/>
+						{/if}
+					</div>
+					<div class="profile__name">
+						{assignedPerson?.name}
+					</div>
+				</div>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
 					{#each decision.options as option}
@@ -136,14 +151,39 @@
 		grid-auto-rows: auto;
 		overflow: auto;
 	}
+	.profile {
+		display: none;
+	}
+	.profile__name {
+		font-size: 1.2rem;
+		font-weight: bold;
+	}
 	.assigned {
 		width: 90%;
 		display: flex;
 		justify-content: flex-end;
 	}
-	.assigned__avatar {
+	.assigned__avatar,
+	.profile__avatar {
 		border-radius: 50%;
 		overflow: hidden;
 		border: 2px solid rgb(35, 222, 255);
+		width: 200px;
+		height: 200px;
+	}
+	.profile__avatar {
+		width: 100px;
+		height: 100px;
+	}
+	@media (max-width: 980px) {
+		.profile {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			gap: 2rem;
+		}
+		.assigned {
+			display: none;
+		}
 	}
 </style>
