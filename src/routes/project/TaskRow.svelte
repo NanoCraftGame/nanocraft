@@ -27,7 +27,7 @@
 
 	let nameNode: HTMLElement
 	let nameIsVisible: boolean = false
-	let stickyNamePopsition: 'left' | 'right' = 'left'
+	let stickyNamePosition: 'left' | 'right' = 'left'
 
 	$: {
 		if (nameNode instanceof HTMLElement) {
@@ -35,9 +35,9 @@
 			const taskRightSide = nameNode.offsetLeft + nameNode.offsetWidth
 			nameIsVisible = taskLeftSide >= leftBorder && taskRightSide <= rightBorder
 			if (taskRightSide > rightBorder) {
-				stickyNamePopsition = 'right'
+				stickyNamePosition = 'right'
 			} else {
-				stickyNamePopsition = 'left'
+				stickyNamePosition = 'left'
 			}
 		}
 	}
@@ -49,15 +49,15 @@
 		<div
 			class="task__detail-name"
 			class:task__detail-name--sticky={!nameIsVisible}
-			class:task__detail-name--sticky-right={stickyNamePopsition === 'right'}
+			class:task__detail-name--sticky-right={stickyNamePosition === 'right'}
 		>
 			{task.name}
 		</div>
 		<div class="task__detail-ratio">
 			{task.timeSpent.toFixed(1)}/{task.estimate}
 		</div>
-		<div class="task__bar--estimate" style="width: {10 * task.estimate}px" />
-		<div class="task__bar--spent" style="width: {10 * task.timeSpent}px;" />
+		<div class="task__estimate" style="width: {10 * task.estimate}px" />
+		<div class="task__spent" style="width: {10 * task.timeSpent}px;" />
 	</div>
 	<div class="assignee">
 		{#if assignee}
@@ -115,7 +115,6 @@
 	.task__detail-hidden {
 		height: 0;
 		top: var(--padding-bars);
-		padding: 0 var(--padding-bars);
 		line-height: var(--bar-height);
 		overflow-y: visible;
 		white-space: nowrap;
@@ -125,7 +124,7 @@
 		position: absolute;
 		top: auto;
 		left: 0;
-		padding: var(--padding-bars) 2rem 0;
+		margin: var(--padding-bars) 2rem 0;
 		height: auto;
 		max-width: 100%;
 		overflow: hidden;
@@ -148,10 +147,10 @@
 		position: relative;
 		white-space: nowrap;
 	}
-	.task__bar--estimate {
+	.task__estimate {
 		height: calc(var(--bar-height) * 2 + var(--padding-bars) * 4);
 	}
-	.task__bar--spent {
+	.task__spent {
 		height: calc(var(--bar-height) + var(--padding-bars) * 2);
 		margin-top: calc(-1 * (var(--bar-height) + var(--padding-bars) * 2));
 		background-color: #feec99;
@@ -166,13 +165,13 @@
 	.task--inProgress {
 		background: #ecf0f3;
 	}
-	.task--todo .task__bar-estimate {
+	.task--todo .task__estimate {
 		background-color: #e8ecef;
 	}
-	.task--done .task__bar-estimate {
+	.task--done .task__estimate {
 		background-color: #b1f1bc;
 	}
-	.task--inProgress .task__bar-estimate {
+	.task--inProgress .task__estimate {
 		background-color: #a2d9ff;
 	}
 
