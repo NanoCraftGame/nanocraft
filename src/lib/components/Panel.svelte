@@ -26,6 +26,7 @@
 		color: rgb(255, 255, 255);
 		max-width: 960px;
 		margin: 3rem 0;
+		max-height: calc(100dvh - (2 * 3rem));
 		overflow: auto;
 	}
 	.footer {
@@ -43,9 +44,6 @@
 			border-radius: 0;
 			display: flex;
 			flex-direction: column;
-		}
-		.uncentered {
-			justify-content: flex-start;
 		}
 	}
 	.panel--top {
