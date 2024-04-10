@@ -141,7 +141,7 @@
 		left: 0;
 		margin: var(--padding-bars) 1rem 0;
 		height: auto;
-		max-width: 100%;
+		max-width: 90%;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
