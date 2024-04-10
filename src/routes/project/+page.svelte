@@ -11,6 +11,7 @@
 	import Panel from '../../lib/components/Panel.svelte'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import Backdrop from '$lib/components/Backdrop.svelte'
+	import TaskDescription from './TaskDescription.svelte'
 
 	export let data
 
@@ -22,6 +23,17 @@
 	let tasks: Task[] = []
 
 	let decision: Decision | null = null
+
+	let descriptionIsOpen: boolean = false
+	let openedTask: Task | null = null
+
+	function openTaskDescription(task: Task) {
+		openedTask = task
+		descriptionIsOpen = true
+	}
+	function closeTaskDescription() {
+		descriptionIsOpen = false
+	}
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
@@ -83,12 +95,33 @@
 <div class="tasks-container">
 	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
 		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} {leftBorder} {rightBorder} />
+			<TaskRow
+				{task}
+				assignees={filterNonNull(crew)}
+				{leftBorder}
+				{rightBorder}
+				on:click={() => openTaskDescription(task)}
+			/>
 		{/each}
 	</div>
 	{#if decision}
 		<Backdrop isOpen={Boolean(decision)}>
-			<Panel>
+			<Panel scrollable={true} verticalAlign="top">
+				<div class="profile">
+					<div class="profile__avatar">
+						{#if assignedPerson}
+							<WaitingImage
+								src={assignedPerson.image}
+								alt={assignedPerson.id}
+								width={100}
+								height={100}
+							/>
+						{/if}
+					</div>
+					<div class="profile__name">
+						{assignedPerson?.name}
+					</div>
+				</div>
 				<SvelteMarkdown source={decision.report} />
 				<div class="footer" slot="footer">
 					{#each decision.options as option}
@@ -117,6 +150,9 @@
 			</div>
 		</Backdrop>
 	{/if}
+	{#if descriptionIsOpen}
+		<TaskDescription isOpen={descriptionIsOpen} close={closeTaskDescription} task={openedTask} />
+	{/if}
 </div>
 
 <style>
@@ -137,14 +173,39 @@
 		grid-auto-rows: auto;
 		overflow: auto;
 	}
+	.profile {
+		display: none;
+	}
+	.profile__name {
+		font-size: 1.2rem;
+		font-weight: bold;
+	}
 	.assigned {
 		width: 90%;
 		display: flex;
 		justify-content: flex-end;
 	}
-	.assigned__avatar {
+	.assigned__avatar,
+	.profile__avatar {
 		border-radius: 50%;
 		overflow: hidden;
 		border: 2px solid rgb(35, 222, 255);
+		width: 200px;
+		height: 200px;
+	}
+	.profile__avatar {
+		width: 100px;
+		height: 100px;
+	}
+	@media (max-width: 980px) {
+		.profile {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			gap: 2rem;
+		}
+		.assigned {
+			display: none;
+		}
 	}
 </style>

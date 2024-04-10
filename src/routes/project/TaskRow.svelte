@@ -46,7 +46,7 @@
 </script>
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
-	<div style="margin-left: {10 * task.waitTime}px">
+	<button class="task__chart" style="margin-left: {10 * task.waitTime}px" on:click>
 		<div class="task__detail-hidden" bind:this={nameNode}>{task.name}</div>
 		<div
 			class="task__detail-name"
@@ -60,8 +60,8 @@
 		</div>
 		<div class="task__estimate" style="width: {10 * task.estimate}px" />
 		<div class="task__spent" style="width: {10 * task.timeSpent}px;" />
-	</div>
-	<div class="assignee">
+	</button>
+	<div class="task__assignee assignee">
 		{#if assignee}
 			<div class="assignee__avatar">
 				<WaitingImage src={assignee.image} alt={assignee.name} width={40} height={40} />
@@ -112,6 +112,17 @@
 	}
 	.task:last-of-type {
 		border-bottom: 0;
+	}
+	.task__chart {
+		background: none;
+		border: 0;
+		font-size: inherit;
+		font-family: inherit;
+		font-weight: inherit;
+		color: inherit;
+		display: block;
+		text-align: left;
+		cursor: pointer;
 	}
 	.task__detail-name,
 	.task__detail-hidden {
