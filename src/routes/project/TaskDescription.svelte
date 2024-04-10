@@ -14,9 +14,16 @@
 			<h3 class="title">{task?.name}</h3>
 			<div class="description">{task?.description}</div>
 			<div class="additional-data">
-				<p class="status">STATUS: {task?.status}</p>
-				<p class="estimate">ESTIMATE TIME: {task?.estimate}</p>
+				<p class="status">Status: {task?.status}</p>
+				<p class="estimate">Estimated time: {task?.estimate}</p>
 			</div>
 		</div>
 	</Panel>
 </Backdrop>
+
+<style>
+	.container {
+		width: max-content;
+		margin: 0 auto;
+	}
+</style>
