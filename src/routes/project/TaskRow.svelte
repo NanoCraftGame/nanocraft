@@ -116,6 +116,7 @@
 	.task__chart {
 		background: none;
 		border: 0;
+		padding: 0;
 		font-size: inherit;
 		font-family: inherit;
 		font-weight: inherit;
