@@ -1,9 +1,9 @@
 <script lang="ts">
 	export let verticalAlign: 'top' | 'center' | 'bottom' = 'center'
 	const alignClassNames = {
-		top: 'panel-top',
-		center: 'panel-center',
-		bottom: 'panel-bottom',
+		top: 'panel--top',
+		center: 'panel--center',
+		bottom: 'panel--bottom',
 	}
 </script>
 
@@ -48,13 +48,13 @@
 			justify-content: flex-start;
 		}
 	}
-	.panel-top {
+	.panel--top {
 		justify-content: flex-start;
 	}
-	.panel-center {
+	.panel--center {
 		justify-content: center;
 	}
-	.panel-bottom {
+	.panel--bottom {
 		justify-content: flex-end;
 	}
 </style>
