@@ -17,6 +17,8 @@
 		color: rgb(255, 255, 255);
 		max-width: 960px;
 		margin: 3rem 0;
+		max-height: calc(100dvh - (2 * 3rem));
+		overflow: auto;
 	}
 	.footer {
 		display: flex;
