@@ -15,9 +15,6 @@
 
 	export let data
 
-	// TODO
-	// - layout for long progress bars
-
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
 	let tasks: Task[] = []
@@ -74,13 +71,34 @@
 				return false
 			}) ?? null
 	}
+
+	let leftBorder: number
+	let rightBorder: number
+	let tasksListNode: HTMLElement
+
+	function getVisibleAreaCoords() {
+		if (!tasksListNode) return
+		leftBorder = tasksListNode.scrollLeft
+		rightBorder = tasksListNode.scrollLeft + tasksListNode.clientWidth
+	}
+	onMount(() => {
+		getVisibleAreaCoords()
+		window.addEventListener('resize', getVisibleAreaCoords)
+		return () => window.removeEventListener('resize', getVisibleAreaCoords)
+	})
 </script>
 
 <Header current="project" />
-<div class="background">
-	<div class="tasks">
+<div class="tasks-container">
+	<div class="tasks" on:scroll={getVisibleAreaCoords} bind:this={tasksListNode}>
 		{#each tasks as task}
-			<TaskRow {task} assignees={filterNonNull(crew)} on:click={() => openTaskDescription(task)} />
+			<TaskRow
+				{task}
+				assignees={filterNonNull(crew)}
+				{leftBorder}
+				{rightBorder}
+				on:click={() => openTaskDescription(task)}
+			/>
 		{/each}
 	</div>
 	{#if decision}
@@ -139,11 +157,12 @@
 		display: flex;
 		gap: 24px;
 	}
-	.background {
-		height: calc(100dvh - 65px);
+	.tasks-container {
+		min-height: calc(100dvh - 65px);
 		overflow: hidden;
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
+		position: relative;
 	}
 	.tasks {
 		height: 100%;

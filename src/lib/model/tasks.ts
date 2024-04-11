@@ -38,7 +38,7 @@ interface Serializable {
 export class Dependable {
 	dependencies: Dependable[] = []
 	dependents: Dependable[] = []
-	constructor(public id: string) {}
+	constructor(public id: string) { }
 
 	dependsOn(dependency: Dependable) {
 		this.dependencies.push(dependency)
