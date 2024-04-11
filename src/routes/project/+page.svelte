@@ -162,11 +162,13 @@
 	}
 	.tasks-container {
 		min-height: calc(100dvh - 65px);
+		overflow: hidden;
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
 		position: relative;
 	}
 	.tasks {
+		height: 100%;
 		border: 1px solid black;
 		display: grid;
 		grid-template-columns: 1fr;
