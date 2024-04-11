@@ -15,9 +15,6 @@
 
 	export let data
 
-	// TODO
-	// - layout for long progress bars
-
 	const crew = [store.project.getPlayer(), store.project.getColleague()]
 
 	let tasks: Task[] = []
