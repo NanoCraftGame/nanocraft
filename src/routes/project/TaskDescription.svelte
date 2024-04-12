@@ -36,7 +36,7 @@
 				{#if assignee}
 					<div class="resume__assignee">
 						<div class="resume__avatar">
-							<WaitingImage src={assignee.image} alt={assignee.id} width={200} height={200} />
+							<WaitingImage src={assignee.image} alt={assignee.id} width={150} height={150} />
 						</div>
 						<div class="assignee__name">{assignee?.name}</div>
 					</div>
@@ -70,8 +70,8 @@
 		text-transform: uppercase;
 	}
 	.resume__avatar {
-		width: 200px;
-		height: 200px;
+		width: 150px;
+		height: 150px;
 		border-radius: 50%;
 		overflow: hidden;
 		margin-bottom: 0.5rem;
