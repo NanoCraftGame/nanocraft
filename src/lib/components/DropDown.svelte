@@ -39,13 +39,22 @@
 		if (e) e.stopPropagation()
 		isOpen = true
 		setTimeout(() => {
+			const gap = 3
 			const dropdownRect = dropdownDiv.getBoundingClientRect()
 			const containerRect = container.getBoundingClientRect()
-			if (dropdownRect.bottom > window.innerHeight) {
-				dropdownDiv.style.top = `${-dropdownRect.height - 3}px`
-			} else {
-				dropdownDiv.style.top = `${containerRect.height + 3}px`
+			const parentRect = dropdownDiv.offsetParent?.getBoundingClientRect()
+			const viewHeight = window.innerHeight || document.documentElement.clientHeight
+			if (!parentRect) return
+			let top = containerRect.bottom - parentRect.top + gap
+			let left = containerRect.left + containerRect.width / 2 - dropdownRect.width / 2 - gap
+			if (left + dropdownRect.width > parentRect.right) {
+				left = containerRect.left - dropdownRect.width
 			}
+			if (top + dropdownRect.height > viewHeight) {
+				top = containerRect.top - parentRect.top - dropdownRect.height - gap
+			}
+			dropdownDiv.style.top = `${top}px`
+			dropdownDiv.style.left = `${left}px`
 			dropdownDiv.style.opacity = '1'
 		})
 	}
@@ -71,9 +80,6 @@
 </div>
 
 <style>
-	.container {
-		position: relative;
-	}
 	.dropdown {
 		position: absolute;
 		z-index: 10;
