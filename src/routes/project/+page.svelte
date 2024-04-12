@@ -31,6 +31,10 @@
 	function closeTaskDescription() {
 		descriptionIsOpen = false
 	}
+	function getPerson(id: string) {
+		const assigned = filterNonNull(crew).find((a) => a.id === id)
+		return assigned || null
+	}
 
 	onMount(async () => {
 		if (!crew[0] || !crew[1]) {
@@ -148,7 +152,12 @@
 		</Backdrop>
 	{/if}
 	{#if descriptionIsOpen}
-		<TaskDescription isOpen={descriptionIsOpen} close={closeTaskDescription} task={openedTask} />
+		<TaskDescription
+			isOpen={descriptionIsOpen}
+			close={closeTaskDescription}
+			task={openedTask}
+			assignee={getPerson(openedTask?.assignee || '')}
+		/>
 	{/if}
 </div>
 
