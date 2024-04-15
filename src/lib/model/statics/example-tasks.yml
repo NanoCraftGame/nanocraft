@@ -21,6 +21,7 @@ tasks:
       # so we need id to reference it using &anchor syntax
       - &decision1
         name: Choose customer for pilot
+        description: Identify potential customers for conducting a pilot project to test market feasibility
         type: Decision
         # the > means that following indented stuff is a multiline string (here we can use markdown syntax)
         # note that in that string '#' is no longer a comment, but a part of the string.
@@ -44,16 +45,20 @@ tasks:
           how to achieve yet, although we have some rough ideas.
         options:
           - name: Choose "New Norsk Energy Oy"
+            description: Select "New Norsk Energy Oy" as the primary customer for the pilot project
             downstream:
               - &taskSignContract
                 name: Sign pilot contract
+                description: Negotiate and finalize a contract agreement with "New Norsk Energy Oy" for the pilot project
                 type: CustomerContract
                 estimate: 10
               - name: Find cheap high volume pump supplier
+                description: Research and identify affordable suppliers for high volume pumps required for the project
                 type: ProcurementResearch
                 estimate: 7
                 downstream:
                   - name: Choose high volume pump supplier
+                    description: Select the most suitable supplier for high volume pumps from the options available
                     type: Decision
                     report: >
                       We identified two high volume pump suppliers:
@@ -76,10 +81,12 @@ tasks:
                             type: ProcurementResearch
                             estimate: 5
               - name: Find biphasic reactor manufacturer
+                description: Locate a manufacturer capable of producing biphasic reactors meeting project specifications
                 type: ProcurementResearch
                 estimate: 15
                 downstream:
                   - name: Decide on biphasic reactor
+                    description: Make decisions regarding the specifications and requirements of the biphasic reactor
                     type: Decision
                     report: Looks like nobody selling a suitable reactors, we should make our own.
                     options:
@@ -89,45 +96,58 @@ tasks:
                             type: EngineeringDevelopment
                             estimate: 3
           - name: Choose "Battarfungën Gmbh."
+            description: Consider "Battarfungën Gmbh." as an alternative customer option for the pilot project
             downstream:
               - *taskSignContract
             # ... all other tasks
   - name: Find customers in Scandinavia
+    description: Explore potential customer opportunities within the Scandinavian market
     type: MarketResearch
     estimate: 15
     downstream:
       # here goes reference to that &decision1 anchor used above
       - *decision1
   - name: Make a budget plan
+    description: Develop a comprehensive financial plan outlining expenses and income projections for the project
     type: ProjectManagement
     estimate: 10
   - name: Make milestone and timeline planning
+    description: Create a structured timeline with clear milestones to track progress and ensure project deadlines are met
     type: ProjectManagement
     estimate: 10
   - name: Select Raw Materials
+    description: Identify and choose the necessary raw materials required for the project
     type: EngineeringDevelopment
     estimate: 10
   - name: Decision on location for testing
+    description: Determine the most suitable location for conducting testing and trials for the project
     type: ProjectManagement
     estimate: 10
   - name: Procure Raw Materials (Methylamine, Glyoxal, Formaldehyde, Ammonia, Water)
+    description: Source and purchase the required raw materials including Methylamine, Glyoxal, Formaldehyde, Ammonia, and Water
     type: ProcurementContract
     estimate: 20
   - name: Build Chemical Storage
+    description: Construct facilities for storing chemicals safely and efficiently
     type: EngineeringDevelopment
     estimate: 20
   - name: Procure Mixing Tank
+    description: Acquire a mixing tank suitable for the project's needs
     type: ProcurementContract
     estimate: 10
   - name: Procure coolers and heaters
+    description: Purchase cooling and heating equipment necessary for the project
     type: ProcurementContract
     estimate: 10
   - name: Build pilot plant
+    description: Construct a pilot plant for testing and developing project prototypes
     type: EngineeringDevelopment
     estimate: 30
   - name: Test individual equipments for performance
+    description: Conduct performance tests on each piece of equipment to ensure they meet project requirements
     type: EngineeringDevelopment
     estimate: 20
   - name: Safety Inspection of the pilot plant
+    description: Perform a comprehensive safety inspection of the pilot plant to identify and mitigate any potential hazards
     type: EngineeringDevelopment
     estimate: 30
