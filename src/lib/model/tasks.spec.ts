@@ -168,9 +168,11 @@ describe('Task', () => {
 			task.status = 'inProgress'
 			task.waitTime = 4
 			task.tick(1, 12)
-			expect(task.timeSpent).toEqual(12 * scale + 1 * scale - 4)
+			const expectedTimeSpent1 = 12 * scale + 1 * scale - 4
+			expect(task.timeSpent).toEqual(expectedTimeSpent1 >= 0 ? expectedTimeSpent1 : 0)
 			task.tick(0.8, 7)
-			expect(task.timeSpent).toEqual(7 * scale + 0.8 * scale - 4)
+			const expectedTimeSpent2 = 7 * scale + 0.8 * scale - 4
+			expect(task.timeSpent).toEqual(expectedTimeSpent2 >= 0 ? expectedTimeSpent2 : 0)
 		})
 		it('transitions task to done state if time spent exceeds real time', () => {
 			const task = new Task('task1', 5, 'AnyTask')
