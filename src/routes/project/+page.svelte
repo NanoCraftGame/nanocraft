@@ -158,7 +158,7 @@
 		gap: 24px;
 	}
 	.tasks-container {
-		min-height: calc(100dvh - 65px);
+		height: calc(100dvh - 65px);
 		overflow: hidden;
 		background-color: rgb(234, 240, 255);
 		padding: 1rem;
@@ -171,6 +171,7 @@
 		grid-template-columns: 1fr;
 		grid-auto-rows: auto;
 		overflow: auto;
+		position: relative;
 	}
 	.profile {
 		display: none;
