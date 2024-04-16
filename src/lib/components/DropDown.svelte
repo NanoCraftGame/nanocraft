@@ -73,6 +73,7 @@
 <style>
 	.container {
 		position: relative;
+		display: inline-block;
 	}
 	.dropdown {
 		position: absolute;

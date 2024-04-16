@@ -8,7 +8,7 @@
 	export let isOpen: boolean = false
 	export let task: Task | null
 	export let close: VoidFunction
-	export let assignee: Character | null
+	export let assignee: Character | undefined
 </script>
 
 <Backdrop {isOpen}>
@@ -33,17 +33,20 @@
 						</p>
 					{/if}
 				</div>
-				{#if assignee}
-					<div class="resume__status resume__status--separated">
-						<span class="resume__title">Assigned to:</span>
+				<div class="resume__status resume__status--separated">
+					<span class="resume__title">Assigned to:</span>
+					{#if assignee}
 						<div class="resume__assignee">
 							<div class="resume__avatar">
 								<WaitingImage src={assignee.image} alt={assignee.id} width={75} height={75} />
 							</div>
 							<div class="assignee__name">{assignee?.name}</div>
 						</div>
-					</div>
-				{/if}
+					{/if}
+					{#if task?.status === 'todo'}
+						<slot />
+					{/if}
+				</div>
 			</div>
 		</div>
 	</Panel>
@@ -84,5 +87,10 @@
 	}
 	.assignee__name {
 		font-weight: bold;
+	}
+	@media (max-width: 600px) {
+		.container {
+			margin: 0;
+		}
 	}
 </style>
