@@ -125,6 +125,10 @@
 		text-align: left;
 		cursor: pointer;
 	}
+	.task__chart:focus {
+		outline: 2px solid rgb(35, 222, 255);
+	}
+
 	.task__detail-name,
 	.task__detail-hidden {
 		height: 0;

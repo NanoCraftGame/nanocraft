@@ -34,11 +34,14 @@
 					{/if}
 				</div>
 				{#if assignee}
-					<div class="resume__assignee">
-						<div class="resume__avatar">
-							<WaitingImage src={assignee.image} alt={assignee.id} width={150} height={150} />
+					<div class="resume__status resume__status--separated">
+						<span class="resume__title">Assigned to:</span>
+						<div class="resume__assignee">
+							<div class="resume__avatar">
+								<WaitingImage src={assignee.image} alt={assignee.id} width={75} height={75} />
+							</div>
+							<div class="assignee__name">{assignee?.name}</div>
 						</div>
-						<div class="assignee__name">{assignee?.name}</div>
 					</div>
 				{/if}
 			</div>
@@ -54,14 +57,11 @@
 	.description {
 		margin-bottom: 2rem;
 	}
-	.resume {
-		display: flex;
-	}
-	.resume__statuses {
-		flex: 1 1 auto;
-	}
 	.resume__status {
 		margin: 0.5rem;
+	}
+	.resume__status--separated {
+		margin-top: 2rem;
 	}
 	.resume__title {
 		font-weight: bold;
@@ -69,33 +69,20 @@
 	.resume__value {
 		text-transform: uppercase;
 	}
+	.resume__assignee {
+		margin-top: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 	.resume__avatar {
-		width: 150px;
-		height: 150px;
+		width: 75px;
+		height: 75px;
 		border-radius: 50%;
 		overflow: hidden;
 		margin-bottom: 0.5rem;
 	}
 	.assignee__name {
-		text-align: center;
-		font-size: 1.2rem;
 		font-weight: bold;
-	}
-	@media (max-width: 840px) {
-		.container {
-			margin: 0;
-		}
-	}
-	@media (max-width: 600px) {
-		.resume {
-			flex-direction: column;
-		}
-		.resume__avatar {
-			margin-left: auto;
-		}
-		.assignee__name {
-			margin-left: auto;
-			width: 200px;
-		}
 	}
 </style>
