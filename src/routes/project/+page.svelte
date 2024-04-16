@@ -102,7 +102,6 @@
 				{leftBorder}
 				{rightBorder}
 				on:click={() => openTaskDescription(task)}
-				focused={task === openedTask}
 			/>
 		{/each}
 	</div>

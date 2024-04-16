@@ -9,7 +9,6 @@
 	export let assignees: Character[]
 	export let leftBorder: number
 	export let rightBorder: number
-	export let focused: boolean = false
 
 	let assignee = assignees.find((a) => a.id === task.assignee)
 	$: {
@@ -47,12 +46,7 @@
 </script>
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
-	<button
-		class="task__chart"
-		class:task__chart--focused={focused}
-		style="margin-left: {10 * task.waitTime}px"
-		on:click
-	>
+	<button class="task__chart" style="margin-left: {10 * task.waitTime}px" on:click>
 		<div class="task__detail-hidden" bind:this={nameNode}>{task.name}</div>
 		<div
 			class="task__detail-name"
@@ -131,7 +125,7 @@
 		text-align: left;
 		cursor: pointer;
 	}
-	.task__chart--focused {
+	.task__chart:focus {
 		outline: 2px solid rgb(35, 222, 255);
 	}
 
