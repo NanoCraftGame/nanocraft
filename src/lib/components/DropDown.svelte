@@ -65,6 +65,9 @@
 </div>
 
 <style>
+	.container {
+		display: inline-block;
+	}
 	.dropdown {
 		position: absolute;
 		z-index: 10;
