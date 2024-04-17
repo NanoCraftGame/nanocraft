@@ -2,8 +2,8 @@
 	import { createEventDispatcher, onMount, setContext, onDestroy } from 'svelte'
 	import Button from './Button.svelte'
 	import { writable } from 'svelte/store'
-	import { browser } from '$app/environment'
 	import { createPopper } from '@popperjs/core'
+	import { escape } from '$lib/directives/escape'
 	export let value = ''
 	export let label = ''
 
@@ -17,17 +17,6 @@
 	setContext('radioGroup', {
 		onSelect,
 		selected,
-	})
-
-	onMount(() => {
-		if (browser) {
-			document.addEventListener('click', close)
-		}
-	})
-	onDestroy(() => {
-		if (browser) {
-			document.removeEventListener('click', close)
-		}
 	})
 
 	function onSelect(value: string) {
@@ -54,8 +43,7 @@
 			dropdownDiv.style.opacity = '1'
 		})
 	}
-	function close(e?: Event) {
-		if (e) e.stopPropagation()
+	function close() {
 		isOpen = false
 	}
 </script>
@@ -69,7 +57,7 @@
 		{/if}
 	</Button>
 	{#if isOpen}
-		<div class="dropdown" bind:this={dropdownDiv}>
+		<div class="dropdown" bind:this={dropdownDiv} use:escape on:escape={close}>
 			<slot />
 		</div>
 	{/if}
