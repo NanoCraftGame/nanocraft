@@ -2,7 +2,8 @@
 	import { createEventDispatcher, onMount, setContext, onDestroy } from 'svelte'
 	import Button from './Button.svelte'
 	import { writable } from 'svelte/store'
-	import { browser } from '$app/environment'
+	import { createPopper } from '@popperjs/core'
+	import { escape } from '$lib/directives/escape'
 	export let value = ''
 	export let label = ''
 
@@ -72,7 +73,6 @@
 
 <style>
 	.container {
-		position: relative;
 		display: inline-block;
 	}
 	.dropdown {
