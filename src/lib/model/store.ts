@@ -11,8 +11,21 @@ const timer = new Timer()
 let settings = {
 	tempo: 10,
 }
+let mode = 'user'
 
 if (browser) {
+	mode = localStorage.getItem('mode') || 'user'
+
+	window.setDevMode = function () {
+		localStorage.setItem('mode', 'developer')
+		window.location.reload()
+	}
+
+	window.setUserMode = function () {
+		localStorage.setItem('mode', 'user')
+		window.location.reload()
+	}
+
 	project.hydrate(JSON.parse(localStorage.getItem('project') || '{}'))
 	if (pmSim.getTasks().length === 0) {
 		const stored = localStorage.getItem('tasks')
@@ -60,6 +73,7 @@ export const store = {
 	project,
 	pmSim,
 	timer,
+	mode,
 	save,
 	setTasksGraph(_tasksTypes: Record<string, TaskType>, _tasks: TaskRecord[]) {
 		tasksTypes = _tasksTypes
