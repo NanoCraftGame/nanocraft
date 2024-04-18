@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount, setContext, onDestroy } from 'svelte'
+	import { createEventDispatcher, setContext } from 'svelte'
 	import Button from './Button.svelte'
 	import { writable } from 'svelte/store'
 	import { createPopper } from '@popperjs/core'
@@ -12,22 +12,11 @@
 	const selected = writable(value)
 	const dispatch = createEventDispatcher()
 	let dropdownDiv: HTMLDivElement
-	let container: HTMLDivElement
+	let button: HTMLButtonElement
 
 	setContext('radioGroup', {
 		onSelect,
 		selected,
-	})
-
-	onMount(() => {
-		if (browser) {
-			document.addEventListener('click', close)
-		}
-	})
-	onDestroy(() => {
-		if (browser) {
-			document.removeEventListener('click', close)
-		}
 	})
 
 	function onSelect(value: string) {
@@ -40,24 +29,27 @@
 		if (e) e.stopPropagation()
 		isOpen = true
 		setTimeout(() => {
-			const dropdownRect = dropdownDiv.getBoundingClientRect()
-			const containerRect = container.getBoundingClientRect()
-			if (dropdownRect.bottom > window.innerHeight) {
-				dropdownDiv.style.top = `${-dropdownRect.height - 3}px`
-			} else {
-				dropdownDiv.style.top = `${containerRect.height + 3}px`
-			}
+			createPopper(button, dropdownDiv, {
+				placement: 'bottom-start',
+				modifiers: [
+					{
+						name: 'offset',
+						options: {
+							offset: [0, 3],
+						},
+					},
+				],
+			})
 			dropdownDiv.style.opacity = '1'
 		})
 	}
-	function close(e?: Event) {
-		if (e) e.stopPropagation()
+	function close() {
 		isOpen = false
 	}
 </script>
 
-<div class="container" bind:this={container}>
-	<Button on:click={open} {...$$restProps}>
+<div class="container">
+	<Button on:click={open} {...$$restProps} bind:node={button}>
 		{#if $$slots.label}
 			<slot name="label" />
 		{:else}
@@ -65,7 +57,7 @@
 		{/if}
 	</Button>
 	{#if isOpen}
-		<div class="dropdown" bind:this={dropdownDiv}>
+		<div class="dropdown" bind:this={dropdownDiv} use:escape on:escape={close}>
 			<slot />
 		</div>
 	{/if}
