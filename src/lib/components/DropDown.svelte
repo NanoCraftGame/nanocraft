@@ -3,7 +3,6 @@
 	import Button from './Button.svelte'
 	import { writable } from 'svelte/store'
 	import { browser } from '$app/environment'
-	import { createPopper } from '@popperjs/core'
 	export let value = ''
 	export let label = ''
 
@@ -12,7 +11,7 @@
 	const selected = writable(value)
 	const dispatch = createEventDispatcher()
 	let dropdownDiv: HTMLDivElement
-	let button: HTMLButtonElement
+	let container: HTMLDivElement
 
 	setContext('radioGroup', {
 		onSelect,
@@ -40,17 +39,13 @@
 		if (e) e.stopPropagation()
 		isOpen = true
 		setTimeout(() => {
-			createPopper(button, dropdownDiv, {
-				placement: 'bottom-start',
-				modifiers: [
-					{
-						name: 'offset',
-						options: {
-							offset: [0, 3],
-						},
-					},
-				],
-			})
+			const dropdownRect = dropdownDiv.getBoundingClientRect()
+			const containerRect = container.getBoundingClientRect()
+			if (dropdownRect.bottom > window.innerHeight) {
+				dropdownDiv.style.top = `${-dropdownRect.height - 3}px`
+			} else {
+				dropdownDiv.style.top = `${containerRect.height + 3}px`
+			}
 			dropdownDiv.style.opacity = '1'
 		})
 	}
@@ -60,8 +55,8 @@
 	}
 </script>
 
-<div class="container">
-	<Button on:click={open} {...$$restProps} bind:node={button}>
+<div class="container" bind:this={container}>
+	<Button on:click={open} {...$$restProps}>
 		{#if $$slots.label}
 			<slot name="label" />
 		{:else}
@@ -77,6 +72,7 @@
 
 <style>
 	.container {
+		position: relative;
 		display: inline-block;
 	}
 	.dropdown {

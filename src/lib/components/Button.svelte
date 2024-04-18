@@ -2,7 +2,6 @@
 	export let tag: 'button' | 'a' = 'button'
 	export let size: 'small' | 'medium' | 'large' = 'medium'
 	export let variant: 'primary' | 'secondary' | 'ghost' = 'primary'
-	export let node: any = undefined
 </script>
 
 <svelte:element
@@ -12,7 +11,6 @@
 	on:click
 	role="button"
 	tabindex={0}
-	bind:this={node}
 >
 	<slot />
 </svelte:element>
