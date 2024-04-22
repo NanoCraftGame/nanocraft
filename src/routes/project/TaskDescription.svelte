@@ -9,6 +9,12 @@
 	export let task: Task | null
 	export let close: VoidFunction
 	export let assignee: Character | undefined
+
+	const statusMap = {
+		todo: 'To Do',
+		inProgress: 'In Progress',
+		done: 'Done',
+	}
 </script>
 
 <Backdrop {isOpen}>
@@ -20,7 +26,7 @@
 				<div class="resume__statuses">
 					<p class="resume__status">
 						<span class="resume__title">Status:</span>
-						<span class="resume__value">{task?.status}</span>
+						<span class="resume__value">{task && statusMap[task?.status]}</span>
 					</p>
 					<p class="resume__status">
 						<span class="resume__title">Estimated time:</span>
@@ -68,9 +74,6 @@
 	}
 	.resume__title {
 		font-weight: bold;
-	}
-	.resume__value {
-		text-transform: uppercase;
 	}
 	.resume__assignee {
 		margin-top: 0.5rem;
