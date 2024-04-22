@@ -91,7 +91,7 @@ export const store = {
 }
 
 interface TaskType {
-	requiredAttention: 'full' | 'partial'
+	attention: 'full' | 'partial'
 }
 
 interface OptionRecord {
@@ -125,9 +125,9 @@ function createTask(taskTypes: Record<string, TaskType>, taskRecord: TaskRecord)
 	if (taskRegistry.has(taskRecord.name)) {
 		return taskRegistry.get(taskRecord.name)!
 	}
-	const taskType = taskTypes[taskRecord.type] || { requiredAttention: 'full' }
+	const taskType = taskTypes[taskRecord.type] || { attention: 'full' }
 	const attentionSpan =
-		taskType.requiredAttention === 'full'
+		taskType.attention === 'full'
 			? AttentionSpan.FullAttention
 			: AttentionSpan.PartialAttention
 	const task = new Task(

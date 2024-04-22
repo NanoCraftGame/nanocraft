@@ -360,7 +360,8 @@ export class PmSim implements Serializable {
 				}
 			}
 			if (task.status !== 'done') {
-				task.waitTime = task.status === 'todo' ? currentTick * scale : task.waitTime
+				let waitTime = task.status === 'todo' ? currentTick * scale : task.waitTime
+				task.waitTime = Math.max(waitTime, findLongestEnd(waitFor))
 			}
 			task.tick(attentionSpan, currentTick)
 		}
@@ -481,4 +482,18 @@ function isResolved(dependency: Dependable) {
 		return dependency.status === 'done'
 	}
 	return false
+}
+
+function findLongestEnd(dependencies: Dependable[]): number {
+	const ends = dependencies.map((dependency) => {
+		if (dependency instanceof Task) {
+			return dependency.duration + dependency.waitTime
+		}
+		if (dependency instanceof Decision) {
+			return findLongestEnd(dependency.reportDependencies())
+		}
+		return 0
+	})
+
+	return Math.max(...ends, 0)
 }
