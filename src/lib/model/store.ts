@@ -4,6 +4,7 @@ import { Project } from './project'
 import { Timer } from './timer'
 import { AttentionSpan, Decision, PmSim, Task } from './tasks'
 import { browser } from '$app/environment'
+import { writable, type Writable } from 'svelte/store'
 
 const project = new Project(new MaterialFactory(), new CharacterFactory())
 const pmSim = new PmSim()
@@ -11,19 +12,22 @@ const timer = new Timer()
 let settings = {
 	tempo: 10,
 }
-let mode = 'user'
+
+export const mode: Writable<'user' | 'developer'> = writable('user')
 
 if (browser) {
-	mode = localStorage.getItem('mode') || 'user'
+	let storedMode = localStorage.getItem('mode') as 'user' | 'developer' || 'user';
+
+	mode.set(storedMode)
 
 	window.setDevMode = function () {
 		localStorage.setItem('mode', 'developer')
-		window.location.reload()
+		mode.set('developer')
 	}
 
 	window.setUserMode = function () {
 		localStorage.setItem('mode', 'user')
-		window.location.reload()
+		mode.set('user')
 	}
 
 	project.hydrate(JSON.parse(localStorage.getItem('project') || '{}'))

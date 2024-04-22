@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from './Button.svelte'
 	import Drawer from './Drawer.svelte'
-	import { store } from '$lib/model/store'
+	import { store, mode } from '$lib/model/store'
 	import { goto } from '$app/navigation'
 	import { onMount, onDestroy } from 'svelte'
 	import { browser } from '$app/environment'
@@ -91,7 +91,7 @@
 >
 	<h3>Simulation speed: {speed} hours per second</h3>
 	<input type="range" min="1" max="40" value={speed} on:input={setSpeed} />
-	{#if store.mode === 'developer'}
+	{#if $mode === 'developer'}
 		<Button style="margin-top: 1em;" on:click={resetTasks}>Reset tasks</Button> <br />
 		<Button style="margin-top: 1em;" on:click={resetAll}>Reset all</Button> <br />
 	{/if}

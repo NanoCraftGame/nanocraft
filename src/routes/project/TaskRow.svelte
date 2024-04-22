@@ -4,8 +4,12 @@
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
 	import DropDownItem from '$lib/components/DropDownItem.svelte'
+<<<<<<< HEAD
 	import TaskDescription from './TaskDescription.svelte'
 	import { store } from '$lib/model/store'
+=======
+	import { store, mode } from '$lib/model/store'
+>>>>>>> fix issues
 	export let task: Task
 	export let assignees: Character[]
 	export let leftBorder: number
@@ -96,7 +100,7 @@
 						{/each}
 					</DropDown>
 				</div>
-			{/if}
+			{/if}task--dev-mode
 		{:else if task.status === 'todo'}
 			<DropDown
 				size="small"
@@ -213,6 +217,9 @@
 	}
 	.task--inProgress {
 		background: #ecf0f3;
+	}
+	.task--dev-mode {
+		display: none;
 	}
 	.task--todo .task__estimate {
 		background-color: #e8ecef;
