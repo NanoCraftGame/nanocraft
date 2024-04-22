@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount, setContext, onDestroy } from 'svelte'
+	import { createEventDispatcher, setContext } from 'svelte'
 	import Button from './Button.svelte'
 	import { writable } from 'svelte/store'
-	import { browser } from '$app/environment'
 	import { createPopper } from '@popperjs/core'
 	import { escape } from '$lib/directives/escape'
 	export let value = ''
@@ -65,6 +64,9 @@
 </div>
 
 <style>
+	.container {
+		display: inline-block;
+	}
 	.dropdown {
 		position: absolute;
 		z-index: 10;

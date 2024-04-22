@@ -4,13 +4,14 @@
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
 	import DropDownItem from '$lib/components/DropDownItem.svelte'
+	import TaskDescription from './TaskDescription.svelte'
 	import { store } from '$lib/model/store'
 	export let task: Task
 	export let assignees: Character[]
 	export let leftBorder: number
 	export let rightBorder: number
 
-	let assignee = assignees.find((a) => a.id === task.assignee)
+	let assignee: Character | undefined = assignees.find((a) => a.id === task.assignee)
 	$: {
 		assignee = assignees.find((a) => a.id === task.assignee)
 	}
@@ -43,10 +44,22 @@
 			}
 		}
 	}
+
+	let descriptionIsOpen: boolean = false
+	function openTaskDescription() {
+		descriptionIsOpen = true
+	}
+	function closeTaskDescription() {
+		descriptionIsOpen = false
+	}
 </script>
 
 <div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
-	<button class="task__chart" style="margin-left: {10 * task.waitTime}px" on:click>
+	<button
+		class="task__chart"
+		style="margin-left: {10 * task.waitTime}px"
+		on:click={openTaskDescription}
+	>
 		<div class="task__detail-hidden" bind:this={nameNode}>{task.name}</div>
 		<div
 			class="task__detail-name"
@@ -102,6 +115,23 @@
 		{/if}
 	</div>
 </div>
+{#if descriptionIsOpen}
+	<TaskDescription isOpen={descriptionIsOpen} close={closeTaskDescription} {task} {assignee}>
+		<DropDown
+			size="small"
+			on:change={assign}
+			label={assignee ? 'Reassign' : 'Assign'}
+			disabled={task.isDormant}
+		>
+			{#each assignee ? assignees.filter((a) => a.id !== task.assignee) : assignees as a}
+				<DropDownItem value={a.id}>
+					<WaitingImage src={a.image} alt={a.name} width={40} height={40} />
+					{a.name}
+				</DropDownItem>
+			{/each}
+		</DropDown>
+	</TaskDescription>
+{/if}
 
 <style>
 	.task {
@@ -116,6 +146,7 @@
 	.task__chart {
 		background: none;
 		border: 0;
+		padding: 0;
 		font-size: inherit;
 		font-family: inherit;
 		font-weight: inherit;
@@ -124,6 +155,10 @@
 		text-align: left;
 		cursor: pointer;
 	}
+	.task__chart:focus {
+		outline: 2px solid rgb(35, 222, 255);
+	}
+
 	.task__detail-name,
 	.task__detail-hidden {
 		height: 0;
