@@ -220,9 +220,10 @@
 	}
 	.task--dormant {
 		opacity: 0.3;
+		display: none;
 	}
 	.task--dev-mode {
-		display: none;
+		display: flex;
 	}
 	.task--todo .task__estimate {
 		background-color: #e8ecef;
