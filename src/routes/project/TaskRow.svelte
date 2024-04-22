@@ -100,7 +100,7 @@
 						{/each}
 					</DropDown>
 				</div>
-			{/if}task--dev-mode
+			{/if}
 		{:else if task.status === 'todo'}
 			<DropDown
 				size="small"
