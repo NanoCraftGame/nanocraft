@@ -15,6 +15,11 @@ declare global {
 			'on:escape'?: (event: CustomEvent<MouseEvent | KeyboardEvent>) => void
 		}
 	}
+
+	interface Window {
+		setDevMode: Function
+		setUserMode: Function
+	}
 }
 
 export {}
