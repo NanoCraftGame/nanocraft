@@ -4,12 +4,8 @@
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import DropDown from '$lib/components/DropDown.svelte'
 	import DropDownItem from '$lib/components/DropDownItem.svelte'
-<<<<<<< HEAD
 	import TaskDescription from './TaskDescription.svelte'
-	import { store } from '$lib/model/store'
-=======
 	import { store, mode } from '$lib/model/store'
->>>>>>> fix issues
 	export let task: Task
 	export let assignees: Character[]
 	export let leftBorder: number
@@ -58,7 +54,11 @@
 	}
 </script>
 
-<div class="task {taskStatusClasses[task.status]}" style="opacity: {task.isDormant ? 0.3 : 1};">
+<div
+	class="task {taskStatusClasses[task.status]}"
+	class:task--dev-mode={$mode == 'developer' && task.isDormant}
+	class:task--dormant={task.isDormant}
+>
 	<button
 		class="task__chart"
 		style="margin-left: {10 * task.waitTime}px"
@@ -217,6 +217,9 @@
 	}
 	.task--inProgress {
 		background: #ecf0f3;
+	}
+	.task--dormant {
+		opacity: 0.3;
 	}
 	.task--dev-mode {
 		display: none;

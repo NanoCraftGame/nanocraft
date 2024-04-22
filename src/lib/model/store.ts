@@ -12,11 +12,10 @@ const timer = new Timer()
 let settings = {
 	tempo: 10,
 }
-
 export const mode: Writable<'user' | 'developer'> = writable('user')
 
 if (browser) {
-	let storedMode = localStorage.getItem('mode') as 'user' | 'developer' || 'user';
+	let storedMode = (localStorage.getItem('mode') as 'user' | 'developer') || 'user'
 
 	mode.set(storedMode)
 
@@ -77,7 +76,6 @@ export const store = {
 	project,
 	pmSim,
 	timer,
-	mode,
 	save,
 	setTasksGraph(_tasksTypes: Record<string, TaskType>, _tasks: TaskRecord[]) {
 		tasksTypes = _tasksTypes
