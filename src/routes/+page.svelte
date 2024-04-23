@@ -11,8 +11,8 @@
 
 <svelte:head>
 	<title>NanoCraft</title>
-	<link href={factoryBackground} as="image" />
-	<link href={labBackground} as="image" />
+	<link rel="preload" href={factoryBackground} as="image" />
+	<link rel="preload" href={labBackground} as="image" />
 </svelte:head>
 <Background src={background}>
 	<Panel style="text-align: center;">
