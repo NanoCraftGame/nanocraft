@@ -1,8 +1,15 @@
 import { characters } from './statics/characters'
 import { writable, type Writable } from 'svelte/store'
-import unnamed from '/static/illustrations/characters/unnamed.webp'
+import unnamed from '/src/static/illustrations/characters/unnamed.webp'
 import type { Task } from './tasks'
-const pictures = import.meta.glob('/static/illustrations/characters/*.webp')
+const pictures = import.meta.glob(
+	'/src/static/illustrations/characters/*.webp',
+	{
+		query: {
+			enhanced: true,
+			w: '1024;512;256;128;64',
+		}
+	})
 
 export interface CharacterData {
 	id: string

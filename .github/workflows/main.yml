@@ -19,6 +19,8 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: yarn install
+      - name: yarn sharp magic
+        run: yarn add sharp --ignore-engines
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests

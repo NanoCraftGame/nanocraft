@@ -1,6 +1,14 @@
 import { writable, type Writable } from 'svelte/store'
 import { materials } from './statics/materials'
-const pictures = import.meta.glob('/static/illustrations/materials/*')
+const pictures = import.meta.glob(
+	'/src/static/illustrations/materials/*',
+	{
+		query: {
+			enhanced: true,
+			w: '1024;512;256;128;64',
+		}
+	}
+)
 export interface MaterialData {
 	id: string
 	name: string

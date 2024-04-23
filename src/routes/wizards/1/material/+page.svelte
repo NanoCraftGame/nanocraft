@@ -6,7 +6,7 @@
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
 	import RadioGroup from '$lib/components/RadioGroup.svelte'
 	import RadioGroupItem from '$lib/components/RadioGroupItem.svelte'
-	import background from '/static/backgrounds/lab-1.webp'
+	import background from '/src/static/backgrounds/lab-1.webp'
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
 	import { getAllMaterials } from '$lib/model/material'
