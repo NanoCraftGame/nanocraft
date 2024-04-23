@@ -6,7 +6,7 @@ export default defineConfig({
 	plugins: [enhancedImages(), sveltekit()],
 	server: {
 		fs: {
-			allow: ['./static'],
+			allow: ['./src/static'],
 		},
 	},
 })

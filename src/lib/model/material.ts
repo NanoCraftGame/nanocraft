@@ -1,7 +1,7 @@
 import { writable, type Writable } from 'svelte/store'
 import { materials } from './statics/materials'
 const pictures = import.meta.glob(
-	'/static/illustrations/materials/*',
+	'/src/static/illustrations/materials/*',
 	{
 		query: {
 			enhanced: true,

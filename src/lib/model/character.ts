@@ -1,9 +1,9 @@
 import { characters } from './statics/characters'
 import { writable, type Writable } from 'svelte/store'
-import unnamed from '/static/illustrations/characters/unnamed.webp'
+import unnamed from '/src/static/illustrations/characters/unnamed.webp'
 import type { Task } from './tasks'
 const pictures = import.meta.glob(
-	'/static/illustrations/characters/*.webp',
+	'/src/static/illustrations/characters/*.webp',
 	{
 		query: {
 			enhanced: true,

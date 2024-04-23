@@ -5,7 +5,7 @@
 	import Panel from '$lib/components/Panel.svelte'
 	import Title from '$lib/components/typography/title.svelte'
 	import WaitingImage from '$lib/components/WaitingImage.svelte'
-	import background from '/static/backgrounds/lab-1.webp'
+	import background from '/src/static/backgrounds/lab-1.webp'
 	import { store } from '$lib/model/store'
 	import { goto } from '$app/navigation'
 	let material = store.project.getMaterial()

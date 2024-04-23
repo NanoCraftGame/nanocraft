@@ -3,7 +3,7 @@ export const materials = [
 		id: 'fleximax-ti3c2',
 		name: 'FlexiMax-Ti3C2',
 		type: 'MXene',
-		image: '/static/illustrations/materials/mxene.jpg',
+		image: '/src/static/illustrations/materials/mxene.jpg',
 		desc: {
 			useCases:
 				'High-capacity, flexible batteries for wearables and foldable electronics; ultra-sensitive, wearable health monitoring sensors.',
@@ -16,7 +16,7 @@ export const materials = [
 		id: 'electro-ion-gel',
 		name: 'Electro-Ion Gel',
 		type: 'Ionic Liquid',
-		image: '/static/illustrations/materials/ionic-liquid.png',
+		image: '/src/static/illustrations/materials/ionic-liquid.png',
 		desc: {
 			useCases:
 				'Non-volatile, high-temperature electrolytes for advanced battery technologies; green solvents for pharmaceuticals and chemical synthesis.',
