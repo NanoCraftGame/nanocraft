@@ -4,6 +4,7 @@ import { Project } from './project'
 import { Timer } from './timer'
 import { AttentionSpan, Decision, PmSim, Task } from './tasks'
 import { browser } from '$app/environment'
+import { writable, type Writable } from 'svelte/store'
 
 const project = new Project(new MaterialFactory(), new CharacterFactory())
 const pmSim = new PmSim()
@@ -11,8 +12,23 @@ const timer = new Timer()
 let settings = {
 	tempo: 10,
 }
+export const mode: Writable<'user' | 'developer'> = writable('user')
 
 if (browser) {
+	let storedMode = (localStorage.getItem('mode') as 'user' | 'developer') || 'user'
+
+	mode.set(storedMode)
+
+	window.setDevMode = function () {
+		localStorage.setItem('mode', 'developer')
+		mode.set('developer')
+	}
+
+	window.setUserMode = function () {
+		localStorage.setItem('mode', 'user')
+		mode.set('user')
+	}
+
 	project.hydrate(JSON.parse(localStorage.getItem('project') || '{}'))
 	if (pmSim.getTasks().length === 0) {
 		const stored = localStorage.getItem('tasks')
@@ -91,7 +107,7 @@ export const store = {
 }
 
 interface TaskType {
-	requiredAttention: 'full' | 'partial'
+	attention: 'full' | 'partial'
 }
 
 interface OptionRecord {
@@ -125,9 +141,9 @@ function createTask(taskTypes: Record<string, TaskType>, taskRecord: TaskRecord)
 	if (taskRegistry.has(taskRecord.name)) {
 		return taskRegistry.get(taskRecord.name)!
 	}
-	const taskType = taskTypes[taskRecord.type] || { requiredAttention: 'full' }
+	const taskType = taskTypes[taskRecord.type] || { attention: 'full' }
 	const attentionSpan =
-		taskType.requiredAttention === 'full'
+		taskType.attention === 'full'
 			? AttentionSpan.FullAttention
 			: AttentionSpan.PartialAttention
 	const task = new Task(

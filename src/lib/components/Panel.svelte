@@ -1,4 +1,13 @@
-<div class="panel" {...$$restProps}>
+<script lang="ts">
+	export let verticalAlign: 'top' | 'center' | 'bottom' = 'center'
+	const alignClassNames = {
+		top: 'panel--top',
+		center: 'panel--center',
+		bottom: 'panel--bottom',
+	}
+</script>
+
+<div class="panel {alignClassNames[verticalAlign]}" {...$$restProps}>
 	<slot />
 	{#if $$slots.footer}
 		<div class="footer">
@@ -17,6 +26,8 @@
 		color: rgb(255, 255, 255);
 		max-width: 960px;
 		margin: 3rem 0;
+		max-height: calc(100dvh - (2 * 3rem));
+		overflow: auto;
 	}
 	.footer {
 		display: flex;
@@ -33,7 +44,15 @@
 			border-radius: 0;
 			display: flex;
 			flex-direction: column;
-			justify-content: center;
 		}
+	}
+	.panel--top {
+		justify-content: flex-start;
+	}
+	.panel--center {
+		justify-content: center;
+	}
+	.panel--bottom {
+		justify-content: flex-end;
 	}
 </style>
