@@ -5,6 +5,7 @@ const pictures = import.meta.glob(
 	{
 		query: {
 			enhanced: true,
+			w: '1024;512;256;128;64',
 		}
 	}
 )
